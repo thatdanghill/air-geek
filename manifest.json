@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+
+  "name": "AirGeek Miner",
+  "description": "Click yo datas",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "plugin/images/icon.png",
+    "default_popup": "plugin/popup.html",
+    "default_title": "Click to activate Miner!"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "https://ajax.googleapis.com/",
+    "http://127.0.0.1:8000/"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": ["http://127.0.0.1:8000/*"],
+      "css": ["plugin/plugin-styles.css"],
+      "js": ["plugin/jquery-1.11.3.min.js", "plugin/banner.js"]
+    }
+  ]
+}
