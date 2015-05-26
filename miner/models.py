@@ -24,10 +24,9 @@ class Page(models.Model):
 class Graph(models.Model):
     name = models.CharField(max_length=128)
     page = models.ForeignKey(Page)
-    length = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return self.name
+        return self.page.__unicode__() + ": " + self.name
 
 class Point(models.Model):
     index = models.IntegerField(unique=True)
@@ -36,6 +35,6 @@ class Point(models.Model):
     graph = models.ForeignKey(Graph)
 
     def __unicode__(self):
-        return "(" + self.x + "," + str(self.y) + ")"
+        return self.graph.__unicode__() + ": (" + self.x + "," + str(self.y) + ")"
 
 
