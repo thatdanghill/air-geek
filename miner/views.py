@@ -6,11 +6,11 @@ from miner.models import UserProfile, Project, Page, Graph, Point
 
 def graph(request, user_name, project_name, page_name, graph_name):
     try:
-        user = User.objects.get(username=user_name)
+        user = User.objects.get(username=user_name.replace("_", " "))
         user_profile = UserProfile.objects.get(user = user)
-        project = Project.objects.get(name=project_name, user=user_profile)
-        page = Page.objects.get(name=page_name, project=project)
-        graph = Graph.objects.get(name=graph_name, page=page)
+        project = Project.objects.get(name=project_name.replace("_", " "), user=user_profile)
+        page = Page.objects.get(name=page_name.replace("_", " "), project=project)
+        graph = Graph.objects.get(name=graph_name.replace("_", " "), page=page)
     
         if request.method == 'GET':
             xs = request.GET.copy().getlist('x[]')
@@ -52,10 +52,10 @@ def extractJson(projects):
     str = '['
     for project in projects:
         str += '{"projName": "' + project.name + '", "pages": ['
-        pages = Page.objects.filter(project=project)
+        pages = project.pages.all()
         for page in pages:
             str += '{"pageName": "' + page.name + '", "graphs": ['
-            graphs = Graph.objects.filter(page=page)
+            graphs = page.graphs.all()
             for graph in graphs:
                 str += '{"graphName": "' + graph.name + '"},'
             if graphs.count() > 0:

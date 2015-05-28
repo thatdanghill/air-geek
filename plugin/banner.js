@@ -59,18 +59,18 @@ function GraphManager() {
 		},
 		
 		renderPulldown : function (data) {
-			json = JSON.parse(data);
+			var json = JSON.parse(data);
 			var insertStr = '';
 			
 			for (var i in json) {
 				var project = json[i];
-				insertStr += '<option value=' + project['projName'] + ' disabled = true><b><i>' + project['projName'] + ':</b></i></option>';
+				insertStr += '<option value="' + project['projName'] + '" disabled = true><b><i>' + project['projName'] + ':</b></i></option>';
 				for (var j in project['pages']) {
 					var page = project['pages'][j];
-					insertStr += '<option value=' + page['pageName'] + ' disabled = true><b><i>  ' + page['pageName'] + ':</b></i></option>';
+					insertStr += '<option value="' + page['pageName'] + '" disabled = true><b><i>  ' + page['pageName'] + ':</b></i></option>';
 					for (var k in page['graphs']) {
 						var graph = page['graphs'][k];
-						insertStr += '<option project='+ project['projName'] + ' page='+ page['pageName'] + ' value=' + graph['graphName'] + '>    ' + graph['graphName'] + '</option>'
+						insertStr += '<option project="'+ project['projName'] + '" page="'+ page['pageName'] + '" value="' + graph['graphName'] + '">    ' + graph['graphName'] + '</option>'
 					}
 				}
 				
@@ -88,11 +88,18 @@ function GraphManager() {
 			pl.cleanUp(valid, invalid);
 			
 			var selected = $('#graph-selector option:selected');
-			var url = 'http://127.0.0.1:8000/user/' + user + '/project/' + $(selected).attr('project') + '/page/' + $(selected).attr('page') + '/graph/' + $(selected).val()  + '/';
+			var project = self.stringifyAttrs($(selected).attr('project'));
+			var page = self.stringifyAttrs($(selected).attr('page'));
+			var url = 'http://127.0.0.1:8000/user/' + user + '/project/' + project + '/page/' + page + '/graph/' + $(selected).val()  + '/';
 			$.get(url, vals, function(data) {
 				//alert(data);
 			});
-		}
+		},
+		
+		stringifyAttrs: function(attrs) {
+			var str = attrs.replace(' ', '_');	
+			return str;
+		},
 	};
 	return self;
 }
