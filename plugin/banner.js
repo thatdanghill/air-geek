@@ -3,6 +3,10 @@ function Creator() {
 	'<div id="plugin-sidebar">'+
 	'<select id="graph-selector">' +
 	'</select>' +
+	'<select id="data-type">' +
+	'<option value="month-year"> Month/Year </option>' +
+	'<option value="string"> String </option>' +
+	'</select>' +
 	'<br>'+
 	'<table id="point-list"></table>'+
 	'<button id="submit"> Submit </button>'+
@@ -90,7 +94,8 @@ function GraphManager() {
 			var selected = $('#graph-selector option:selected');
 			var project = self.stringifyAttrs($(selected).attr('project'));
 			var page = self.stringifyAttrs($(selected).attr('page'));
-			var url = 'http://127.0.0.1:8000/user/' + user + '/project/' + project + '/page/' + page + '/graph/' + $(selected).val()  + '/';
+			var graph = self.stringifyAttrs($(selected).val());
+			var url = 'http://127.0.0.1:8000/user/' + user + '/project/' + project + '/page/' + page + '/graph/' + graph  + '/';
 			$.get(url, vals, function(data) {
 				//alert(data);
 			});
@@ -133,7 +138,7 @@ function PointList() {
 				var x = $(row).find('.x').val();
 				var y = $(row).find('.y').val();
 				
-				if (x != '' && y != '' && !isNaN(y)) {
+				if (self.isValidPair(x,y)) {
 					valid.push(row);
 				}
 				else invalid.push(row);
@@ -141,6 +146,19 @@ function PointList() {
 			obj.valid = valid;
 			obj.invalid = invalid;
 			return obj;	
+		},
+		
+		isValidPair: function(x,y) {
+			var validY = (y != '' && !isNaN(y));
+			var validX = false;
+			var type = $('#data-type').val();
+			
+			if (type == "string") {
+				validX = (x != '');
+			} else if(type == "month-year") {
+				var ar = x.split(" ");
+			}
+			return (validY && validX);	
 		},
 		
 		toJSON: function(rows) {
