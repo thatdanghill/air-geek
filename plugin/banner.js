@@ -102,7 +102,7 @@ function GraphManager() {
 		},
 		
 		stringifyAttrs: function(attrs) {
-			var str = attrs.replace(' ', '_');	
+			var str = attrs.replace(/\s/g, '_');	
 			return str;
 		},
 	};

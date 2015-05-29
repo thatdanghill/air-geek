@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'air-geek.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'air_geek.settings')
 
 import django
 django.setup()
@@ -29,12 +29,14 @@ def sortGraph(points):
     array = []
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     for point in points:
+        i = 0
         x = point.x
         month = x.split(" ")[0]
+        print(month)
         year = int(x.split(" ")[1])
+        print(str(year))
         monthIndex = mos.index(month.lower()) % 2
 
-        i = 0
         while i < len(array) and year < int(array[i].x.split(" ")[1]):
              i += 1
         
@@ -42,10 +44,11 @@ def sortGraph(points):
              i += 1
         
         array.insert(i, point)
+        print(array)
 
-    for i in range(len(array)):
-        q = array[i]
-        q.index = i
+    for j in range(len(array)):
+        q = array[j]
+        q.index = len(array) - j - 1
         q.save()
 
 

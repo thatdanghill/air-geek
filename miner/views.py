@@ -115,8 +115,6 @@ def placeInOrder(x, y, points, graph):
 def findIndex(year, month, points):
     moDic = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     i = 0
-    start = -1
-    end = points.count()
     if points.count() == 0:
         print("This shouldn't happen")
         return 0
@@ -124,14 +122,6 @@ def findIndex(year, month, points):
     while i < points.count() and int(points[i].x.split(" ")[1]) < year:
         i = i + 1
 
-    start = i
-    while i < points.count() and int(points[i].x.split(" ")[1]) == year:
-        i = i + 1
-    end = i
-    if start == end:
-        return start
-
-    i = start
-    while i != end and moDic.index(points[i].x.split(" ")[0].lower()) % 2 < moDic.index(month.lower()) % 2:
+    while i < points.count() and int(points[i].x.split(" ")[1]) == year and moDic.index(points[i].x.split(" ")[0].lower()) % 2 > moDic.index(month.lower()) % 2:
         i = i + 1
     return i
