@@ -152,7 +152,7 @@ function PointList() {
 			var validY = (y != '' && !isNaN(y));
 			var validX = false;
 			var type = $('#data-type').val();
-			var moStrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+			var moStrs = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 			
 			if (type == "string") {
 				validX = (x != '');
@@ -161,7 +161,7 @@ function PointList() {
 				if (ar.length != 2) {
 					validX = false;	
 				}
-				else if (moStrs.indexOf(ar[0]) == -1) {
+				else if (moStrs.indexOf(ar[0].toLowerCase()) == -1) {
 					validX = false;
 				} else if (parseFloat(ar[1]) > 0) {
 					validX = true;
