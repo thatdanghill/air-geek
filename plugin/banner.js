@@ -152,11 +152,20 @@ function PointList() {
 			var validY = (y != '' && !isNaN(y));
 			var validX = false;
 			var type = $('#data-type').val();
+			var moStrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 			
 			if (type == "string") {
 				validX = (x != '');
 			} else if(type == "month-year") {
 				var ar = x.split(" ");
+				if (ar.length != 2) {
+					validX = false;	
+				}
+				else if (moStrs.indexOf(ar[0]) == -1) {
+					validX = false;
+				} else if (parseFloat(ar[1]) > 0) {
+					validX = true;
+				}
 			}
 			return (validY && validX);	
 		},
@@ -172,6 +181,7 @@ function PointList() {
 			}
 			obj.x = xs;
 			obj.y = ys;
+			obj.type = $('#data-type option:selected').val();
 			return obj;
 		},
 		
