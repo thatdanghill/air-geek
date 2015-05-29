@@ -122,6 +122,6 @@ def findIndex(year, month, points):
     while i < points.count() and int(points[i].x.split(" ")[1]) < year:
         i = i + 1
 
-    while i < points.count() and int(points[i].x.split(" ")[1]) == year and moDic.index(points[i].x.split(" ")[0].lower()) % 2 > moDic.index(month.lower()) % 2:
+    while i < points.count() and int(points[i].x.split(" ")[1]) == year and moDic.index(points[i].x.split(" ")[0].lower()) % 12 > moDic.index(month.lower()) % 12:
         i = i + 1
     return i

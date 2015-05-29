@@ -32,19 +32,16 @@ def sortGraph(points):
         i = 0
         x = point.x
         month = x.split(" ")[0]
-        print(month)
         year = int(x.split(" ")[1])
-        print(str(year))
-        monthIndex = mos.index(month.lower()) % 2
+        monthIndex = mos.index(month.lower()) % 12
 
         while i < len(array) and year < int(array[i].x.split(" ")[1]):
              i += 1
         
-        while i < len(array) and year == int(array[i].x.split(" ")[1]) and monthIndex < mos.index(array[i].x.split(" ")[0].lower()) % 2:
+        while i < len(array) and year == int(array[i].x.split(" ")[1]) and monthIndex < mos.index(array[i].x.split(" ")[0].lower()) % 12:
              i += 1
         
         array.insert(i, point)
-        print(array)
 
     for j in range(len(array)):
         q = array[j]
