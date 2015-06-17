@@ -15,11 +15,31 @@
 			
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
-            	<ul>
-                	{% for page in pages %}
-					<li><a>{{ page.name }}</a></li>
+				<table>
+					<tr>
+						<th></th>
+						<th colspan="2"> January </th>
+						<th colspan="2"> February </th>
+						<th colspan="2"> March </th>
+						<th colspan="2"> April </th>
+						<th colspan="2"> May </th>
+						<th colspan="2"> June </th>
+						<th colspan="2"> July </th>
+						<th colspan="2"> August </th>
+						<th colspan="2"> September </th>
+						<th colspan="2"> October </th>
+						<th colspan="2"> November </th>
+						<th colspan="2"> December </th>
+					</tr>
+					{% for page in pages %}
+					<tr>
+						<td><a href="{{page.url}}">{{ page.name }}</a></td>
+						{% for val in page.vals %}
+						<td> {{ val }} </td>
+						{% endfor %}
+					</tr>
 					{% endfor %}
-				</ul>
+				</table>
 			{% else %}
             	<p><b><i>You currently have no pages in this project.</i></b></p>
 			{% endif %}

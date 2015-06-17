@@ -69,15 +69,22 @@ def index(request):
     except User.DoesNotExist:
         pass
 
-
+#TODO: un-hardcode username
 def project(request, user_name, project_name):
     try:
+        username = "super"
         user = User.objects.get(username = user_name)
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(slug = project_name)
         pages = project.pages.all().order_by('name')
     
-        context = {'pages' : pages}
+        context = {'pages' : []}
+        
+        for page in pages:
+            url = "user/" + username + "/project/" + project.slug + "/page/" + page.slug
+            vals = getTableVals(user, project, page)
+            print(vals)
+            context['pages'].append({'name': page.name, 'url': url, 'vals': vals})
     
         return render(request, 'miner/project-temp.html', context)
     
@@ -85,6 +92,8 @@ def project(request, user_name, project_name):
         pass
     except Project.DoesNotExist:
         pass
+
+
 
 #-------------------------------------------------------------------
 # Helpers
@@ -166,3 +175,60 @@ def findIndex(year, month, points):
     while i < points.count() and int(points[i].x.split(" ")[1]) == year and moDic.index(points[i].x.split(" ")[0].lower()) % 12 > moDic.index(month.lower()) % 12:
         i = i + 1
     return i
+
+def getTableVals(user, project, page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        vals = calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
+        return vals
+    except Graph.DoesNotExist:
+        return []
+
+def getRecentValues(points):
+    yr = findMaxYear(points)
+    return orderedFilter(points, yr)
+
+def calculateYoy(points, all):
+    vals = []
+    year = int(points[0].x.split(" ")[1]) - 1
+    for point in points:
+        vals.append(point.y)
+        month = point.x.split(" ")[0]
+        x = month + " " + str(year)
+        pt = all.get(x = x)
+        v = round(((point.y / pt.y) * 100) - 100, 2)
+        vals.append(v)
+    return vals
+
+def findMaxYear(points):
+    max = 0
+    for point in points:
+        ptyr = int(point.x.split(" ")[1])
+        if ptyr > max:
+            max = ptyr
+    return max
+
+def orderedFilter(points, year):
+    return orderByMonth(filterYear(points, year))
+
+def filterYear(points, year):
+    pts = []
+    for point in points:
+        if int(point.x.split(" ")[1]) == year:
+            pts.append(point)
+    return pts
+
+def orderByMonth(points):
+    pts = [None]*12
+    mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+    for point in points:
+        pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
+    try:
+        i = 0
+        while i < 12:
+            pts[i].y
+            i += 1
+    except AttributeError:
+        pts = pts[0:i]
+        return pts
+

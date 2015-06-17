@@ -24,11 +24,12 @@ class Page(models.Model):
     name = models.CharField(max_length=128)
     project = models.ForeignKey(Project, related_name='pages')
     slug = models.SlugField()
+    table = models.CharField(max_length=128)
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Page, self).save(*args, **kwargs)
-
+    
     def __unicode__(self):
         return self.project.__unicode__() + ": " + self.name
 
