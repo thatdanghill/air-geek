@@ -57,7 +57,7 @@ function Creator() {
 function GraphManager() {
 	var self = {
 		getAllProjects: function(user) {
-			$.get('http://127.0.0.1:8000/user/', {user: user}, function(data){
+			$.get('http://127.0.0.1:8000/plugin/user/', {user: user}, function(data){
                self.renderPulldown(data);
 			});
 		},
@@ -95,7 +95,7 @@ function GraphManager() {
 			var project = self.stringifyAttrs($(selected).attr('project'));
 			var page = self.stringifyAttrs($(selected).attr('page'));
 			var graph = self.stringifyAttrs($(selected).val());
-			var url = 'http://127.0.0.1:8000/user/' + user + '/project/' + project + '/page/' + page + '/graph/' + graph  + '/';
+			var url = 'http://127.0.0.1:8000/plugin/user/' + user + '/project/' + project + '/page/' + page + '/graph/' + graph  + '/';
 			$.get(url, vals, function(data) {
 				//alert(data);
 			});
@@ -113,12 +113,12 @@ function PointList() {
 	
 	var self = {
 		initialize: function() {
-			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"</input></td></tr>';
+			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"></input></td></tr>';
 			$('#point-list').append(rowTemplate);		
 		},
 		
 		addPoint: function() {
-			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"</input></td></tr>';
+			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"></input></td></tr>';
 			$('#point-list').append(rowTemplate);
 			$('.y').last().focus();
 		},
@@ -201,7 +201,20 @@ function PointList() {
 		
 		handleXY: function(e) {
 			if (e.which == 13) {
-				if (typeof window.getSelection != "undefined") {
+				if (window.location.href.endsWith('.pdf')) {
+					/*console.log("In a PDF!");
+					var annots = this.getAnnots({nSortBy: ANSB_ModDate, bReverse: false});
+					if (annots.length != 0) {
+						var text = annots[0];
+						var fl = parseFloat(text.replace(/,/g,''));
+						if (!isNaN(fl)) {
+							$('.y').last().val(fl);
+							$('.x').last().focus();
+						}
+					}*/
+					self.showHighlight(self.getHightlightCoords());
+				}
+				else if (typeof window.getSelection != "undefined") {
 					var text = window.getSelection().toString();
 					var fl = parseFloat(text.replace(/,/g,''));
 					if (!isNaN(fl)) {
@@ -228,6 +241,34 @@ function PointList() {
 					self.removeBlank($(document.activeElement));
 				}
 			}
+		},
+		
+		getHightlightCoords: function() {
+			var pageIndex = window.PDFViewerApplication.pdfViewer.currentPageNumber - 1; 
+			var page = window.PDFViewerApplication.pdfViewer.pages[pageIndex];
+			var pageRect = page.canvas.getClientRects()[0];
+			var selectionRects = window.getSelection().getRangeAt(0).getClientRects();
+			var viewport = page.viewport;
+			var selected = selectionRects.map(function (r) {
+				return viewport.convertToPdfPoint(r.left - pageRect.x, r.top - pageRect.y).concat(
+				viewport.convertToPdfPoint(r.right - pageRect.x, r.bottom - pageRect.y)); 
+			});
+			return {page: pageIndex, coords: selected};
+		},
+ 
+		showHighlight: function(selected) {
+			var pageIndex = selected.page; 
+			var page = PDFViewerApplication.pdfViewer.pages[pageIndex];
+			var pageElement = page.canvas.parentElement;
+			var viewport = page.viewport;
+			selected.coords.forEach(function (rect) {
+				var bounds = viewport.convertToViewportRectangle(rect);
+				var el = document.createElement('div');
+				el.setAttribute('style', 'position: absolute; background-color: pink;' + 
+				'left:' + Math.min(bounds[0], bounds[2]) + 'px; top:' + Math.min(bounds[1], 					bounds[3]) + 'px;' +
+				'width:' + Math.abs(bounds[0] - bounds[2]) + 'px; height:' + Math.abs(bounds[1] 				- bounds[3]) + 'px;');
+				pageElement.appendChild(el);
+			});
 		},
 		
 		areBothBlank: function() {
