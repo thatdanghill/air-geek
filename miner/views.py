@@ -43,8 +43,7 @@ def pluginUser(request):
         if request.method == 'GET':
             userstr = request.GET['user']
             user = User.objects.get(username=userstr)
-            userprofile = UserProfile.objects.filter(user = user)
-            assert userprofile.count() == 1
+            userprofile = UserProfile.objects.get(user = user)
             projects = userprofile.projects.all()
             json = extractJson(projects)
             return HttpResponse(json)
@@ -189,14 +188,16 @@ def getRecentValues(points):
     return orderedFilter(points, yr)
 
 def calculateYoy(points, all):
+    mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     vals = []
     year = int(points[0].x.split(" ")[1]) - 1
     for point in points:
         vals.append(point.y)
         month = point.x.split(" ")[0]
-        x = month + " " + str(year)
-        pt = all.get(x = x)
-        v = round(((point.y / pt.y) * 100) - 100, 2)
+        for pt in all:
+            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12
+                p = pt
+        v = round(((point.y / p.y) * 100) - 100, 2)
         vals.append(v)
     return vals
 
