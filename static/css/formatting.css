@@ -1,0 +1,23 @@
+body {
+	padding: 0px;
+	background-color: #c1c3eb;
+}
+
+#header {
+	height: 100px;
+	background-color: #28295a;
+}
+
+h1 {
+	color: white;
+	padding: 25px;
+}
+
+p {
+	color: gray;
+}
+
+#manager {
+	overflow: scroll;
+	width: 100%;
+}

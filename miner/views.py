@@ -3,8 +3,13 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from miner.models import UserProfile, Project, Page, Graph, Point
+from django.template.defaultfilters import slugify
 
-def graph(request, user_name, project_name, page_name, graph_name):
+#-------------------------------------------------------------------
+# Views
+#-------------------------------------------------------------------
+
+def pluginGraph(request, user_name, project_name, page_name, graph_name):
     try:
         user = User.objects.get(username=user_name.replace("_", " "))
         user_profile = UserProfile.objects.get(user = user)
@@ -33,14 +38,14 @@ def graph(request, user_name, project_name, page_name, graph_name):
     except Graph.DoesNotExist:
         pass
 
-def user(request):
+def pluginUser(request):
     try:
         if request.method == 'GET':
             userstr = request.GET['user']
             user = User.objects.get(username=userstr)
             userprofile = UserProfile.objects.filter(user = user)
             assert userprofile.count() == 1
-            projects = Project.objects.filter(user = userprofile)
+            projects = userprofile.projects.all()
             json = extractJson(projects)
             return HttpResponse(json)
         
@@ -48,6 +53,42 @@ def user(request):
             return HttpResponse("Http type error")
     except User.DoesNotExist:
         pass
+
+#TODO: un-hardcode username
+def index(request):
+    try:
+        context = {'projects': []}
+        username = "super"
+        user = User.objects.get(username = username)
+        userprofile = UserProfile.objects.get(user = user)
+        projects = userprofile.projects.all().order_by('name')
+        for project in projects:
+            url = "user/" + username + "/project/" + project.slug
+            context['projects'].append({'name': project.name, 'url': url})
+        return render(request, 'miner/index.html', context)
+    except User.DoesNotExist:
+        pass
+
+
+def project(request, user_name, project_name):
+    try:
+        user = User.objects.get(username = user_name)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(slug = project_name)
+        pages = project.pages.all().order_by('name')
+    
+        context = {'pages' : pages}
+    
+        return render(request, 'miner/project-temp.html', context)
+    
+    except User.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+
+#-------------------------------------------------------------------
+# Helpers
+#-------------------------------------------------------------------
 
 def extractJson(projects):
     str = '['
