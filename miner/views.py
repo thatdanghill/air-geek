@@ -218,8 +218,7 @@ def getTableVals(user, project, page):
         return []
 
 def getRecentValues(points):
-    yr = findMaxYear(points)
-    return orderedFilter(points, yr)
+    return orderedFilter(points, findMaxYear(points))
 
 def calculateYoy(points, all):
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
