@@ -74,13 +74,13 @@ def project(request, user_name, project_name):
         username = "super"
         user = User.objects.get(username = user_name)
         up = UserProfile.objects.get(user = user)
-        project = Project.objects.get(slug = project_name)
+        project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
     
         context = {'pages' : []}
         
         for page in pages:
-            url = "user/" + username + "/project/" + project.slug + "/page/" + page.slug
+            url = "page/" + page.slug
             vals = getTableVals(user, project, page)
             context['pages'].append({'name': page.name, 'url': url, 'vals': vals})
     
@@ -88,9 +88,36 @@ def project(request, user_name, project_name):
     
     except User.DoesNotExist:
         pass
+    except UserProfile.DoesNotExist:
+        pass
     except Project.DoesNotExist:
         pass
 
+#TODO: un-hardcode username
+def page(request, user_name, project_name, page_name):
+    try:
+        username = "super"
+        user = User.objects.get(username = user_name)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        page = Page.objects.get(project = project, slug=page_name)
+        graphs = page.graphs.all().order_by('name')
+
+        context = {'graphs' : []}
+
+        for graph in graphs:
+            context['graphs'].append({'name':graph.name})
+
+        return render(request, 'miner/page-temp.html', context)
+
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+    except Page.DoesNotExist:
+        pass
 
 
 #-------------------------------------------------------------------
