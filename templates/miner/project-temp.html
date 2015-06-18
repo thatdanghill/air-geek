@@ -5,7 +5,7 @@
 		<title> AirGeek </title>
 		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
 		<script src="{% static "js/jquery.js" %}"></script>
-		<script src="{% static "js/main.js" %}"></script>
+		<script src="{% static "js/tablecolor.js" %}"></script>
 	</head>
 	<body>
 		<div id="header">
@@ -15,7 +15,7 @@
 			
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
-				<table>
+				<table id="airline-summary">
 					<tr>
 						<th></th>
 						<th colspan="2"> January </th>

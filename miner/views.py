@@ -82,7 +82,6 @@ def project(request, user_name, project_name):
         for page in pages:
             url = "user/" + username + "/project/" + project.slug + "/page/" + page.slug
             vals = getTableVals(user, project, page)
-            print(vals)
             context['pages'].append({'name': page.name, 'url': url, 'vals': vals})
     
         return render(request, 'miner/project-temp.html', context)
@@ -97,6 +96,9 @@ def project(request, user_name, project_name):
 #-------------------------------------------------------------------
 # Helpers
 #-------------------------------------------------------------------
+
+#-------------------------------------------------------------------
+# pluginUser
 
 def extractJson(projects):
     str = '['
@@ -118,6 +120,9 @@ def extractJson(projects):
         str = str[:-1]
     str += ']'
     return str
+
+#-------------------------------------------------------------------
+# pluginGraph
 
 def addStringPoints(x, y, graph):
     points = graph.points.order_by('index')
@@ -175,6 +180,9 @@ def findIndex(year, month, points):
         i = i + 1
     return i
 
+#-------------------------------------------------------------------
+# project
+
 def getTableVals(user, project, page):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
@@ -202,7 +210,7 @@ def calculateYoy(points, all):
         return vals
     except AttributeError:
         for i in range(len(vals), 24):
-            vals.append("")
+            vals.append("-")
         return vals
 
 def findMaxYear(points):
