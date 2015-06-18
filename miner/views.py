@@ -178,8 +178,7 @@ def findIndex(year, month, points):
 def getTableVals(user, project, page):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        vals = calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
-        return vals
+        return calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
     except Graph.DoesNotExist:
         return []
 
@@ -190,16 +189,21 @@ def getRecentValues(points):
 def calculateYoy(points, all):
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     vals = []
-    year = int(points[0].x.split(" ")[1]) - 1
-    for point in points:
-        vals.append(point.y)
-        month = point.x.split(" ")[0]
-        for pt in all:
-            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12
-                p = pt
-        v = round(((point.y / p.y) * 100) - 100, 2)
-        vals.append(v)
-    return vals
+    try:
+        year = int(points[0].x.split(" ")[1]) - 1
+        for point in points:
+            vals.append(point.y)
+            month = point.x.split(" ")[0]
+            for pt in all:
+                if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                    p = pt
+            v = round(((point.y / p.y) * 100) - 100, 2)
+            vals.append(v)
+        return vals
+    except AttributeError:
+        for i in range(len(vals), 24):
+            vals.append("")
+        return vals
 
 def findMaxYear(points):
     max = 0
@@ -220,16 +224,9 @@ def filterYear(points, year):
     return pts
 
 def orderByMonth(points):
-    pts = [None]*12
+    pts = [" "]*12
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     for point in points:
         pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
-    try:
-        i = 0
-        while i < 12:
-            pts[i].y
-            i += 1
-    except AttributeError:
-        pts = pts[0:i]
-        return pts
+    return pts
 
