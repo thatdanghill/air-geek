@@ -1,3 +1,8 @@
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'air_geek.settings')
+
+import django
+django.setup()
 from miner.models import Project, Page, Graph
 
 for project in Project.objects.all():
