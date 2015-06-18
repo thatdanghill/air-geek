@@ -26,8 +26,46 @@ table, th, td, tr {
 	border: 1px solid black;
 	border-collapse: collapse;
 	empty-cells: show;
+	white-space: nowrap;
+}
+
+th {
+	background-color: #edeedb;
+}
+
+td {
+	min-width: 100px;
 }
 
 td#data{
 	text-align: center;
+}
+
+#airline-summary {
+	overflow: auto;
+}
+
+#table-holder {
+	width: 100%;
+	height: auto;
+	overflow: scroll;
+	position: relative;
+}
+
+.key {
+	background-color: #edeedb;
+}
+
+/* unvisited link */
+h1 > a:link {
+    color: white;
+    padding: 25px;
+    text-decoration: none;
+}
+
+/* visited link */
+h1 > a:visited {
+    color: white;
+    padding: 25px;
+    text-decoration: none;
 }

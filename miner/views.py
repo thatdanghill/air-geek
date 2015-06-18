@@ -70,6 +70,7 @@ def index(request):
 
 #TODO: un-hardcode username
 def project(request, user_name, project_name):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         username = "super"
         user = User.objects.get(username = user_name)
@@ -77,7 +78,7 @@ def project(request, user_name, project_name):
         project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
     
-        context = {'pages' : []}
+        context = {'pages' : [], 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
             url = "page/" + page.slug
@@ -95,6 +96,7 @@ def project(request, user_name, project_name):
 
 #TODO: un-hardcode username
 def page(request, user_name, project_name, page_name):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         username = "super"
         user = User.objects.get(username = user_name)
@@ -102,8 +104,10 @@ def page(request, user_name, project_name, page_name):
         project = Project.objects.get(user = up, slug = project_name)
         page = Page.objects.get(project = project, slug=page_name)
         graphs = page.graphs.all().order_by('name')
-
-        context = {'graphs' : []}
+        
+        dir_str = 'user/' + user_name + '/project/' + project_name
+        rel_dir = BASE_DIR + dir_str
+        context = {'graphs' : [], 'paths': {'home_url': BASE_DIR, 'project':{'name': project.name, 'url': rel_dir}, 'page': page.name}}
 
         for graph in graphs:
             context['graphs'].append({'name':graph.name})
