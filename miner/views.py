@@ -223,9 +223,9 @@ def getRecentValues(points):
 def calculateYoy(points, all):
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     vals = []
-    try:
-        year = int(points[0].x.split(" ")[1]) - 1
-        for point in points:
+    for point in points:
+        if hasattr(point, 'x'):
+            year = int(point.x.split(" ")[1]) - 1
             vals.append(point.y)
             month = point.x.split(" ")[0]
             for pt in all:
@@ -233,11 +233,11 @@ def calculateYoy(points, all):
                     p = pt
             v = round(((point.y / p.y) * 100) - 100, 2)
             vals.append(v)
-        return vals
-    except AttributeError:
-        for i in range(len(vals), 24):
+        else:
             vals.append("-")
-        return vals
+            vals.append("-")
+    return vals
+
 
 def findMaxYear(points):
     max = 0
@@ -258,7 +258,7 @@ def filterYear(points, year):
     return pts
 
 def orderByMonth(points):
-    pts = [" "]*12
+    pts = [None]*12
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     for point in points:
         pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
