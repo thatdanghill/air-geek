@@ -74,29 +74,58 @@ def project(request, user_name, project_name):
         username = "super"
         user = User.objects.get(username = user_name)
         up = UserProfile.objects.get(user = user)
-        project = Project.objects.get(slug = project_name)
+        project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
     
         context = {'pages' : []}
         
         for page in pages:
-            url = "user/" + username + "/project/" + project.slug + "/page/" + page.slug
+            url = "page/" + page.slug
             vals = getTableVals(user, project, page)
-            print(vals)
             context['pages'].append({'name': page.name, 'url': url, 'vals': vals})
     
         return render(request, 'miner/project-temp.html', context)
     
     except User.DoesNotExist:
         pass
+    except UserProfile.DoesNotExist:
+        pass
     except Project.DoesNotExist:
         pass
 
+#TODO: un-hardcode username
+def page(request, user_name, project_name, page_name):
+    try:
+        username = "super"
+        user = User.objects.get(username = user_name)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        page = Page.objects.get(project = project, slug=page_name)
+        graphs = page.graphs.all().order_by('name')
+
+        context = {'graphs' : []}
+
+        for graph in graphs:
+            context['graphs'].append({'name':graph.name})
+
+        return render(request, 'miner/page-temp.html', context)
+
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+    except Page.DoesNotExist:
+        pass
 
 
 #-------------------------------------------------------------------
 # Helpers
 #-------------------------------------------------------------------
+
+#-------------------------------------------------------------------
+# pluginUser
 
 def extractJson(projects):
     str = '['
@@ -118,6 +147,9 @@ def extractJson(projects):
         str = str[:-1]
     str += ']'
     return str
+
+#-------------------------------------------------------------------
+# pluginGraph
 
 def addStringPoints(x, y, graph):
     points = graph.points.order_by('index')
@@ -175,6 +207,9 @@ def findIndex(year, month, points):
         i = i + 1
     return i
 
+#-------------------------------------------------------------------
+# project
+
 def getTableVals(user, project, page):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
@@ -183,8 +218,7 @@ def getTableVals(user, project, page):
         return []
 
 def getRecentValues(points):
-    yr = findMaxYear(points)
-    return orderedFilter(points, yr)
+    return orderedFilter(points, findMaxYear(points))
 
 def calculateYoy(points, all):
     mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
@@ -202,7 +236,7 @@ def calculateYoy(points, all):
         return vals
     except AttributeError:
         for i in range(len(vals), 24):
-            vals.append("")
+            vals.append("-")
         return vals
 
 def findMaxYear(points):

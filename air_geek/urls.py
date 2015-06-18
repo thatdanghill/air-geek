@@ -13,7 +13,8 @@ urlpatterns = patterns('',
     url(r'$^', views.index, name="Air Geek"),
     url(r'^plugin/user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/page/(?P<page_name>[\w\-]+)/graph/(?P<graph_name>[\w\-]+)/$', views.pluginGraph, name='plugin graph'),
     url(r'^plugin/user/$', views.pluginUser, name='plugin user'),
-    url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/$', views.project, name='project')
+    url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/$', views.project, name='project'),
+    url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/page/(?P<page_name>[\w\-]+)/$', views.page, name='page')
 )
 
 if not settings.DEBUG:
