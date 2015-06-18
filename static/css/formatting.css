@@ -1,11 +1,11 @@
 body {
 	padding: 0px;
-	background-color: #c1c3eb;
+	background-color: #e7e8ef;
 }
 
 #header {
 	height: 100px;
-	background-color: #28295a;
+	background-color: #161736;
 }
 
 h1 {
@@ -20,4 +20,10 @@ p {
 #manager {
 	overflow: scroll;
 	width: 100%;
+}
+
+table, th, td, tr {
+	border: 1px solid black;
+	border-collapse: collapse;
+	empty-cells: show;
 }
