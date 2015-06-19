@@ -312,6 +312,6 @@ def calcualteYTD(points, all):
     mos =  ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     val = []
     for point in points:
-    year = int(point.x.split(" ")[1]) - 1
-            vals.append(point.y)
-            month = point.x.split(" ")[0]
+        year = int(point.x.split(" ")[1]) - 1
+        vals.append(point.y)
+        month = point.x.split(" ")[0]
