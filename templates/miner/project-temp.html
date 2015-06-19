@@ -7,26 +7,22 @@
 		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
 		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
-		<script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
+		<!--script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script-->
 		<script src="{% static "js/tableformatter.js" %}"></script>
 		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 	</head>
 	<body>
 		<div id="header">
-			<h1><a href="{{ paths.home_url }}"> AirGeek </a></h1>
+			<h1> AirGeek </h1>
 		</div>
 		<div id="manager">
-			{% if paths %}
-			<p><a href="{{ paths.home_url }}">Home</a>-> {{ paths.project }}</p>
-			{% else %}
-			{% endif %}
+			
 			<p><b><i> Select a page below </i></b></p>
-			<div id="table-holder">
 			{% if pages %}
 				<table id="airline-summary" class="display">
 					<thead>
 					<tr>
-						<th class="key"></th>
+						<th></th>
 						<th colspan="2"> January </th>
 						<th colspan="2"> February </th>
 						<th colspan="2"> March </th>
@@ -44,7 +40,7 @@
 					<tbody>
 					{% for page in pages %}
 					<tr>
-						<td class="key"><a href="{{page.url}}">{{ page.name }}</a></td>
+						<td class = "key"><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
 						{% for val in page.vals %}
 						<td id=data> {{ val }} </td>
 						{% endfor %}
@@ -55,7 +51,6 @@
 			{% else %}
             	<p><b><i>You currently have no pages in this project.</i></b></p>
 			{% endif %}
-			</div>
 		</div>
 	</body>
 </html>

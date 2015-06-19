@@ -17,4 +17,15 @@ $(document).ready(function(){
 	$('table#airline-summary').floatThead();
 	
 	//$('table#airline-summary').fixedHeaderTable({fixedColumn: true });
+	
+	/*var table = $('table#airline-summary').DataTable( {
+        scrollY:        "500px",
+        scrollX:        true,
+        scrollCollapse: true,
+        paging:         false
+    } );
+ 
+    new $.fn.dataTable.FixedColumns( table, {
+        leftColumns: 1
+    } );*/
 });
