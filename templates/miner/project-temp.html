@@ -17,7 +17,10 @@
 			<h1> AirGeek </h1>
 		</div>
 		<div id="manager">
-			
+			{% if paths %}
+			<p><a href="{{ paths.home_url }}">Home</a>->{{ paths.project }}</p>
+			{% else %}
+			{% endif %}
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
 				<table id="airline-summary" class="display">
