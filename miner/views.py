@@ -82,7 +82,7 @@ def project(request, user_name, project_name):
         
         for page in pages:
             url = "page/" + page.slug
-            vals = getTableVals(user, project, page)
+            vals = getProjectTableVals(user, project, page)
             context['pages'].append({'name': page.name, 'url': url, 'vals': vals, 'data_type': page.data_type})
     
         return render(request, 'miner/project-temp.html', context)
@@ -250,7 +250,7 @@ def findIndex(year, month, points):
 #-------------------------------------------------------------------
 # project
 
-def getTableVals(user, project, page):
+def getProjectTableVals(user, project, page):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         return calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
@@ -308,3 +308,10 @@ def orderByMonth(points):
         pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
     return pts
 
+def calcualteYTD(points, all):
+    mos =  ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+    val = []
+    for point in points:
+    year = int(point.x.split(" ")[1]) - 1
+            vals.append(point.y)
+            month = point.x.split(" ")[0]
