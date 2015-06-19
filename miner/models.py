@@ -37,6 +37,9 @@ class Graph(models.Model):
     name = models.CharField(max_length=128)
     page = models.ForeignKey(Page, related_name='graphs')
     slug = models.SlugField()
+    thousand = models.BooleanField(default=False)
+    million = models.BooleanField(default=False)
+    billion = models.BooleanField(default=False)
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

@@ -164,7 +164,7 @@ def addStringPoints(x, y, graph):
         q.save()
     for i in range(len(x)):
         ind = length + i
-        p = Point.objects.create(index=ind, x = xs[i], y= float(ys[i]), graph=graph)[0]
+        p = Point.objects.create(index=ind, x = xs[i], y= calculateRealValue(float(ys[i]),graph), graph=graph)[0]
         p.save()
 
 def addMonthPoints(x,y,graph):
@@ -183,7 +183,7 @@ def placeInOrder(x, y, points, graph):
     year = int(spl[1])
     
     if points.count() == 0:
-        p = Point.objects.create(index = 0, x = x, y = float(y), graph= graph)
+        p = Point.objects.create(index = 0, x = x, y = calculateRealValue(float(y), graph), graph= graph)
         p.save()
         return
     
@@ -194,8 +194,18 @@ def placeInOrder(x, y, points, graph):
         q.index += 1
         q.save()
 
-    p = Point.objects.create(index = ind, x = x, y = float(y), graph= graph)
+    p = Point.objects.create(index = ind, x = x, y=calculateRealValue(float(y), graph), graph= graph)
     p.save()
+
+def calculateRealValue(y, graph):
+    if graph.thousand:
+        return y * 1000
+    elif graph.million:
+        return y * 1000000
+    elif graph.billion:
+        return y * 1000000000
+    else:
+        return y
 
 def findIndex(year, month, points):
     moDic = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
@@ -235,8 +245,8 @@ def calculateYoy(points, all):
             for pt in all:
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p = pt
-            v = round(((point.y / p.y) * 100) - 100, 2)
-            vals.append(v)
+                    v = round(((point.y / p.y) * 100) - 100, 2)
+                    vals.append(v)
         else:
             vals.append("-")
             vals.append("-")
