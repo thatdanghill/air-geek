@@ -4,8 +4,12 @@
 	<head>
 		<title> AirGeek </title>
 		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
+		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
-		<script src="{% static "js/tablecolor.js" %}"></script>
+		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
+		<!--script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script-->
+		<script src="{% static "js/tableformatter.js" %}"></script>
+		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 	</head>
 	<body>
 		<div id="header">
@@ -15,7 +19,8 @@
 			
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
-				<table id="airline-summary">
+				<table id="airline-summary" class="display">
+					<thead>
 					<tr>
 						<th>2015</th>
 						<th colspan="2"> January </th>
@@ -31,14 +36,17 @@
 						<th colspan="2"> November </th>
 						<th colspan="2"> December </th>
 					</tr>
+					</thead>
+					<tbody>
 					{% for page in pages %}
 					<tr>
-						<td><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
+						<td class = "key"><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
 						{% for val in page.vals %}
 						<td id=data> {{ val }} </td>
 						{% endfor %}
 					</tr>
 					{% endfor %}
+					</tbody>
 				</table>
 			{% else %}
             	<p><b><i>You currently have no pages in this project.</i></b></p>
