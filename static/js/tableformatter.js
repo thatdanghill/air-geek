@@ -14,12 +14,12 @@ $(document).ready(function(){
 	});
 	});
 
-	$('table#airline-summary').floatThead();
+	//$('table#airline-summary').floatThead();
 	
 	//$('table#airline-summary').fixedHeaderTable({fixedColumn: true });
 	
-	/*var table = $('table#airline-summary').DataTable( {
-        scrollY:        "500px",
+	var table = $('table#airline-summary').DataTable( {
+        scrollY:        "400px",
         scrollX:        true,
         scrollCollapse: true,
         paging:         false
@@ -27,5 +27,7 @@ $(document).ready(function(){
  
     new $.fn.dataTable.FixedColumns( table, {
         leftColumns: 1
-    } );*/
+    } );
+    
+    $(".key").css("border-right", "3px solid");
 });
