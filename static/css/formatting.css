@@ -22,6 +22,10 @@ p {
 	width: 100%;
 }
 
+table {
+	border-collapse:separate;
+}
+
 table, th, td, tr {
 	border: 1px solid black;
 	border-collapse: collapse;
@@ -35,6 +39,7 @@ th {
 
 td {
 	min-width: 100px;
+	margin:0;
 }
 
 td#data{
@@ -48,8 +53,8 @@ td#data{
 #table-holder {
 	width: 100%;
 	height: auto;
-	overflow: scroll;
-	position: relative;
+    overflow-x:scroll;  
+    overflow-y:visible;
 }
 
 .key {

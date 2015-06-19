@@ -245,8 +245,8 @@ def calculateYoy(points, all):
             for pt in all:
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p = pt
-                    v = round(((point.y / p.y) * 100) - 100, 2)
-                    vals.append(v)
+            v = round(((point.y / p.y) * 100) - 100, 2)
+            vals.append(v)
         else:
             vals.append("-")
             vals.append("-")

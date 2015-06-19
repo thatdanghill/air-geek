@@ -4,9 +4,10 @@
 	<head>
 		<title> AirGeek </title>
 		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
+		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
-		<script src="{% static "js/fixed-header/jquery.fixedheadertable.min.js" %}"></script>
 		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
+		<script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
 		<script src="{% static "js/tableformatter.js" %}"></script>
 		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 	</head>
@@ -22,7 +23,7 @@
 			<p><b><i> Select a page below </i></b></p>
 			<div id="table-holder">
 			{% if pages %}
-				<table id="airline-summary">
+				<table id="airline-summary" class="display">
 					<thead>
 					<tr>
 						<th class="key"></th>
