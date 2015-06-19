@@ -6,6 +6,12 @@ from miner.models import UserProfile, Project, Page, Graph, Point
 from django.template.defaultfilters import slugify
 
 #-------------------------------------------------------------------
+# Global values
+
+mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+  
+#-------------------------------------------------------------------
+
 # Views
 #-------------------------------------------------------------------
 
@@ -61,9 +67,22 @@ def index(request):
         user = User.objects.get(username = username)
         userprofile = UserProfile.objects.get(user = user)
         projects = userprofile.projects.all().order_by('name')
+        allVals = getYTDTableVals(user, projects)
+        print("made it past allVals 670")
+        #print(allVals)
+        
+        proj_array = []
         for project in projects:
-            url = "user/" + username + "/project/" + project.slug
-            context['projects'].append({'name': project.name, 'url': url})
+            proj_url = "user/" + username + "/project/" + project.slug
+            page_array = []
+            vals = allVals[project.name]
+            for page in project.pages.all().order_by('name'):
+                page_url = proj_url + "/page/" + page.slug
+                page_array.append({'name': page.name, 'url': page_url, 'vals': vals[page.name], 'data_type': page.data_type})
+            proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array})
+            
+        context = {'projects': proj_array}
+            
         return render(request, 'miner/index.html', context)
     except User.DoesNotExist:
         pass
@@ -208,7 +227,6 @@ def calculateRealValue(y, graph):
         return y
 
 def findIndex(year, month, points):
-    moDic = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     i = 0
     if points.count() == 0:
         print("This shouldn't happen")
@@ -217,7 +235,7 @@ def findIndex(year, month, points):
     while i < points.count() and int(points[i].x.split(" ")[1]) < year:
         i = i + 1
 
-    while i < points.count() and int(points[i].x.split(" ")[1]) == year and moDic.index(points[i].x.split(" ")[0].lower()) % 12 > moDic.index(month.lower()) % 12:
+    while i < points.count() and int(points[i].x.split(" ")[1]) == year and mos.index(points[i].x.split(" ")[0].lower()) % 12 > mos.index(month.lower()) % 12:
         i = i + 1
     return i
 
@@ -230,12 +248,56 @@ def getProjectTableVals(user, project, page):
         return calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
     except Graph.DoesNotExist:
         return []
-
+                   
+def getYTDTableVals(user, projects):
+    projVals = dict()
+    for project in projects:
+        pages = project.pages.all()
+        YTDVals = dict()
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                data = graph.points.all()
+                #print(data)
+                recent = getRecentValues(data)
+                #print(recent)
+                recentYTD = round(calculateYTD(recent), 2)
+                prevYTD = 0
+                for point in recent:
+                    if hasattr(point, 'x'):
+                        p = None
+                        year = int(point.x.split(" ")[1]) - 1
+                        month = point.x.split(" ")[0]
+                        for pt in data:
+                            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                                p = pt
+                                prevYTD = prevYTD + p.y
+                                #print(prevYTD)
+                    else:
+                        prevYTD = prevYTD + 0
+                #print(prevYTD)
+                if prevYTD == 0:
+                    Yoy = 'n/a'
+                else:
+                    Yoy = round(((recentYTD/prevYTD) * 100) - 100, 2)
+                vals = [recentYTD, Yoy]
+            except:
+                vals = ["-", "-"]
+            #print(vals)
+            YTDVals[page.name] = vals
+            #print(YTDVals)
+        print("out of the pages for loop")    
+        projVals[project.name] = YTDVals
+        print("!!!" ,projVals)
+    print(projVals)
+    #print("skipped projVals insertion")
+    return projVals
+         
+ 
 def getRecentValues(points):
     return orderedFilter(points, findMaxYear(points))
 
 def calculateYoy(points, all):
-    mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     vals = []
     for point in points:
         if hasattr(point, 'x'):
@@ -277,15 +339,14 @@ def filterYear(points, year):
 
 def orderByMonth(points):
     pts = [None]*12
-    mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
     for point in points:
         pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
     return pts
 
-def calcualteYTD(points, all):
-    mos =  ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
-    val = []
+def calculateYTD(points):
+    sum = 0
     for point in points:
-    year = int(point.x.split(" ")[1]) - 1
-            vals.append(point.y)
-            month = point.x.split(" ")[0]
+        if hasattr(point, 'y'):
+            sum = sum + point.y
+    return sum
+    

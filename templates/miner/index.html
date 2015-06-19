@@ -22,6 +22,28 @@
 			{% else %}
             	<p><b><i>You currently have no projects started.</i></b></p>
 			{% endif %}
+			
+			<table id="airline-summary">
+				{% for project in projects %}
+					<tr>
+						<th>{{project.name}}-2015</th>
+						<th colspan="2"> YTD </th>
+						
+					</tr>
+					{% for page in project.pages %}
+					<tr>
+						<td><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
+						{% for val in page.vals %}
+						<td id=data> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					{% endfor %}
+				{% endfor %}
+				</table>
+			
+		</div>
+		
+			
 		</div>
 	</body>
 </html>
