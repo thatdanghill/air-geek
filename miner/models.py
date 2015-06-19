@@ -25,6 +25,8 @@ class Page(models.Model):
     project = models.ForeignKey(Project, related_name='pages')
     slug = models.SlugField()
     table = models.CharField(max_length=128)
+    data_type = models.CharField(max_length=128)
+    
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -40,6 +42,7 @@ class Graph(models.Model):
     thousand = models.BooleanField(default=False)
     million = models.BooleanField(default=False)
     billion = models.BooleanField(default=False)
+    
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

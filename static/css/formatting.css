@@ -69,3 +69,7 @@ h1 > a:visited {
     padding: 25px;
     text-decoration: none;
 }
+
+a#data_type{
+	text-align: right;
+}

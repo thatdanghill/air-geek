@@ -83,7 +83,7 @@ def project(request, user_name, project_name):
         for page in pages:
             url = "page/" + page.slug
             vals = getTableVals(user, project, page)
-            context['pages'].append({'name': page.name, 'url': url, 'vals': vals})
+            context['pages'].append({'name': page.name, 'url': url, 'vals': vals, 'data_type': page.data_type})
     
         return render(request, 'miner/project-temp.html', context)
     
