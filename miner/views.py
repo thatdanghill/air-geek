@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from miner.models import UserProfile, Project, Page, Graph, Point
@@ -155,7 +156,7 @@ def graph(request, user_name, project_name, page_name, graph_name):
         
         proj_dir = BASE_DIR + 'user/' + user_name + '/project/' + project_name
         page_dir = proj_dir + '/page/' + page_name
-        context = {'paths': {'home_url': BASE_DIR, 'project':{'name': project.name, 'url': proj_dir}, 'page': {'name': page.name, 'url': page_dir}, 'graph': graph.name}}
+        context = {'paths': {'home_url': BASE_DIR, 'user': user_name, 'project':{'name': project.name, 'url': proj_dir}, 'page': {'name': page.name, 'url': page_dir}, 'graph': graph.name}}
         
         return render(request, 'miner/graph-temp.html', context)
     
@@ -167,6 +168,34 @@ def graph(request, user_name, project_name, page_name, graph_name):
         pass
     except Page.DoesNotExist:
         pass
+
+def allPoints(request):
+    try:
+        if request.method == 'GET':
+            username = request.GET['user']
+            projectname = request.GET['project']
+            pagename = request.GET['page']
+            graphname = request.GET['graph']
+            user = User.objects.get(username=username)
+            up = UserProfile.objects.get(user=user)
+            project = up.projects.get(name=projectname)
+            page = project.pages.get(name=pagename)
+            graph = page.graphs.get(name=graphname)
+            return JsonResponse(pointQueryToJSON(graph))
+        
+        else:
+            return HttpResponse('')
+    except User.DoesNotExist:
+        return HttpResponse('')
+    except UserProfile.DoesNotExist:
+        return HttpResponse('')
+    except Project.DoesNotExist:
+        return HttpResponse('')
+    except Page.DoesNotExist:
+        return HttpResponse('')
+    except Graph.DoesNotExist:
+        return HttpResponse('')
+
 
 
 #-------------------------------------------------------------------
@@ -375,3 +404,13 @@ def calculateYTD(points):
         if hasattr(point, 'y'):
             sum = sum + point.y
     return sum
+
+#-------------------------------------------------------------------
+# allPoints
+
+def pointQueryToJSON(graph):
+    context = {"points":[]}
+    points = graph.points.all().order_by('index')
+    for point in points:
+        context['points'].append([point.x, point.y])
+    return context

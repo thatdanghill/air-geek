@@ -15,7 +15,8 @@ urlpatterns = patterns('',
     url(r'^plugin/user/$', views.pluginUser, name='plugin user'),
     url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/$', views.project, name='project'),
     url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/page/(?P<page_name>[\w\-]+)/$', views.page, name='page'),
-    url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/page/(?P<page_name>[\w\-]+)/graph/(?P<graph_name>[\w\-]+)/$', views.graph, name='graph')
+    url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/page/(?P<page_name>[\w\-]+)/graph/(?P<graph_name>[\w\-]+)/$', views.graph, name='graph'),
+    url(r'^all_points/$', views.allPoints, name='all_points')
 )
 
 if not settings.DEBUG:

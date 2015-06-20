@@ -19,7 +19,7 @@
 			{% if graphs %}
             	<ul>
                 	{% for graph in graphs %}
-					<li>{{ graph.name }}</li>
+					<li><a href="{{ graph.url }}">{{ graph.name }}</a></li>
 					{% endfor %}
 				</ul>
 			{% else %}
