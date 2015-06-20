@@ -4,7 +4,12 @@
 	<head>
 		<title> AirGeek </title>
 		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
+		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
+		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
+		<script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
+		<script src="{% static "js/datatables/media/js/dataTables.fixedColumns.js" %}"></script>
+		<script src="{% static "js/tableformatter.js" %}"></script>
 	</head>
 	<body>
 		<div id="header">
@@ -23,7 +28,7 @@
             	<p><b><i>You currently have no projects started.</i></b></p>
 			{% endif %}
 			
-			<table id="airline-summary">
+			<table id="airline-ytd-summary" class="display compact">
 				{% for project in projects %}
 					<tr>
 						<th>{{project.name}}-2015</th>

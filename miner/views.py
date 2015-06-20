@@ -129,10 +129,36 @@ def page(request, user_name, project_name, page_name):
         context = {'graphs' : [], 'paths': {'home_url': BASE_DIR, 'project':{'name': project.name, 'url': rel_dir}, 'page': page.name}}
 
         for graph in graphs:
-            context['graphs'].append({'name':graph.name})
+            url = "graph/" + graph.slug
+            context['graphs'].append({'name':graph.name, 'url': url})
 
         return render(request, 'miner/page-temp.html', context)
 
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+    except Page.DoesNotExist:
+        pass
+
+def graph(request, user_name, project_name, page_name, graph_name):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = user_name)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        page = Page.objects.get(project = project, slug=page_name)
+        graph = Graph.objects.get(page=page, slug=graph_name)
+        
+        proj_dir = BASE_DIR + 'user/' + user_name + '/project/' + project_name
+        page_dir = proj_dir + '/page/' + page_name
+        context = {'paths': {'home_url': BASE_DIR, 'project':{'name': project.name, 'url': proj_dir}, 'page': {'name': page.name, 'url': page_dir}, 'graph': graph.name}}
+        
+        return render(request, 'miner/graph-temp.html', context)
+    
     except User.DoesNotExist:
         pass
     except UserProfile.DoesNotExist:
@@ -349,4 +375,3 @@ def calculateYTD(points):
         if hasattr(point, 'y'):
             sum = sum + point.y
     return sum
-    
