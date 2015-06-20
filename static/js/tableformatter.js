@@ -28,6 +28,8 @@ $(document).ready(function(){
     new $.fn.dataTable.FixedColumns( table, {
         leftColumns: 1
     } );
+
     
     $(".key").css("border-right", "3px solid");
+
 });
