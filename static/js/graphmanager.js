@@ -18,8 +18,7 @@ GraphManager.prototype = {
 	initialize : function() {
 		this.container.prepend("<div id='raw-container' class='graph'></div>");
 		var raw = new RawGraph($("#raw-container"));
-		raw.getData();
-		raw.render();
+		raw.plot();
 	},
 }
 
@@ -38,8 +37,7 @@ function Graph(container) {
 
 Graph.prototype = {
 	constructor: Graph,
-	getData : function(){},
-	render:function(){}
+	plot : function(){}
 }
 
 function RawGraph(container) {
@@ -51,7 +49,7 @@ inheritPrototype(RawGraph, Graph);
 
 RawGraph.prototype = {
 	constructor: RawGraph,
-	getData : function() {
+	plot: function() {
 		var user = $("meta").attr("user");
 		if (user == '') {
 			this.data = [];
@@ -66,17 +64,19 @@ RawGraph.prototype = {
 		$.ajax({
 			url: '/all_points/', 
 			data: {user : user, project : project, page: page, graph: graph}, 
-			async: false,
 			success: function(data) {
 			if (data == '') {
 				that.data = [];
 				return;
 			}
 			that.data = data['points'];
+			that.render();
 			}
 		});
+		
+		this.addButtons();
 	},
-	
+
 	render : function() {
 		var rawGraphLayoutStr = "<div class='title' style='display:inline-block'><p><b>" + this.title + "</b></p></div><div class='buttons' style='display:inline-block'></div><div class='view' id='raw-view'></div>";
 		this.container.prepend(rawGraphLayoutStr);

@@ -358,7 +358,7 @@ def calculateYoy(points, all):
         if hasattr(point, 'x'):
             p = None
             year = int(point.x.split(" ")[1]) - 1
-            vals.append(point.y)
+            vals.append(calculateRealValue(point.y))
             month = point.x.split(" ")[0]
             for pt in all:
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
