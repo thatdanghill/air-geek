@@ -14,6 +14,7 @@
 	<body>
 		<div id="header">
 			<h1> AirGeek </h1>
+			
 		</div>
 		<div id="manager">
 			
@@ -31,8 +32,9 @@
 			<table id="airline-ytd-summary" class="display compact">
 				{% for project in projects %}
 					<tr>
-						<th>{{project.name}}-2015</th>
-						<th colspan="2"> YTD </th>
+						<th>Airline</th>
+						<th> May '15 YTD </th>
+						<th>%</th>
 						
 					</tr>
 					{% for page in project.pages %}
