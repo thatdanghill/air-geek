@@ -97,12 +97,22 @@ def project(request, user_name, project_name):
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
+        
+        max = 0
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                yr = findMaxYear(graph.points.all())
+                if yr > max:
+                    max = yr
+            except Graph.DoesNotExist:
+                pass
     
-        context = {'pages' : [], 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        context = {'pages' : [], 'year': max, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
             url = "page/" + page.slug
-            vals = getProjectTableVals(user, project, page)
+            vals = getProjectTableVals(page, max)
             context['pages'].append({'name': page.name, 'url': url, 'vals': vals, 'data_type': page.data_type})
     
         return render(request, 'miner/project-temp.html', context)
@@ -297,80 +307,47 @@ def findIndex(year, month, points):
 #-------------------------------------------------------------------
 # project
 
-def getProjectTableVals(user, project, page):
+def getProjectTableVals(page, maxyr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        return calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
+        return calculateYoy(getRecentValues(graph.points.all(), maxyr), graph.points.all())
     except Graph.DoesNotExist:
         return []
-                   
-def getYTDTableVals(user, projects):
-    projVals = dict()
-    for project in projects:
-        pages = project.pages.all()
-        YTDVals = dict()
-        for page in pages:
-            try:
-                graph = Graph.objects.get(page = page, name = page.table)
-                data = graph.points.all()
-                #print(data)
-                recent = getRecentValues(data)
-                #print(recent)
-                recentYTD = round(calculateYTD(recent), 2)
-                prevYTD = 0
-                for point in recent:
-                    if hasattr(point, 'x'):
-                        p = None
-                        year = int(point.x.split(" ")[1]) - 1
-                        month = point.x.split(" ")[0]
-                        for pt in data:
-                            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                                p = pt
-                                prevYTD = prevYTD + p.y
-                                #print(prevYTD)
-                    else:
-                        prevYTD = prevYTD + 0
-                #print(prevYTD)
-                if prevYTD == 0:
-                    Yoy = 'n/a'
-                else:
-                    Yoy = round(((recentYTD/prevYTD) * 100) - 100, 2)
-                vals = [recentYTD, Yoy]
-            except:
-                vals = ["-", "-"]
-            #print(vals)
-            YTDVals[page.name] = vals
-            #print(YTDVals)
-        print("out of the pages for loop")    
-        projVals[project.name] = YTDVals
-        print("!!!" ,projVals)
-    print(projVals)
-    #print("skipped projVals insertion")
-    return projVals
          
  
-def getRecentValues(points):
-    return orderedFilter(points, findMaxYear(points))
+def getRecentValues(points, yr):
+    return pairIndex(orderedFilter(points, yr), orderedFilter(points, yr-1), orderedFilter(points, yr-2))
 
-def calculateYoy(points, all):
+def pairIndex(a1, a2, a3):
     vals = []
-    for point in points:
-        if hasattr(point, 'x'):
-            p = None
-            year = int(point.x.split(" ")[1]) - 1
-            vals.append(formatThousands(calculateRealValue(point.y, point.graph)))
-            month = point.x.split(" ")[0]
-            for pt in all:
-                if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                    p = pt
-            if p:
-                v = round(((point.y / p.y) * 100) - 100, 2)
-                vals.append(v)
+    for i in range(len(a1)):
+        vals.append([a1[i], a2[i], a3[i]])
+    return vals
+
+def calculateYoy(pointArray, all):
+    vals = []
+    for points in pointArray:
+        triplet = []
+        for point in points:
+            tuple = []
+            if hasattr(point, 'x'):
+                p = None
+                year = int(point.x.split(" ")[1]) - 1
+                tuple.append(formatThousands(calculateRealValue(point.y, point.graph)))
+                month = point.x.split(" ")[0]
+                for pt in all:
+                    if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                        p = pt
+                if p and p.y != 0:
+                    v = round(((point.y / p.y) * 100) - 100, 2)
+                    tuple.append(v)
+                else:
+                    tuple.append("-")
             else:
-                vals.append("-")
-        else:
-            vals.append("-")
-            vals.append("-")
+                tuple.append("-")
+                tuple.append("-")
+            triplet.append(tuple)
+        vals.append(triplet)
     return vals
 
 def formatThousands(num):
@@ -416,3 +393,50 @@ def pointQueryToJSON(graph):
     for point in points:
         context['points'].append([point.x, point.y])
     return context
+
+#-------------------------------------------------------------------
+# index
+
+def getYTDTableVals(user, projects):
+    projVals = dict()
+    for project in projects:
+        pages = project.pages.all()
+        YTDVals = dict()
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                data = graph.points.all()
+                #print(data)
+                recent = getRecentValues(data)
+                #print(recent)
+                recentYTD = round(calculateYTD(recent), 2)
+                prevYTD = 0
+                for point in recent:
+                    if hasattr(point, 'x'):
+                        p = None
+                        year = int(point.x.split(" ")[1]) - 1
+                        month = point.x.split(" ")[0]
+                        for pt in data:
+                            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                                p = pt
+                                prevYTD = prevYTD + p.y
+                    #print(prevYTD)
+                    else:
+                        prevYTD = prevYTD + 0
+        #print(prevYTD)
+                if prevYTD == 0:
+                    Yoy = 'n/a'
+                else:
+                    Yoy = round(((recentYTD/prevYTD) * 100) - 100, 2)
+                vals = [recentYTD, Yoy]
+            except:
+                vals = ["-", "-"]
+            #print(vals)
+            YTDVals[page.name] = vals
+            #print(YTDVals)
+            #print("out of the pages for loop")
+        projVals[project.name] = YTDVals
+            #print("!!!" ,projVals)
+            #print(projVals)
+    #print("skipped projVals insertion")
+    return projVals

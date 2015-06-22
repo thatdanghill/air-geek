@@ -23,10 +23,15 @@
 			{% endif %}
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
+				<form style="display:inline-block">
+					<input style="display:inline-block" id='yr1' type="radio" name="year" checked="checked" value={{year}}>{{year}}
+					<input style="display:inline-block" id='yr2' type="radio" name="year" value={{year|add:"-1"}}>{{year|add:"-1"}}
+					<input style="display:inline-block" id='yr3' type="radio" name="year" value={{year|add:"-2"}}>{{year|add:"-2"}}
+				</form>
 				<table id="airline-summary" class="display compact">
 					<thead>
 					<tr>
-						<th class="key">2015</th>
+						<th class="key" id="year-tag">{{ year }}</th>
 						<th colspan="2"> January </th>
 						<th colspan="2"> February </th>
 						<th colspan="2"> March </th>
@@ -46,7 +51,8 @@
 					<tr>
 						<td class = "key"><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
 						{% for val in page.vals %}
-						<td id=data> {{ val }} </td>
+						<td class="data" y1={{ val.0.0 }} y2={{ val.1.0 }} y3={{ val.2.0 }}> {{ val.0.0 }} </td>
+						<td class="data" y1={{ val.0.1 }} y2={{ val.1.1 }} y3={{ val.2.1 }}> {{ val.0.1 }} </td>
 						{% endfor %}
 					</tr>
 					{% endfor %}
