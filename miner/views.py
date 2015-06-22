@@ -238,7 +238,7 @@ def addStringPoints(x, y, graph):
         q.save()
     for i in range(len(x)):
         ind = length + i
-        p = Point.objects.create(index=ind, x = xs[i], y= calculateRealValue(float(ys[i]),graph), graph=graph)[0]
+        p = Point.objects.create(index=ind, x = xs[i], y= float(ys[i]), graph=graph)[0]
         p.save()
 
 def addMonthPoints(x,y,graph):
@@ -257,7 +257,7 @@ def placeInOrder(x, y, points, graph):
     year = int(spl[1])
     
     if points.count() == 0:
-        p = Point.objects.create(index = 0, x = x, y = calculateRealValue(float(y), graph), graph= graph)
+        p = Point.objects.create(index = 0, x = x, y = float(y), graph= graph)
         p.save()
         return
     
@@ -268,7 +268,7 @@ def placeInOrder(x, y, points, graph):
         q.index += 1
         q.save()
 
-    p = Point.objects.create(index = ind, x = x, y=calculateRealValue(float(y), graph), graph= graph)
+    p = Point.objects.create(index = ind, x = x, y=float(y), graph= graph)
     p.save()
 
 def calculateRealValue(y, graph):
@@ -358,7 +358,7 @@ def calculateYoy(points, all):
         if hasattr(point, 'x'):
             p = None
             year = int(point.x.split(" ")[1]) - 1
-            vals.append(calculateRealValue(point.y))
+            vals.append(formatThousands(calculateRealValue(point.y, point.graph)))
             month = point.x.split(" ")[0]
             for pt in all:
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
@@ -373,6 +373,8 @@ def calculateYoy(points, all):
             vals.append("-")
     return vals
 
+def formatThousands(num):
+    return "{:,}".format(num)
 
 def findMaxYear(points):
     max = 0
