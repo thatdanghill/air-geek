@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from miner.models import UserProfile, Project, Page, Graph, Point
 from django.template.defaultfilters import slugify
 
+
 #-------------------------------------------------------------------
 # Global values
 
@@ -111,8 +112,12 @@ def project(request, user_name, project_name):
         
         for page in pages:
             url = "page/" + page.slug
-            vals = getProjectTableVals(page, max)
-            context['pages'].append({'name': page.name, 'url': url, 'vals': vals, 'data_type': page.data_type})
+
+            volume_vals = getVolumeVals(page)
+            yoy_vals = getYoyValues(page)
+            yoy2_vals = get2YoyValues(page)
+            context['pages'].append({'name': page.name, 'url': url, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+
     
         return render(request, 'miner/project-temp.html', context)
     
@@ -313,40 +318,97 @@ def getProjectTableVals(page, maxyr):
     except Graph.DoesNotExist:
         return []
          
- 
-def getRecentValues(points, yr):
-    return pairIndex(orderedFilter(points, yr), orderedFilter(points, yr-1), orderedFilter(points, yr-2))
-
-def pairIndex(a1, a2, a3):
+def getVolumeVals(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+    except Graph.DoesNotExist:
+        return []
     vals = []
-    for i in range(len(a1)):
-        vals.append([a1[i], a2[i], a3[i]])
+    recentVals = getRecentValues(points)
+    for pt in recentVals:
+        if pt:
+            vals.append(formatThousands(calculateRealValue(pt.y, graph)))
+        else:
+            vals.append("-")
     return vals
 
-def calculateYoy(pointArray, all):
+def getRecentValues(points):
+    return orderedFilter(points, findMaxYear(points))
+
+def getYoyValues(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = getRecentValues(graph.points.all())
+        all = graph.points.all()
+    except Graph.DoesNotExist:
+        return []
     vals = []
-    for points in pointArray:
-        triplet = []
-        for point in points:
-            tuple = []
-            if hasattr(point, 'x'):
-                p = None
-                year = int(point.x.split(" ")[1]) - 1
-                tuple.append(formatThousands(calculateRealValue(point.y, point.graph)))
-                month = point.x.split(" ")[0]
-                for pt in all:
-                    if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                        p = pt
-                if p and p.y != 0:
-                    v = round(((point.y / p.y) * 100) - 100, 2)
-                    tuple.append(v)
-                else:
-                    tuple.append("-")
+    for point in points:
+        if hasattr(point, 'x'):
+            p = None
+            year = int(point.x.split(" ")[1]) - 1
+            month = point.x.split(" ")[0]
+            for pt in all:
+                if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                    p = pt
+            if p:
+                v = round(((point.y / p.y) * 100) - 100, 2)
+                vals.append(v)
             else:
-                tuple.append("-")
-                tuple.append("-")
-            triplet.append(tuple)
-        vals.append(triplet)
+                vals.append("-")
+        else:
+            vals.append("-")
+            
+    return vals
+
+def get2YoyValues(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = getRecentValues(graph.points.all())
+        all = graph.points.all()
+    except Graph.DoesNotExist:
+        return []
+    vals = []
+    for point in points:
+        if hasattr(point, 'x'):
+            p1 = None
+            p2 = None
+            year = int(point.x.split(" ")[1])
+            month = point.x.split(" ")[0]
+            for pt in all:
+                if (year - 2) == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                    p2 = pt
+                if (year - 1) == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                    p1 = pt
+            if p1 and p2 and p1.y != 0 and p2.y != 0:
+                v = round(((p1.y / p2.y)*(point.y / p1.y) - 1), 2)
+                vals.append(v)
+            else:
+                vals.append("-")
+        else:
+                vals.append("-")
+    return vals
+        
+            
+
+def calculateYoy(points, all):
+    vals = []
+    for point in points:
+        if hasattr(point, 'x'):
+            p = None
+            year = int(point.x.split(" ")[1]) - 1
+            vals.append(formatThousands(int((calculateRealValue(point.y, point.graph)))))
+            month = point.x.split(" ")[0]
+            for pt in all:
+                if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                    p = pt
+            if p:
+                v = round(((point.y / p.y) * 100) - 100, 2)
+                vals.append(v)
+            else:
+                vals.append("-")
+                vals.append("-")
     return vals
 
 def formatThousands(num):
@@ -362,6 +424,10 @@ def findMaxYear(points):
         if ptyr > max:
             max = ptyr
     return max
+
+
+    
+    
 
 def orderedFilter(points, year):
     return orderByMonth(filterYear(points, year))
@@ -396,42 +462,27 @@ def pointQueryToJSON(graph):
         context['points'].append([point.x, point.y])
     return context
 
+def getDataTypeSymbol(data_type):
+    if data_type == "PAX":
+        return ""
+    elif data_type == "RPKs":
+        return "**"
+    else:
+        return "*"
+    
+def getSymbolForRelease(page):
+    if page.quarterly:
+        return "^"
+    else:
+        return ""
+    if page.annualy:
+        return "^^"
+    else:
+        return ""
+        
+
 #-------------------------------------------------------------------
 # index
-
-def getYTDTableVals(user, projects):
-    projVals = dict()
-    for project in projects:
-        pages = project.pages.all()
-        YTDVals = dict()
-        for page in pages:
-            try:
-                graph = Graph.objects.get(page = page, name = page.table)
-                data = graph.points.all()
-                recent = getRecentValues(data)
-                recentYTD = round(calculateYTD(recent), 2)
-                prevYTD = 0
-                for point in recent:
-                    if hasattr(point, 'x'):
-                        p = None
-                        year = int(point.x.split(" ")[1]) - 1
-                        month = point.x.split(" ")[0]
-                        for pt in data:
-                            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                                p = pt
-                                prevYTD = prevYTD + p.y
-                    else:
-                        prevYTD = prevYTD + 0
-                if prevYTD == 0:
-                    Yoy = 'n/a'
-                else:
-                    Yoy = round(((recentYTD/prevYTD) * 100) - 100, 2)
-                vals = [recentYTD, Yoy]
-            except:
-                vals = ["-", "-"]
-            YTDVals[page.name] = vals
-        projVals[project.name] = YTDVals
-    return projVals
 
 def findAllMaxYear(project):
     max = 0

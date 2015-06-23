@@ -2,7 +2,7 @@
 {% load staticfiles %}
 <html>
 	<head>
-		<title> AirGeek </title>
+		<title>AirGeek</title>
 		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
 		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
@@ -31,30 +31,45 @@
 				<table id="airline-summary" class="display compact">
 					<thead>
 					<tr>
-						<th class="key" id="year-tag">{{ year }}</th>
-						<th colspan="2"> January </th>
-						<th colspan="2"> February </th>
-						<th colspan="2"> March </th>
-						<th colspan="2"> April </th>
-						<th colspan="2"> May </th>
-						<th colspan="2"> June </th>
-						<th colspan="2"> July </th>
-						<th colspan="2"> August </th>
-						<th colspan="2"> September </th>
-						<th colspan="2"> October </th>
-						<th colspan="2"> November </th>
-						<th colspan="2"> December </th>
+
+						<th class="key">Airline</th>
+						<th> January </th>
+						<th> February </th>
+						<th> March </th>
+						<th> April </th>
+						<th> May </th>
+						<th> June </th>
+						<th> July </th>
+						<th> August </th>
+						<th> September </th>
+						<th> October </th>
+						<th> November </th>
+						<th> December </th>
+
 					</tr>
 					</thead>
 					<tbody>
 					{% for page in pages %}
 					<tr>
-						<td class = "key"><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
-						{% for val in page.vals %}
-						<td class="data" y1={{ val.0.0 }} y2={{ val.1.0 }} y3={{ val.2.0 }}> {{ val.0.0 }} </td>
-						<td class="data" y1={{ val.0.1 }} y2={{ val.1.1 }} y3={{ val.2.1 }}> {{ val.0.1 }} </td>
+
+						<td class = "key"><a href="{{page.url}}">{{ page.name }}{{ page.data_type }}{{page.release}}</td>
+						{% for val in page.volume_vals %}
+						<td id=data> {{ val }} </td>
 						{% endfor %}
 					</tr>
+					<tr>
+						<td id=data> YoY</td>
+						{% for val in page.yoy_vals %}
+						<td id=data> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td id=data> 2YoY</td>
+						{% for val in page.yoy2_vals %}
+						<td id=data> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
 					{% endfor %}
 					</tbody>
 				</table>
@@ -62,5 +77,13 @@
             	<p><b><i>You currently have no pages in this project.</i></b></p>
 			{% endif %}
 		</div>
+		<div id=info>
+			<p>% Year on Year change</p>
+			<p>* Data is in RPMs (Revenue Passenger Miles)</p>
+			<p>** Data is in RPKs (Revenue Passenger Kilometers)</p>
+			<p>^ Data is released quarterly </p>
+			<p>^^ Data is released annually</p>
+		</div>
+		
 	</body>
 </html>
