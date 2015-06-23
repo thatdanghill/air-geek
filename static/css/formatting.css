@@ -6,11 +6,14 @@ body {
 #header {
 	height: 100px;
 	background-color: #2C3539;
+	
 }
 
 h1 {
 	color: white;
 	padding: 25px;
+	
+	
 }
 
 p {
@@ -43,11 +46,16 @@ td {
 }
 
 td#data{
-	text-align: center;
+	text-align: right;
+	font-size: 14px;
 }
 
 #airline-summary {
 	overflow: auto;
+}
+
+table#airline-ytd-summary{
+	width: 33%;
 }
 
 #table-holder {
@@ -77,4 +85,8 @@ h1 > a:visited {
 
 a#data_type{
 	text-align: right;
+}
+
+#info{
+	font-size: 10px;
 }
