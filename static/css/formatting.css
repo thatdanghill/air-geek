@@ -90,3 +90,14 @@ a#data_type{
 #info{
 	font-size: 10px;
 }
+
+.title p{
+	color: black;
+	font-size: larger;
+	font-weight: bolder;
+}
+
+#info p {
+	display: inline;
+	margin-left: 10px;
+}

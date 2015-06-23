@@ -23,29 +23,29 @@
 			{% endif %}
 			<p><b><i> Select a page below </i></b></p>
 			{% if pages %}
-				<form style="display:inline-block">
+				<!--form style="display:inline-block">
 					<input style="display:inline-block" id='yr1' type="radio" name="year" checked="checked" value={{year}}>{{year}}
 					<input style="display:inline-block" id='yr2' type="radio" name="year" value={{year|add:"-1"}}>{{year|add:"-1"}}
 					<input style="display:inline-block" id='yr3' type="radio" name="year" value={{year|add:"-2"}}>{{year|add:"-2"}}
-				</form>
+				</form-->
 				<table id="airline-summary" class="display compact">
 					<thead>
 					<tr>
-
 						<th class="key">Airline</th>
-						<th> January </th>
-						<th> February </th>
-						<th> March </th>
-						<th> April </th>
-						<th> May </th>
-						<th> June </th>
-						<th> July </th>
-						<th> August </th>
-						<th> September </th>
-						<th> October </th>
-						<th> November </th>
-						<th> December </th>
-
+						{% for year in years %}
+						<th> January {{ year }}</th>
+						<th> February {{ year }}</th>
+						<th> March {{ year }}</th>
+						<th> April {{ year }}</th>
+						<th> May {{ year }}</th>
+						<th> June {{ year }}</th>
+						<th> July {{ year }}</th>
+						<th> August {{ year }}</th>
+						<th> September {{ year }}</th>
+						<th> October {{ year }}</th>
+						<th> November {{ year }}</th>
+						<th> December {{ year }}</th>
+						{% endfor %}
 					</tr>
 					</thead>
 					<tbody>
@@ -74,6 +74,7 @@
 					</tbody>
 				</table>
 			{% else %}
+			
             	<p><b><i>You currently have no pages in this project.</i></b></p>
 			{% endif %}
 		</div>
@@ -84,6 +85,5 @@
 			<p>^ Data is released quarterly </p>
 			<p>^^ Data is released annually</p>
 		</div>
-		
 	</body>
 </html>
