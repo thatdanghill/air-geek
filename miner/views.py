@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 
 mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 
-YEARS = 1
+YEARS = 3
 MONTHS = 4
   
 #-------------------------------------------------------------------
@@ -81,12 +81,13 @@ def index(request):
             maxMonth = findMaxMonth(project, maxYear)
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
+                special_name = project.name[:-1]
                 ytdvals = getPageYTDStats(page, maxMonth, maxYear)
                 ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
                 page_release = getSymbolForRelease(page)
                 page_data_type = getDataTypeSymbol(page.data_type)
                 page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'data_type': page_data_type, 'release' : page_release})
-            proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
+            proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
             
         context['projects'] = proj_array
             
@@ -113,15 +114,22 @@ def project(request, user_name, project_name):
                     max = yr
             except Graph.DoesNotExist:
                 pass
-    
-        context = {'pages' : [], 'year': max, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        yrs = []
+        for i in range(YEARS):
+            yrs.append(max - i)
+        yrs.reverse()
+        
+        context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
             url = "page/" + page.slug
-
-            volume_vals = getVolumeVals(page)
-            yoy_vals = getYoyValues(page)
-            yoy2_vals = get2YoyValues(page)
+            volume_vals = []
+            yoy_vals = []
+            yoy2_vals = []
+            for year in yrs:
+                volume_vals.extend(getVolumeVals(page, year))
+                yoy_vals.extend(getYoyValues(page,year))
+                yoy2_vals.extend(get2YoyValues(page,year))
             context['pages'].append({'name': page.name, 'url': url, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
 
     
@@ -324,14 +332,14 @@ def getProjectTableVals(page, maxyr):
     except Graph.DoesNotExist:
         return []
          
-def getVolumeVals(page):
+def getVolumeVals(page, yr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.all()
     except Graph.DoesNotExist:
-        return ["-"]*12*YEARS
+        return ["-"]*12
     vals = []
-    recentVals = getRecentValues(points)
+    recentVals = orderedFilter(points, yr)
     for pt in recentVals:
         if pt:
             vals.append(formatThousands(int(calculateRealValue(pt.y, graph))))
@@ -342,13 +350,13 @@ def getVolumeVals(page):
 def getRecentValues(points):
     return orderedFilter(points, findMaxYear(points))
 
-def getYoyValues(page):
+def getYoyValues(page, yr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        points = getRecentValues(graph.points.all())
+        points = orderedFilter(graph.points.all(), yr)
         all = graph.points.all()
     except Graph.DoesNotExist:
-        return ["-"]*12*YEARS
+        return ["-"]*12
     vals = []
     for point in points:
         if hasattr(point, 'x'):
@@ -358,7 +366,7 @@ def getYoyValues(page):
             for pt in all:
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p = pt
-            if p:
+            if p and p.y != 0:
                 v = round((((point.y / p.y) -1))*100, 2)
                 vals.append(v)
             else:
@@ -368,13 +376,13 @@ def getYoyValues(page):
             
     return vals
 
-def get2YoyValues(page):
+def get2YoyValues(page, yr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        points = getRecentValues(graph.points.all())
+        points = orderedFilter(graph.points.all(), yr)
         all = graph.points.all()
     except Graph.DoesNotExist:
-        return ["-"]*12*YEARS
+        return ["-"]*12
     vals = []
     for point in points:
         if hasattr(point, 'x'):
