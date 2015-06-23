@@ -7,9 +7,9 @@
 		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
 		<script src="{% static "js/jquery.js" %}"></script>
 		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
-		<script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
-		<script src="{% static "js/datatables/media/js/dataTables.fixedColumns.js" %}"></script>
-		<script src="{% static "js/tableformatter.js" %}"></script>
+		<!--script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
+		<script src="{% static "js/datatables/media/js/dataTables.fixedColumns.js" %}"></script-->
+		<script src="{% static "js/indextable.js" %}"></script>
 	</head>
 	<body>
 		<div id="header">
@@ -29,14 +29,17 @@
             	<p><b><i>You currently have no projects started.</i></b></p>
 			{% endif %}
 			
-			<table id="airline-ytd-summary" class="display compact">
+			<table id="airline-summary" class="display compact">
+				<thead>
 				{% for project in projects %}
 					<tr>
-						<th>Airline</th>
-						<th> May '15 YTD </th>
-						<th>%</th>
-						
+						<th><a href="{{project.url}}">{{project.name}}</a></th>
+						{% for column in project.columns %}
+							<th> {{column}} </th>
+						{% endfor %}		
 					</tr>
+				</thead>
+				<tbody>
 					{% for page in project.pages %}
 					<tr>
 						<td><a href="{{page.url}}">{{ page.name }}</a><span style="float:right">({{ page.data_type }}|YoY)</span></td>
@@ -45,6 +48,7 @@
 						{% endfor %}
 					</tr>
 					{% endfor %}
+				</tbody>
 				{% endfor %}
 				</table>
 			

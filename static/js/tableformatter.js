@@ -39,7 +39,7 @@ function formatTable(table) {
 }
 
 function attachHandlers(table) {
-	$("input[name='year']").change(function() {
+	/*$("input[name='year']").change(function() {
 		var td = $(".data");
 		if ($('input#yr1').prop("checked")) {
 			$.each(td, function() {
@@ -58,7 +58,7 @@ function attachHandlers(table) {
 			$("th#year-tag").html($('input#yr3').val());
 		}
 		formatTable(table);
-	});
+	});*/
 }
 
 $(document).ready(function(){
