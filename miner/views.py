@@ -516,8 +516,9 @@ def columnize(monthIndex, year):
     columns = []
     for i in range(MONTHS):
         month = mos[(monthIndex - i)%12]
-        columns.append(month + " " + year)
-    return columns.reverse()
+        columns.append(month.capitalize() + " " + str(year))
+    columns.reverse()
+    return columns
 
 def getPageYTDStats(page, month, year):
     vals = []
@@ -525,12 +526,13 @@ def getPageYTDStats(page, month, year):
         graph = Graph.objects.get(page = page, name = page.table)
         for i in range(MONTHS):
             if month - i < 0:
-                vals.append(monthYTD(month%12, year-1, graph.points.all()))
+                vals.append(formatThousands(monthYTD(month%12, year-1, graph.points.all())))
             else:
-                vals.append(monthYTD(month%12, year, graph.points.all()))
+                vals.append(formatThousands(monthYTD(month%12, year, graph.points.all())))
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
-    return vals.reverse()
+    vals.reverse()
+    return vals
 
 def getPageYTDYoyStats(page, month, year):
     vals = []
@@ -544,8 +546,8 @@ def getPageYTDYoyStats(page, month, year):
     
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
-    
-    return vals.reverse()
+    vals.reverse()
+    return vals
 
 def monthYTD(month, year, pointList):
     points = filterYear(pointList, year)
@@ -560,11 +562,12 @@ def monthYTD(month, year, pointList):
         if j == 1:
             sum += pval
         else:
-            return "-"
+            return 0
     return sum
 
 def monthYOY(month, year, points):
-    try:
-        return round((monthYTD(month, year, points) / monthYTD(month, year-1, points))*100 - 100, 2)
-    except ZeroDivisionError:
+    num = monthYTD(month, year, points)
+    denom = monthYTD(month, year-1, points)
+    if num == 0 or denom == 0:
         return "-"
+    return round((num/denom)*100 - 100,2)
