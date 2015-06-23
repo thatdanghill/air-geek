@@ -96,15 +96,27 @@ def project(request, user_name, project_name):
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
+        
+        max = 0
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                yr = findMaxYear(graph.points.all())
+                if yr > max:
+                    max = yr
+            except Graph.DoesNotExist:
+                pass
     
-        context = {'pages' : [], 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        context = {'pages' : [], 'year': max, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
             url = "page/" + page.slug
+
             volume_vals = getVolumeVals(page)
             yoy_vals = getYoyValues(page)
             yoy2_vals = get2YoyValues(page)
             context['pages'].append({'name': page.name, 'url': url, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+
     
         return render(request, 'miner/project-temp.html', context)
     
@@ -298,12 +310,13 @@ def findIndex(year, month, points):
 #-------------------------------------------------------------------
 # project
 
-def getProjectTableVals(user, project, page):
+def getProjectTableVals(page, maxyr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        return calculateYoy(getRecentValues(graph.points.all()), graph.points.all())
+        return calculateYoy(getRecentValues(graph.points.all(), maxyr), graph.points.all())
     except Graph.DoesNotExist:
         return []
+
                    
 def getYTDTableVals(user, projects):
     projVals = dict()
@@ -429,9 +442,7 @@ def calculateYoy(points, all):
                 vals.append(v)
             else:
                 vals.append("-")
-        else:
-            vals.append("-")
-            vals.append("-")
+                vals.append("-")
     return vals
 
 def formatThousands(num):
@@ -500,3 +511,7 @@ def getSymbolForRelease(page):
     else:
         return ""
         
+
+#-------------------------------------------------------------------
+# index
+
