@@ -79,7 +79,9 @@ def index(request):
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
                 vals = getPageYTDStats(page, maxMonth, maxYear)
-                page_array.append({'name': page.name, 'url': page_url, 'vals': vals, 'data_type': page.data_type})
+                release_symbol = getSymbolForRelease(page)
+                data_type = getDataTypeSymbol(page)
+                page_array.append({'name': page.name, 'url': page_url, 'vals': vals, 'data_type': data_type, 'release': release_symbol})
             proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
             
         context['projects'] = proj_array
@@ -328,7 +330,7 @@ def getVolumeVals(page):
     recentVals = getRecentValues(points)
     for pt in recentVals:
         if pt:
-            vals.append(formatThousands(calculateRealValue(pt.y, graph)))
+            vals.append(formatThousands(int((calculateRealValue(pt.y, graph)))))
         else:
             vals.append("-")
     return vals
@@ -353,7 +355,7 @@ def getYoyValues(page):
                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p = pt
             if p:
-                v = round(((point.y / p.y) * 100) - 100, 2)
+                v = round((((point.y / p.y) -1))*100, 2)
                 vals.append(v)
             else:
                 vals.append("-")
@@ -382,7 +384,7 @@ def get2YoyValues(page):
                 if (year - 1) == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p1 = pt
             if p1 and p2 and p1.y != 0 and p2.y != 0:
-                v = round(((p1.y / p2.y)*(point.y / p1.y) - 1), 2)
+                v = round(((((p1.y / p2.y)*(point.y / p1.y)) - 1)*100), 2)
                 vals.append(v)
             else:
                 vals.append("-")
@@ -541,7 +543,7 @@ def getPageYTDStats(page, month, year):
         else:
             j = 0
         for i in range(-1*j+1, 1):
-            vals.append(formatThousands(monthYTD(month + i, year, graph.points.all())))
+            vals.append(formatThousands(int((monthYTD(month + i, year, graph.points.all())))))
             vals.append(monthYOY(month + i, year, graph.points.all()))
     
     except Graph.DoesNotExist:
