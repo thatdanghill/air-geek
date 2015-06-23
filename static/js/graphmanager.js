@@ -71,17 +71,15 @@ RawGraph.prototype = {
 			}
 			that.data = data['points'];
 			that.render();
+			that.addButtons();
 			}
 		});
-		
-		this.addButtons();
 	},
 
 	render : function() {
-		var rawGraphLayoutStr = "<div class='title' style='display:inline-block'><p><b>" + this.title + "</b></p></div><div class='buttons' style='display:inline-block'></div><div class='view' id='raw-view'></div>";
+		var rawGraphLayoutStr = "<div class='title' style='display:inline-block; vertical-align: middle'><p>" + this.title + "</p></div><div class='buttons' style='display:inline-block; margin-left: 25px; vertical-align: middle'></div><div class='view' id='raw-view'></div>";
 		this.container.prepend(rawGraphLayoutStr);
 		this.drawGraph(this.data);
-		this.addButtons();
 	},
 	
 	drawGraph : function(data) {
@@ -96,7 +94,8 @@ RawGraph.prototype = {
 	},
 	
 	addButtons : function() {
-		
+		this.container.find('.buttons').prepend($('#tableicon').clone().show());
+		this.container.find('.buttons').prepend($('#calculatoricon').clone().show());
 	}
 }
 
