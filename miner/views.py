@@ -69,19 +69,20 @@ def index(request):
         user = User.objects.get(username = username)
         userprofile = UserProfile.objects.get(user = user)
         projects = userprofile.projects.all().order_by('name')
-        allVals = getYTDTableVals(user, projects)
         
         proj_array = []
         for project in projects:
             proj_url = "user/" + username + "/project/" + project.slug
             page_array = []
-            vals = allVals[project.name]
+            maxYear = findAllMaxYear(project)
+            maxMonth = findMaxMonth(project, maxYear)
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
-                page_array.append({'name': page.name, 'url': page_url, 'vals': vals[page.name], 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array})
+                vals = getPageYTDStats(page, maxMonth, maxYear)
+                page_array.append({'name': page.name, 'url': page_url, 'vals': vals, 'data_type': page.data_type})
+            proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
             
-        context = {'projects': proj_array}
+        context['projects'] = proj_array
             
         return render(request, 'miner/index.html', context)
     except User.DoesNotExist:
@@ -316,41 +317,6 @@ def getProjectTableVals(page, maxyr):
         return calculateYoy(getRecentValues(graph.points.all(), maxyr), graph.points.all())
     except Graph.DoesNotExist:
         return []
-
-                   
-def getYTDTableVals(user, projects):
-    projVals = dict()
-    for project in projects:
-        pages = project.pages.all()
-        YTDVals = dict()
-        for page in pages:
-            try:
-                graph = Graph.objects.get(page = page, name = page.table)
-                data = graph.points.all()
-                recent = getRecentValues(data)
-                recentYTD = round(calculateYTD(recent), 2)
-                prevYTD = 0
-                for point in recent:
-                    if hasattr(point, 'x'):
-                        p = None
-                        year = int(point.x.split(" ")[1]) - 1
-                        month = point.x.split(" ")[0]
-                        for pt in data:
-                            if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                                p = pt
-                                prevYTD = prevYTD + p.y
-                    else:
-                        prevYTD = prevYTD + 0
-                if prevYTD == 0:
-                    Yoy = 'n/a'
-                else:
-                    Yoy = round(((recentYTD/prevYTD) * 100) - 100, 2)
-                vals = [formatThousands(int((calculateRealValue(recentYTD, graph)))), Yoy]
-            except:
-                vals = ["-", "-"]
-            YTDVals[page.name] = vals
-        projVals[project.name] = YTDVals
-    return projVals
          
 def getVolumeVals(page):
     try:
@@ -446,7 +412,10 @@ def calculateYoy(points, all):
     return vals
 
 def formatThousands(num):
-    return "{:,}".format(num)
+    if num == 0:
+        return "-"
+    else:
+        return "{:,}".format(num)
 
 def findMaxYear(points):
     max = 0
@@ -515,3 +484,87 @@ def getSymbolForRelease(page):
 #-------------------------------------------------------------------
 # index
 
+def findAllMaxYear(project):
+    max = 0
+    for page in project.pages.all():
+        try:
+            graph = Graph.objects.get(page = page, name = page.table)
+            yr = findMaxYear(graph.points.all())
+            if yr > max:
+                max = yr
+        except Graph.DoesNotExist:
+            pass
+    return max
+
+def findMaxMonth(project, year):
+    max = 0
+    for page in project.pages.all():
+        try:
+            graph = Graph.objects.get(page = page, name = page.table)
+            points = filterYear(graph.points.all(), year)
+            for point in points:
+                mi = mos.index(point.x.split(" ")[0].lower()) % 12
+                if mi > max:
+                    max = mi
+        except Graph.DoesNotExist:
+            pass
+    return max
+
+def columnize(monthIndex, year):
+    columns = []
+    if monthIndex > 1:
+        month = mos[monthIndex-2]
+        st = month.capitalize() + " " + str(year)
+        columns.append(st)
+        columns.append(st + " %")
+    if monthIndex > 0:
+        month = mos[monthIndex-1]
+        st = month.capitalize() + " " + str(year)
+        columns.append(st)
+        columns.append(st + " %")
+    month = mos[monthIndex]
+    st = month.capitalize() + " " + str(year)
+    columns.append(st)
+    columns.append(st + " %")
+    return columns
+
+def getPageYTDStats(page, month, year):
+    vals = []
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        if month > 1:
+            j = 3
+        elif month == 1:
+            j = 2
+        elif month == 0:
+            j = 1
+        else:
+            j = 0
+        for i in range(-1*j+1, 1):
+            vals.append(formatThousands(monthYTD(month + i, year, graph.points.all())))
+            vals.append(monthYOY(month + i, year, graph.points.all()))
+    
+    except Graph.DoesNotExist:
+        if month > 1:
+            vals = ['-']*6
+        elif month == 1:
+            vals = ['-']*4
+        elif month == 0:
+            vals = ['-']*2
+        else:
+            vals = []
+    return vals
+
+def monthYTD(month, year, pointList):
+    points = filterYear(pointList, year)
+    sum = 0
+    for point in points:
+        if mos.index(point.x.split(" ")[0].lower()) % 12 <= month:
+            sum += point.y
+    return sum
+
+def monthYOY(month, year, points):
+    try:
+        return round((monthYTD(month, year, points) / monthYTD(month, year-1, points))*100 - 100, 2)
+    except ZeroDivisionError:
+        return "-"

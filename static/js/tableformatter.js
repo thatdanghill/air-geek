@@ -1,9 +1,9 @@
 function makeTable() {
-	//$('table#airline-summary').floatThead();
+	$('table#airline-summary').floatThead();
 	
 	//$('table#airline-summary').fixedHeaderTable({fixedColumn: true });
 	
-	var table = $('table#airline-summary').DataTable( {
+	/*var table = $('table#airline-summary').DataTable( {
         scrollY:        "400px",
         scrollX:        true,
         scrollCollapse: true,
@@ -16,10 +16,11 @@ function makeTable() {
     
     $(".key").css("border-right", "3px solid");
     
-    return table;
+    return table;*/
+    return null;
 }
 
-function formatTable(table) {
+function formatTable() {
 	$.map($("#airline-summary").find("tr"), function(r) {
 		var changes = $(r).find("td").filter(":even").filter(function(index){
 		return !isNaN(parseFloat($(this).html()));
@@ -35,11 +36,11 @@ function formatTable(table) {
 	});
 	});
 	
-	table.columns.adjust().draw();
+	//table.columns.adjust().draw();
 }
 
 function attachHandlers(table) {
-	$("input[name='year']").change(function() {
+	/*$("input[name='year']").change(function() {
 		var td = $(".data");
 		if ($('input#yr1').prop("checked")) {
 			$.each(td, function() {
@@ -58,11 +59,11 @@ function attachHandlers(table) {
 			$("th#year-tag").html($('input#yr3').val());
 		}
 		formatTable(table);
-	});
+	});*/
 }
 
 $(document).ready(function(){
 	var table = makeTable();
-	formatTable(table);
-	attachHandlers(table);
+	formatTable();
+	attachHandlers();
 });
