@@ -1,13 +1,14 @@
 function makeTable() {
-	$('table#airline-summary').floatThead();
+	//$('table#airline-summary').floatThead();
 	
 	//$('table#airline-summary').fixedHeaderTable({fixedColumn: true });
 	
-	/*var table = $('table#airline-summary').DataTable( {
+	var table = $('table#airline-summary').DataTable( {
         scrollY:        "400px",
         scrollX:        true,
         scrollCollapse: true,
-        paging:         false
+        paging:         false,
+        bSort : false
     } );
  
     new $.fn.dataTable.FixedColumns( table, {
@@ -16,27 +17,23 @@ function makeTable() {
     
     $(".key").css("border-right", "3px solid");
     
-    return table;*/
-    return null;
+    return table;
+    //return null;
 }
 
-function formatTable() {
-	$.map($("#airline-summary").find("tr"), function(r) {
-		var changes = $(r).find("td").filter(":even").filter(function(index){
-		return !isNaN(parseFloat($(this).html()));
-	});
-		$(changes).filter(function(index){
-		return parseFloat($(this).html()) < 0;
-	}).css("color", "red");
-	$(changes).filter(function(index){
-		return parseFloat($(this).html()) > 0;
-	}).css("color", "green");
-	$.map($(changes), function(d) {
-		$(d).html($(d).html() + "%");
-	});
+function formatTable(table) {
+	$.each($(".percentage"), function(index) {
+		if (!isNaN(parseFloat($(this).html())) && parseFloat($(this).html()) > 0) {
+			$(this).css("color", "green");
+		} else if (!isNaN(parseFloat($(this).html())) && parseFloat($(this).html()) < 0) {
+			$(this).css("color", "red");
+		}
+		if (!isNaN(parseFloat($(this).html()))) {
+			$(this).html($(this).html()+"%");
+		}
 	});
 	
-	//table.columns.adjust().draw();
+	table.columns.adjust().draw();
 }
 
 function attachHandlers(table) {
@@ -64,6 +61,6 @@ function attachHandlers(table) {
 
 $(document).ready(function(){
 	var table = makeTable();
-	formatTable();
-	attachHandlers();
+	formatTable(table);
+	attachHandlers(table);
 });
