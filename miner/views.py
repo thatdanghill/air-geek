@@ -13,6 +13,7 @@ from django.template.defaultfilters import slugify
 mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 
 YEARS = 1
+MONTHS = 4
   
 #-------------------------------------------------------------------
 
@@ -80,8 +81,11 @@ def index(request):
             maxMonth = findMaxMonth(project, maxYear)
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
-                vals = getPageYTDStats(page, maxMonth, maxYear)
-                page_array.append({'name': page.name, 'url': page_url, 'vals': vals, 'data_type': page.data_type})
+                ytdvals = getPageYTDStats(page, maxMonth, maxYear)
+                ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
+                page_release = getSymbolForRelease(page)
+                page_data_type = getDataTypeSymbol(page)
+                page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'data_type': page_data_type, 'release' : page_release})
             proj_array.append({'name': project.name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
             
         context['projects'] = proj_array
@@ -330,7 +334,7 @@ def getVolumeVals(page):
     recentVals = getRecentValues(points)
     for pt in recentVals:
         if pt:
-            vals.append(formatThousands(calculateRealValue(pt.y, graph)))
+            vals.append(formatThousands(int(calculateRealValue(pt.y, graph))))
         else:
             vals.append("-")
     return vals
@@ -510,55 +514,53 @@ def findMaxMonth(project, year):
 
 def columnize(monthIndex, year):
     columns = []
-    if monthIndex > 1:
-        month = mos[monthIndex-2]
-        st = month.capitalize() + " " + str(year)
-        columns.append(st)
-        columns.append(st + " %")
-    if monthIndex > 0:
-        month = mos[monthIndex-1]
-        st = month.capitalize() + " " + str(year)
-        columns.append(st)
-        columns.append(st + " %")
-    month = mos[monthIndex]
-    st = month.capitalize() + " " + str(year)
-    columns.append(st)
-    columns.append(st + " %")
-    return columns
+    for i in range(MONTHS):
+        month = mos[(monthIndex - i)%12]
+        columns.append(month + " " + year)
+    return columns.reverse()
 
 def getPageYTDStats(page, month, year):
     vals = []
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        if month > 1:
-            j = 3
-        elif month == 1:
-            j = 2
-        elif month == 0:
-            j = 1
-        else:
-            j = 0
-        for i in range(-1*j+1, 1):
-            vals.append(formatThousands(monthYTD(month + i, year, graph.points.all())))
-            vals.append(monthYOY(month + i, year, graph.points.all()))
+        for i in range(MONTHS):
+            if month - i < 0:
+                vals.append(monthYTD(month%12, year-1, graph.points.all()))
+            else:
+                vals.append(monthYTD(month%12, year, graph.points.all()))
+    except Graph.DoesNotExist:
+        vals = ["-"]*MONTHS
+    return vals.reverse()
+
+def getPageYTDYoyStats(page, month, year):
+    vals = []
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        for i in range(MONTHS):
+            if month - i < 0:
+                vals.append(monthYOY(month%12, year-1, graph.points.all()))
+            else:
+                vals.append(monthYOY(month%12, year, graph.points.all()))
     
     except Graph.DoesNotExist:
-        if month > 1:
-            vals = ['-']*6
-        elif month == 1:
-            vals = ['-']*4
-        elif month == 0:
-            vals = ['-']*2
-        else:
-            vals = []
-    return vals
+        return ["-"]*MONTHS
+    
+    return vals.reverse()
 
 def monthYTD(month, year, pointList):
     points = filterYear(pointList, year)
     sum = 0
-    for point in points:
-        if mos.index(point.x.split(" ")[0].lower()) % 12 <= month:
-            sum += point.y
+    pval = 0
+    for i in range(month%12 + 1):
+        j = 0
+        for point in points:
+            if i == mos.index(point.x.split(" ")[0].lower())%12:
+                j = 1
+                pval = point.y
+        if j == 1:
+            sum += pval
+        else:
+            return "-"
     return sum
 
 def monthYOY(month, year, points):
