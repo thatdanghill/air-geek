@@ -11,6 +11,8 @@ from django.template.defaultfilters import slugify
 # Global values
 
 mos = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+
+YEARS = 1
   
 #-------------------------------------------------------------------
 
@@ -323,7 +325,7 @@ def getVolumeVals(page):
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.all()
     except Graph.DoesNotExist:
-        return []
+        return ["-"]*12*YEARS
     vals = []
     recentVals = getRecentValues(points)
     for pt in recentVals:
@@ -342,7 +344,7 @@ def getYoyValues(page):
         points = getRecentValues(graph.points.all())
         all = graph.points.all()
     except Graph.DoesNotExist:
-        return []
+        return ["-"]*12*YEARS
     vals = []
     for point in points:
         if hasattr(point, 'x'):
@@ -368,7 +370,7 @@ def get2YoyValues(page):
         points = getRecentValues(graph.points.all())
         all = graph.points.all()
     except Graph.DoesNotExist:
-        return []
+        return ["-"]*12*YEARS
     vals = []
     for point in points:
         if hasattr(point, 'x'):
@@ -424,10 +426,6 @@ def findMaxYear(points):
         if ptyr > max:
             max = ptyr
     return max
-
-
-    
-    
 
 def orderedFilter(points, year):
     return orderByMonth(filterYear(points, year))
