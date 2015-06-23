@@ -526,9 +526,9 @@ def getPageYTDStats(page, month, year):
         graph = Graph.objects.get(page = page, name = page.table)
         for i in range(MONTHS):
             if month - i < 0:
-                vals.append(formatThousands(monthYTD(month%12, year-1, graph.points.all())))
+                vals.append(formatThousands(monthYTD((month-i)%12, year-1, graph.points.all())))
             else:
-                vals.append(formatThousands(monthYTD(month%12, year, graph.points.all())))
+                vals.append(formatThousands(monthYTD((month-i)%12, year, graph.points.all())))
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
     vals.reverse()
@@ -540,9 +540,9 @@ def getPageYTDYoyStats(page, month, year):
         graph = Graph.objects.get(page = page, name = page.table)
         for i in range(MONTHS):
             if month - i < 0:
-                vals.append(monthYOY(month%12, year-1, graph.points.all()))
+                vals.append(monthYOY((month-i)%12, year-1, graph.points.all()))
             else:
-                vals.append(monthYOY(month%12, year, graph.points.all()))
+                vals.append(monthYOY((month-i)%12, year, graph.points.all()))
     
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
@@ -552,18 +552,15 @@ def getPageYTDYoyStats(page, month, year):
 def monthYTD(month, year, pointList):
     points = filterYear(pointList, year)
     sum = 0
-    pval = 0
-    for i in range(month%12 + 1):
-        j = 0
+    j = 0
+    for i in range(month%12):
         for point in points:
             if i == mos.index(point.x.split(" ")[0].lower())%12:
-                j = 1
-                pval = point.y
-        if j == 1:
-            sum += pval
-        else:
-            return 0
-    return sum
+                sum += point.y
+    for point in points:
+        if month%12 == mos.index(point.x.split(" ")[0].lower())%12:
+            return sum + point.y
+    return 0
 
 def monthYOY(month, year, points):
     num = monthYTD(month, year, points)
