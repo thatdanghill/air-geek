@@ -97,15 +97,127 @@ RawGraph.prototype = {
 		this.container.find('.buttons').prepend($('#tableicon').clone().show());
 		this.container.find('.buttons').prepend($('#calculatoricon').clone().show());
 		
-		var that = this;
-		//!!! FIX
-		this.container.find('#calculatoricon').click(function() {
-			var momstr = "<div id='mom-container' class='graph'></div>";
-			$("#graph-holder").prepend(momstr);
-			var mom = new MonthOnMonthGraph($("#graph-holder").find("#mom-container"), that);
-			mom.calculate(that.data);
-			mom.plot();
+		this.calculatorAction(this.container);
+		this.tableAction(this.container);
+	},
+	
+	calculatorAction : function(container) {
+		selections = "<form><table><tbody><tr><td><i><b>Raw</b></i><br>" +
+		"&nbsp;<i>1 Month</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-yoy'>Year on Year<br>" +
+		"&nbsp;<i>3 Month Avg</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-3mav-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-3mav-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-3mav-yoy'>Year on Year<br>" +
+		"&nbsp;<i>12 Month Avg</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-yoy'>Year on Year<br></td>" +
+		"<td><i><b>Seasonally Adjusted</b></i><br>" +
+		"&nbsp;<i>1 Month</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-yoy'>Year on Year<br>" +
+		"&nbsp;<i>3 Month Avg</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-3mav-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-3mav-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-3mav-yoy'>Year on Year<br>" +
+		"&nbsp;<i>12 Month Avg</i><br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-12mav-mom'>Month on Month<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-12mav-qoq'>Quarter on Quarter<br>" +
+		"&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-12mav-yoy'>Year on Year<br>" +
+		"</td></tr></tbody></table></form>";
+		
+		menustr = "<div id='calc-graph-list' style='background-color: #9eb3c0; padding: 15px; display:none'>" + selections + "</div>";
+		container.find(".view").before(menustr);
+		this.container.find('#calculatoricon').click(function(event) {
+			event.preventDefault();
+			$("#calc-graph-list").toggle('slow');
 		});
+		
+		var that = this;
+		$('.calc-select').change(function() {
+		var str = $(this).val();
+		if ($(this).prop("checked")) {
+			if ($('#' + str).length) {
+				$('#' + str).show();
+			}
+			else {
+				var dom = "<div class='sidebar' style='display:inline-block; padding: 25px;'></div><div id='"+str+"' class='graph' style='display: inline-block'></div>";
+				$("#graph-holder").append(dom);
+				var cgraph = that.whichObj(str, $("#graph-holder").find("#" + str), that);
+				cgraph.calculate(that.data);
+				cgraph.plot();
+			}
+		} else {
+			$('#' + str).hide();
+		}
+		});
+	},
+	
+	whichObj: function(id, container, that) {
+		switch(id) {
+			case "raw-mom":
+				return new MonthOnMonthGraph(container, that);
+				break;
+			case "raw-qoq":
+				return new QuarterOnQuarterGraph(container, that);
+				break;
+			case "raw-yoy":
+				return new YearOnYearGraph(container, that);
+				break;
+			case "raw-3mav-mom":
+				return new MonthOnMonth3MavGraph(container, that);
+				break;
+			case "raw-3mav-qoq":
+				return new QuarterOnQuarter3MavGraph(container, that);
+				break;
+			case "raw-3mav-yoy":
+				return new YearOnYear3MavGraph(container, that);
+				break;
+			case "raw-12mav-mom":
+				return new MonthOnMonth12MavGraph(container, that);
+				break;
+			case "raw-12mav-qoq":
+				return new QuarterOnQuarter12MavGraph(container, that);
+				break;
+			case "raw-12mav-yoy":
+				return new YearOnYear12MavGraph(container, that);
+				break;
+			case "sa-mom":
+				return new SeasonalMonthOnMonthGraph(container, that);
+				break;
+			case "sa-qoq":
+				return new SeasonalQuarterOnQuarterGraph(container, that);
+				break;
+			case "sa-yoy":
+				return new SeasonalYearOnYearGraph(container, that);
+				break;
+			case "sa-3mav-mom":
+				return new SeasonalMonthOnMonth3MavGraph(container, that);
+				break;
+			case "sa-3mav-qoq":
+				return new SeasonalQuarterOnQuarter3MavGraph(container, that);
+				break;
+			case "sa-3mav-yoy":
+				return new SeasonalYearOnYear3MavGraph(container, that);
+				break;
+			case "sa-12mav-mom":
+				return new SeasonalMonthOnMonth12MavGraph(container, that);
+				break;
+			case "sa-12mav-qoq":
+				return new SeasonalQuarterOnQuarter12MavGraph(container, that);
+				break;
+			case "sa-12mav-yoy":
+				return new SeasonalYearOnYear12MavGraph(container, that);
+				break;
+		}
+	},
+	
+	tableAction: function(container) {
+		
 	}
 }
 
@@ -165,6 +277,541 @@ MonthOnMonthGraph.prototype = {
 		
 	}
 	
+}
+
+function QuarterOnQuarterGraph(container, rawGraph) {
+	this.title = "Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(QuarterOnQuarterGraph, CalculatedGraph);
+
+QuarterOnQuarterGraph.prototype = {
+	constructor: QuarterOnQuarterGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function YearOnYearGraph(container, rawGraph) {
+	this.title = "Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(YearOnYearGraph, CalculatedGraph);
+
+YearOnYearGraph.prototype = {
+	constructor: YearOnYearGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function MonthOnMonth3MavGraph(container, rawGraph) {
+	this.title = "3 Month Average Month on Month";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(MonthOnMonth3MavGraph, CalculatedGraph);
+
+MonthOnMonth3MavGraph.prototype = {
+	constructor: MonthOnMonth3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function QuarterOnQuarter3MavGraph(container, rawGraph) {
+	this.title = "3 Month Average Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(QuarterOnQuarter3MavGraph, CalculatedGraph);
+
+QuarterOnQuarter3MavGraph.prototype = {
+	constructor: QuarterOnQuarter3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function YearOnYear3MavGraph(container, rawGraph) {
+	this.title = "3 Month Average Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(YearOnYear3MavGraph, CalculatedGraph);
+
+YearOnYear3MavGraph.prototype = {
+	constructor: YearOnYear3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function MonthOnMonth12MavGraph(container, rawGraph) {
+	this.title = "12 Month Average Month on Month";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(MonthOnMonth12MavGraph, CalculatedGraph);
+
+MonthOnMonth12MavGraph.prototype = {
+	constructor: MonthOnMonth12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function QuarterOnQuarter12MavGraph(container, rawGraph) {
+	this.title = "12 Month Average Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(QuarterOnQuarter12MavGraph, CalculatedGraph);
+
+QuarterOnQuarter12MavGraph.prototype = {
+	constructor: QuarterOnQuarter12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function YearOnYear12MavGraph(container, rawGraph) {
+	this.title = "12 Month Average Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(YearOnYear12MavGraph, CalculatedGraph);
+
+YearOnYear12MavGraph.prototype = {
+	constructor: YearOnYear12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}
+	
+}
+
+function SeasonalMonthOnMonthGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted Month on Month";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalMonthOnMonthGraph, CalculatedGraph);
+
+SeasonalMonthOnMonthGraph.prototype = {
+	constructor: SeasonalMonthOnMonthGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalQuarterOnQuarterGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalQuarterOnQuarterGraph, CalculatedGraph);
+
+SeasonalQuarterOnQuarterGraph.prototype = {
+	constructor: SeasonalQuarterOnQuarterGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalYearOnYearGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalYearOnYearGraph, CalculatedGraph);
+
+SeasonalYearOnYearGraph.prototype = {
+	constructor: SeasonalYearOnYearGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalMonthOnMonth3MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 3 Month Average Month on Month";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalMonthOnMonth3MavGraph, CalculatedGraph);
+
+SeasonalMonthOnMonth3MavGraph.prototype = {
+	constructor: SeasonalMonthOnMonth3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalQuarterOnQuarter3MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 3 Month Average Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalQuarterOnQuarter3MavGraph, CalculatedGraph);
+
+SeasonalQuarterOnQuarter3MavGraph.prototype = {
+	constructor: SeasonalQuarterOnQuarter3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalYearOnYear3MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 3 Month Average Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalYearOnYear3MavGraph, CalculatedGraph);
+
+SeasonalYearOnYear3MavGraph.prototype = {
+	constructor: SeasonalYearOnYear3MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalMonthOnMonth12MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 12 Month Average Month on Month";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalMonthOnMonth12MavGraph, CalculatedGraph);
+
+SeasonalMonthOnMonth12MavGraph.prototype = {
+	constructor: SeasonalMonthOnMonth12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalQuarterOnQuarter12MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 12 Month Average Quarter on Quarter";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalQuarterOnQuarter12MavGraph, CalculatedGraph);
+
+SeasonalQuarterOnQuarter12MavGraph.prototype = {
+	constructor: SeasonalQuarterOnQuarter12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
+}
+
+function SeasonalYearOnYear12MavGraph(container, rawGraph) {
+	this.title = "Seasonally Adjusted 12 Month Average Year on Year";
+	CalculatedGraph.call(this, container, rawGraph);
+}
+
+inheritPrototype(SeasonalYearOnYear12MavGraph, CalculatedGraph);
+
+SeasonalYearOnYear12MavGraph.prototype = {
+	constructor: SeasonalYearOnYear12MavGraph,
+	plot: function() {
+		this.render();
+		this.addButtons();
+	},
+	
+	calculate: function(data) {
+		
+	},
+	
+	render: function() {
+		
+	},
+	
+	drawGraph: function(data) {
+		
+	},
+	
+	addButtons: function() {
+		
+	}	
 }
 
 google.load('visualization', '1.0', {packages:['line', 'table']});
