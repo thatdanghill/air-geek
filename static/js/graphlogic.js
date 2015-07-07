@@ -59,7 +59,7 @@ function ThreeMonthMovingAverage(data){
 
 function ThreeMAV(data){
     vals = []
-    for (var i = 0; i+12 < data.length; i++){
+    for (var i = 0; i < data.length; i++){
         vals[i] = [];
         if (i == 0) {
             vals[i][0] = data[i][0];
@@ -77,3 +77,19 @@ function ThreeMAV(data){
     }
     
 }
+
+function TwelveMonthRolling(data) {
+    this.data = TMR(data);
+}
+
+function TMR(data) {
+    vals= []
+    for (var i = 12; i < data.length; i++){
+        vals[i] = [];
+        vals[i][0] = data[i][0];
+        vals[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+        }
+        return vals;
+}
+
