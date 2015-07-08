@@ -32,6 +32,7 @@ def pluginGraph(request, user_name, project_name, page_name, graph_name):
             xs = request.GET.copy().getlist('x[]')
             ys = request.GET.copy().getlist('y[]')
             type = request.GET['type']
+            url = request.GET['url']
             
             if type == "string" :
                 addStringPoints(xs, ys, graph)
@@ -469,7 +470,7 @@ def pointQueryToJSON(graph):
     context = {"points":[]}
     points = graph.points.all().order_by('index')
     for point in points:
-        context['points'].append([point.x, point.y])
+        context['points'].append([point.x, calculateRealValue(point.y, point.graph)])
     return context
 
 def getDataTypeSymbol(data_type):
