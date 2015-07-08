@@ -71,7 +71,15 @@ Graph.prototype = {
 		for (var i in xs) {
 			years.add(this.getYear(xs[i]));
 		}
-		return Array.from(years).sort();
+		var vals = [];
+		var iter = years.values();
+		var next = iter.next().value;
+		while(next) {
+			vals.push(next);
+			next = iter.next().value;
+		}
+		//return Array.from(years).sort();
+		return vals;
 	},
 	
 	addMonthRows: function(table) {
