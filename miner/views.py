@@ -16,7 +16,6 @@ YEARS = 3
 MONTHS = 4
   
 #-------------------------------------------------------------------
-
 # Views
 #-------------------------------------------------------------------
 
@@ -467,7 +466,7 @@ def calculateYTD(points):
 # allPoints
 
 def pointQueryToJSON(graph):
-    context = {"points":[]}
+    context = {"points":[], "url": graph.url}
     points = graph.points.all().order_by('index')
     for point in points:
         context['points'].append([point.x, calculateRealValue(point.y, point.graph)])
