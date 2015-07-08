@@ -621,7 +621,7 @@ SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
 	var totalYears = [];
 	var seasonalRatios = [];
 	var averageSeasonalRatios = [];
-	for (i=0; i<data.length(); i++){
+	for (i=0; i<data.length; i++){
 		totalYears[i] = [];
 		if (this.getMonthIndex(data[i][0]) == 0 && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
 			totalYears[i][0] = this.getYear(data[i][0]);
@@ -631,7 +631,7 @@ SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
 	}
 	for (i=0; i < data.length(); i++) {
 		seasonalRatios = [];
-		for (j=0; j < totalYears.length(); j++){
+		for (j=0; j < totalYears.length; j++){
 			if (this.getYear(data[i][0]) == totalYears[j][0]) {
 				seasonalRatios[i][0] = data[i][0];
 				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
@@ -649,7 +649,7 @@ SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
 			});
 		averageSeasonalRatios[i][1] = monthSum/totalYears.length();
 	}
-	for (i=0; i < data.length(); i++) {
+	for (i=0; i < data.length; i++) {
 		this.data = [];
 		this.data[i][0] = data[i][0];
 		this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
