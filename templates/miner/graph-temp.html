@@ -14,10 +14,10 @@
 		<script src="{% static "js/jquery.js" %}"></script>
 		<script src="{% static "js/graphmanager.js" %}"></script>
 		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-		<img id="tableicon" draggable="false" style="display:none; padding-left: 10px" src={% static "images/tableicon.png" %}>
-		<img id="calculatoricon" draggable="false" style="display:none; padding-left: 10px" src={% static "images/calculatoricon.png" %}>
 	</head>
 	<body>
+		<img id="tableicon" draggable="false" style="display:none; padding-left: 10px" src={% static "images/tableicon.png" %} onmouseover="this.src='{% static "images/tableiconhover.png" %}'" onmouseout="this.src='{% static "images/tableicon.png" %}'" >
+		<img id="calculatoricon" draggable="false" style="display:none; padding-left: 10px" src={% static "images/calculatoricon.png" %} onmouseover="this.src='{% static "images/calculatoriconhover.png" %}'" onmouseout="this.src='{% static "images/calculatoricon.png" %}'" >
 		<div id="header">
 			<h1> AirGeek </h1>
 		</div>
