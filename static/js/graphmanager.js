@@ -378,13 +378,11 @@ function QuarterOnQuarterGraph(container, rawGraph) {
 inheritPrototype(QuarterOnQuarterGraph, CalculatedGraph);
 
 QuarterOnQuarterGraph.prototype.calculate = function(data) {
-	vals = [];
     for (var i = 5; i < data.length; i++){
-        vals[i] = [];
-        vals[i][0] = data[i][0];
-        vals[i][1] = ((data[i][1] + data[i-1][1] + data[i-2][1])/(data[i-3][1] + data[i-4][1] + data[i-5][1]) - 1) * 100
+        this.data[i-5] = [];
+        this.data[i-5][0] = data[i][0];
+        this.data[i-5][1] = ((data[i][1] + data[i-1][1] + data[i-2][1])/(data[i-3][1] + data[i-4][1] + data[i-5][1]) - 1);
     }
-    this.data = vals;
 };
 
 function YearOnYearGraph(container, rawGraph) {
@@ -396,13 +394,11 @@ function YearOnYearGraph(container, rawGraph) {
 inheritPrototype(YearOnYearGraph, CalculatedGraph);
 
 YearOnYearGraph.prototype.calculate = function(data) {
-	vals = []
     for (var i = 12; i < data.length; i++){
-        vals[i] = [];
-        vals[i][0] = data[i][0];
-        vals[i][1] = (data[i][1]/data[i-12][1] - 1) * 100;
+        this.data[i-12] = [];
+        this.data[i-12][0] = data[i][0];
+        this.data[i-12][1] = (data[i][1]/data[i-12][1] - 1);
     }
-    this.data = vals;
 };
 
 function Raw3MavGraph(container, rawGraph) {
@@ -414,23 +410,21 @@ function Raw3MavGraph(container, rawGraph) {
 inheritPrototype(Raw3MavGraph, CalculatedGraph);
 
 Raw3MavGraph.prototype.calculate = function(data) {
-	vals = []
-    for (var i = 0; i+12 < data.length; i++){
-        vals[i] = [];
+	for (var i = 0; i < data.length; i++){
+        this.data[i] = [];
         if (i == 0) {
-            vals[i][0] = data[i][0];
-            vals[i][1] = data[i][1];
+            this.data[i][0] = data[i][0];
+            this.data[i][1] = data[i][1];
         }
-        if (i == 1) {
-            vals[i][0] = data[i][0];
-            vals[i][1] = (data[i][1] + data[i-1][1]) / 2;
+        else if (i == 1) {
+            this.data[i][0] = data[i][0];
+            this.data[i][1] = (data[i][1] + data[i-1][1]) / 2;
         }
         else {
-            vals[i][0] = data[i][0];
-            vals[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1]) / 3;
-        }
+            this.data[i][0] = data[i][0];
+            this.data[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1]) / 3;
+        } 
     }
-    this.data = vals;
 };
 
 function MonthOnMonth3MavGraph(container, rawGraph) {
@@ -442,7 +436,27 @@ function MonthOnMonth3MavGraph(container, rawGraph) {
 inheritPrototype(MonthOnMonth3MavGraph, CalculatedGraph);
 
 MonthOnMonth3MavGraph.prototype.calculate = function(data) {
-	
+	var vals = [];
+	for (var i = 0; i < data.length; i++){
+        vals[i] = [];
+        if (i == 0) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = data[i][1];
+        }
+        else if (i == 1) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1]) / 2;
+        }
+        else {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1]) / 3;
+        } 
+    }
+    for (var i = 1; i < vals.length; i++) {
+		this.data[i-1] = [];
+		this.data[i-1][0] = vals[i][0];
+		this.data[i-1][1] = (vals[i][1]/vals[i-1][1] - 1);
+	}
 };
 
 function QuarterOnQuarter3MavGraph(container, rawGraph) {
@@ -454,7 +468,27 @@ function QuarterOnQuarter3MavGraph(container, rawGraph) {
 inheritPrototype(QuarterOnQuarter3MavGraph, CalculatedGraph);
 
 QuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
-	
+	var vals = [];
+	for (var i = 0; i < data.length; i++){
+        vals[i] = [];
+        if (i == 0) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = data[i][1];
+        }
+        else if (i == 1) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1]) / 2;
+        }
+        else {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1]) / 3;
+        } 
+    }
+    for (var i = 5; i < vals.length; i++){
+        this.data[i-5] = [];
+        this.data[i-5][0] = vals[i][0];
+        this.data[i-5][1] = ((vals[i][1] + vals[i-1][1] + vals[i-2][1])/(vals[i-3][1] + vals[i-4][1] + vals[i-5][1]) - 1);
+    }
 };
 
 function YearOnYear3MavGraph(container, rawGraph) {
@@ -466,7 +500,27 @@ function YearOnYear3MavGraph(container, rawGraph) {
 inheritPrototype(YearOnYear3MavGraph, CalculatedGraph);
 
 YearOnYear3MavGraph.prototype.calculate = function(data) {
-	
+	var vals = [];
+	for (var i = 0; i < data.length; i++){
+        vals[i] = [];
+        if (i == 0) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = data[i][1];
+        }
+        else if (i == 1) {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1]) / 2;
+        }
+        else {
+            vals[i][0] = data[i][0];
+            vals[i][1] = (data[i][1] + data[i-1][1] + data[i-2][1]) / 3;
+        } 
+    }
+    for (var i = 12; i < vals.length; i++){
+        this.data[i-12] = [];
+        this.data[i-12][0] = vals[i][0];
+        this.data[i-12][1] = (vals[i][1]/vals[i-12][1] - 1);
+    }
 };
 
 function Raw12MavGraph(container, rawGraph) {
@@ -478,7 +532,12 @@ function Raw12MavGraph(container, rawGraph) {
 inheritPrototype(Raw12MavGraph, CalculatedGraph);
 
 Raw12MavGraph.prototype.calculate = function(data) {
-	
+    for (var i = 12; i < data.length; i++){
+        this.data[i-12] = [];
+        this.data[i-12][0] = data[i][0];
+        this.data[i-12][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+    }
 };
 
 function MonthOnMonth12MavGraph(container, rawGraph) {
@@ -490,7 +549,18 @@ function MonthOnMonth12MavGraph(container, rawGraph) {
 inheritPrototype(MonthOnMonth12MavGraph, CalculatedGraph);
 
 MonthOnMonth12MavGraph.prototype.calculate = function(data) {
-	
+	vals= [];
+    for (var i = 12; i < data.length; i++){
+        vals[i-12] = [];
+        vals[i-12][0] = data[i][0];
+        vals[i-12][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+    }
+    for (var i = 1; i < vals.length; i++) {
+		this.data[i-1] = [];
+		this.data[i-1][0] = vals[i][0];
+		this.data[i-1][1] = (vals[i][1]/vals[i-1][1] - 1);
+	}
 };
 
 function QuarterOnQuarter12MavGraph(container, rawGraph) {
@@ -502,7 +572,18 @@ function QuarterOnQuarter12MavGraph(container, rawGraph) {
 inheritPrototype(QuarterOnQuarter12MavGraph, CalculatedGraph);
 
 QuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
-	
+	vals= [];
+    for (var i = 12; i < data.length; i++){
+        vals[i-12] = [];
+        vals[i-12][0] = data[i][0];
+        vals[i-12][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+    }
+	for (var i = 5; i < vals.length; i++){
+        this.data[i-5] = [];
+        this.data[i-5][0] = vals[i][0];
+        this.data[i-5][1] = ((vals[i][1] + vals[i-1][1] + vals[i-2][1])/(vals[i-3][1] + vals[i-4][1] + vals[i-5][1]) - 1);
+    }
 };
 
 function YearOnYear12MavGraph(container, rawGraph) {
@@ -514,7 +595,18 @@ function YearOnYear12MavGraph(container, rawGraph) {
 inheritPrototype(YearOnYear12MavGraph, CalculatedGraph);
 
 YearOnYear12MavGraph.prototype.calculate = function(data) {
-	
+	vals= [];
+    for (var i = 12; i < data.length; i++){
+        vals[i-12] = [];
+        vals[i-12][0] = data[i][0];
+        vals[i-12][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+    }
+    for (var i = 12; i < vals.length; i++){
+        this.data[i-12] = [];
+        this.data[i-12][0] = vals[i][0];
+        this.data[i-12][1] = (vals[i][1]/vals[i-12][1] - 1);
+    }
 };
 
 function SeasonalMonthOnMonthGraph(container, rawGraph) {
