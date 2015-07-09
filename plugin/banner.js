@@ -25,6 +25,12 @@ function Creator() {
 		},
 		
 		insertDOM: function() {
+			var contents = $('body').children();
+			$('body').prepend("<div id='plugin-contents'></div>");
+			$("#plugin-contents").prepend(contents);
+			$("#plugin-contents").css("width", window.innerWidth - 260);
+			$('body').children().last().after("<div id='plugin-sidebar-container'></div>");
+		
 			//width of sidebar
 			var width = '250px';
 			
@@ -54,37 +60,32 @@ function Creator() {
 			else {
 				currentSide = parseFloat($('html').css('right')); //parseFloat removes any 'px' and returns a number type
 			}
-			html.css('overflow',
-			'scroll');
-			html.css(
-				'width',     //make sure we're -adding- to any existing values
-				html.width() - parseFloat(width) + 'px'
-			);
+			html.css({'overflow-x': 'scroll', 'white-space': 'normal'});
 			
-			var iframeId = 'plugin-sidebar-container';
+			var iframeId = 'plugin-sidebar-frame';
 			if (document.getElementById(iframeId)) {
 				alert('id:' + iframeId + 'taken please dont use this id!');
 				throw 'id:' + iframeId + 'taken please dont use this id!';
 			}
-			html.append(
-			'<iframe id="'+iframeId+'" scrolling="no" frameborder="0" allowtransparency="false" style="position: fixed; width: '+width+';border:none;z-index: 2147483647; top: 0px; height: 100%;right: 0px;"></iframe>'
+			$('#plugin-sidebar-container').append(
+			'<iframe id="'+iframeId+'" scrolling="no" frameborder="0" allowtransparency="false" style="position: fixed; width: '+width+';border:none;'+
+			'z-index: 2147483647;' +
+			 'top: 0px; '+
+			 'height: 100%;'+
+			 '"></iframe>'
 			);
 			document.getElementById(iframeId).contentDocument.body.innerHTML =
 			'<style type="text/css">\
-			html, body {          \
-			height: 100%; \
-			width: '+width+';        \
-			z-index: 2147483647;\
-			}                     \
+			html, body {' +
+			'height: 100%;' +
+			'width: '+width+';'+
+			'z-index: 2147483647;'+
+			'}                     \
 			</style>' +
 			domString;
-		
+			
 			sideBar = $('#'+iframeId).contents();
-			/*var contents = $('body').children();
-			$('body').prepend("<div id='plugin-contents'></div>");
-			$("#plugin-contents").prepend(contents);
-			$("#plugin-contents").css("width", window.innerWidth - 260);
-			$('body').children().last().after(domString);*/
+			
 			pl.initialize();
 		},
 		
