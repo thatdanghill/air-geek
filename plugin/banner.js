@@ -181,13 +181,16 @@ function PointList() {
 			}
 			obj.x = xs;
 			obj.y = ys;
+			obj.source = window.location.href;
 			obj.type = $('#data-type option:selected').val();
 			return obj;
 		},
 		
 		cleanUp: function(valid, invalid) {
 			for (var i = 0; i < invalid.length; i ++) {
-				$(invalid).find('input').css("background-color", "red");
+				if (!($(invalid[i]).find('.x').val() == '' && $(invalid[i]).find('.y').val() == '')) {
+					$(invalid[i]).find('input').css("background-color", "red");
+				}
 			}
 			for (var i = 0; i < valid.length; i++) {
 				$(valid).find('input').css("background-color", "green");
@@ -212,7 +215,7 @@ function PointList() {
 							$('.x').last().focus();
 						}
 					}*/
-					self.showHighlight(self.getHightlightCoords());
+					self.showHighlight(self.getHighlightCoords());
 				}
 				else if (typeof window.getSelection != "undefined") {
 					var text = window.getSelection().toString();
@@ -229,7 +232,7 @@ function PointList() {
 						$('.y').last().val(fl);	
 						$('.x').last().focus();
 					}
-				} 
+				}
 				
 				if ($('.x').last().is($(document.activeElement)) 
 				&& $('.x').last().val() != ''
@@ -237,13 +240,24 @@ function PointList() {
 					self.addPoint();
 				}
 				
+				if ($('.y').last().is($(document.activeElement)) 
+				&& $('.x').last().val() != ''
+				&& $('.y').last().val() != '') {
+					self.addPoint();
+				}
+
+				if ($('.y').last().is($(document.activeElement))
+				&& $('.x').last().val() == '') {
+					$('.x').last().focus();
+				}	
+				
 				if (self.areBothBlank()) {
 					self.removeBlank($(document.activeElement));
 				}
 			}
 		},
 		
-		getHightlightCoords: function() {
+		getHighlightCoords: function() {
 			var pageIndex = window.PDFViewerApplication.pdfViewer.currentPageNumber - 1; 
 			var page = window.PDFViewerApplication.pdfViewer.pages[pageIndex];
 			var pageRect = page.canvas.getClientRects()[0];

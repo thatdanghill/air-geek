@@ -31,7 +31,9 @@ def pluginGraph(request, user_name, project_name, page_name, graph_name):
             xs = request.GET.copy().getlist('x[]')
             ys = request.GET.copy().getlist('y[]')
             type = request.GET['type']
-            url = request.GET['url']
+            url = request.GET['source']
+            graph.url = url
+            graph.save()
             
             if type == "string" :
                 addStringPoints(xs, ys, graph)
