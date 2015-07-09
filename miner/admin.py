@@ -38,7 +38,6 @@ def multiply_by_b(modeladmin, request, queryset):
 multiply_by_b.short_description = "Multiply point abscissae by one billion"
 
 class PointAdmin(admin.ModelAdmin):
-    ordering = ['graph', 'index']
     actions = [divide_by_k, divide_by_m, divide_by_b, multiply_by_k, multiply_by_m, multiply_by_b]
 
 class GraphAdmin(admin.ModelAdmin):

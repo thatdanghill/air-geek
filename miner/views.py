@@ -278,6 +278,7 @@ def addMonthPoints(x,y,graph):
         q.save()
     for i in range(len(x)):
         placeInOrder(x[i], y[i], points, graph)
+        points = graph.points.order_by('index')
 
 def placeInOrder(x, y, points, graph):
     spl = x.split(" ")
@@ -318,7 +319,7 @@ def findIndex(year, month, points):
     while i < points.count() and int(points[i].x.split(" ")[1]) < year:
         i = i + 1
 
-    while i < points.count() and int(points[i].x.split(" ")[1]) == year and mos.index(points[i].x.split(" ")[0].lower()) % 12 > mos.index(month.lower()) % 12:
+    while i < points.count() and int(points[i].x.split(" ")[1]) == year and mos.index(points[i].x.split(" ")[0].lower()) % 12 < mos.index(month.lower()) % 12:
         i = i + 1
     return i
 
