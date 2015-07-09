@@ -16,7 +16,7 @@ function GraphManager(container) {
 GraphManager.prototype = {
 	constructor: GraphManager,
 	initialize : function() {
-		this.container.prepend("<div id='raw-container' class='graph'></div>");
+		this.container.prepend("<div id='raw-container' style='padding-left: 50px' class='graph'></div>");
 		var raw = new RawGraph($("#raw-container"));
 		raw.plot();
 	},
@@ -31,8 +31,7 @@ function Graph(container) {
 		'chartArea.width' : 500,
 		'chartArea.height' : 350,
 		'legend': {position: 'none'},
-		'backgroundColor': 'white',
-		'vAxis.format':'long'	
+		'backgroundColor': 'white'	
 	};
 }
 
@@ -166,6 +165,8 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
+		
+		this.options.vAxis = {format: 'decimal'};
 		
 		var chart = new google.charts.Line(document.getElementById('raw-view'));
 		chart.draw(table, google.charts.Line.convertOptions(this.options));
