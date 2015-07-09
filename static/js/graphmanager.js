@@ -26,12 +26,13 @@ function Graph(container) {
 	this.container = container;
 	this.data = [];
 	this.options = {	
-		'width' : 750,
+		'width' : 800,
 		'height' : 450,
 		'chartArea.width' : 500,
 		'chartArea.height' : 350,
-		'legend': {position: 'none'}
-		
+		'legend': {position: 'none'},
+		'backgroundColor': 'white',
+		'vAxis.format':'long'	
 	};
 }
 
@@ -165,10 +166,9 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
-		this.options['title'] = this.title;
 		
 		var chart = new google.charts.Line(document.getElementById('raw-view'));
-		chart.draw(table, this.options);
+		chart.draw(table, google.charts.Line.convertOptions(this.options));
 	},
 	
 	addButtons : function() {
@@ -210,7 +210,7 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		"</td></tr></tbody></table></form>";
 		
 		menustr = "<div id='calc-graph-list' style='background-color: #9eb3c0; padding: 15px; display:none'>" + selections + "</div>";
-		container.find(".view").before(menustr);
+		container.find(".title").before(menustr);
 		this.container.find('#calculatoricon').click(function(event) {
 			event.preventDefault();
 			$("#calc-graph-list").toggle('slow');
@@ -346,10 +346,10 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
-		this.options['title'] = this.title;
+		this.options.vAxis = (this.pattern == '#.##%') ? {format: '#%'} : {format: 'decimal'};
 		
 		var chart = new google.charts.Line(this.container.find(".view").first()[0]);
-		chart.draw(table, this.options);
+		chart.draw(table, google.charts.Line.convertOptions(this.options));
 	},
 	
 	addButtons: function() {
@@ -368,7 +368,7 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 
 function MonthOnMonthGraph(container, rawGraph) {
 	this.title = "Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -385,7 +385,7 @@ MonthOnMonthGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarterGraph(container, rawGraph) {
 	this.title = "Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -401,7 +401,7 @@ QuarterOnQuarterGraph.prototype.calculate = function(data) {
 
 function YearOnYearGraph(container, rawGraph) {
 	this.title = "Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -443,7 +443,7 @@ Raw3MavGraph.prototype.calculate = function(data) {
 
 function MonthOnMonth3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -475,7 +475,7 @@ MonthOnMonth3MavGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarter3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -507,7 +507,7 @@ QuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
 
 function YearOnYear3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -556,7 +556,7 @@ Raw12MavGraph.prototype.calculate = function(data) {
 
 function MonthOnMonth12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -579,7 +579,7 @@ MonthOnMonth12MavGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarter12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -602,7 +602,7 @@ QuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
 
 function YearOnYear12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -674,7 +674,7 @@ SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
 
 function SeasonalMonthOnMonthGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -730,7 +730,7 @@ SeasonalMonthOnMonthGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarterGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -786,7 +786,7 @@ SeasonalQuarterOnQuarterGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYearGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -906,7 +906,7 @@ Seasonal3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalMonthOnMonth3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -977,7 +977,7 @@ SeasonalMonthOnMonth3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarter3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1049,7 +1049,7 @@ SeasonalQuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYear3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1178,7 +1178,7 @@ Seasonal12MavGraph.prototype.calculate = function(data) {
 
 function SeasonalMonthOnMonth12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Month on Month";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1241,7 +1241,7 @@ SeasonalMonthOnMonth12MavGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarter12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Quarter on Quarter";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1303,7 +1303,7 @@ SeasonalQuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYear12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Year on Year";
-	this.pattern = '#.###%';
+	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
