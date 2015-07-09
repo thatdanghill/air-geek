@@ -1,6 +1,7 @@
+var sideBar;
+
 function Creator() {
-	var domString = '<div id="plugin-sidebar-container">' +
-	'<div id="plugin-sidebar">'+
+	var domString = '<div id="plugin-sidebar">'+
 	'<select id="graph-selector">' +
 	'</select>' +
 	'<select id="data-type">' +
@@ -10,7 +11,7 @@ function Creator() {
 	'<br>'+
 	'<table id="point-list"></table>'+
 	'<button id="submit"> Submit </button>'+
-	'</div></div>';
+	'</div>';
   
 	var gm = GraphManager();
 	var pl = PointList();
@@ -24,11 +25,66 @@ function Creator() {
 		},
 		
 		insertDOM: function() {
-			var contents = $('body').children();
+			//width of sidebar
+			var width = '250px';
+			
+			var html;
+			if (document.documentElement) {
+				html = $(document.documentElement); //just drop $ wrapper if no jQuery
+			} 
+			else if (document.getElementsByTagName('html') && document.getElementsByTagName('html')[0]) {
+				html = $(document.getElementsByTagName('html')[0]);
+			} 
+			else if ($('html').length > -1) {
+				html = $('html');
+			} 
+			else {
+				alert('no html tag retrieved...!');
+				throw 'no html tag retrieved son.';
+			}
+			
+			if (html.css('position') === 'static') { //or //or getComputedStyle(html).position
+				html.css('position', 'relative');//or use .style or setAttribute
+			}
+			
+			var currentSide = html.css('right');//or getComputedStyle(html).top
+			if (currentSide === 'auto') {
+				currentSide = 0;
+			} 
+			else {
+				currentSide = parseFloat($('html').css('right')); //parseFloat removes any 'px' and returns a number type
+			}
+			html.css('overflow',
+			'scroll');
+			html.css(
+				'width',     //make sure we're -adding- to any existing values
+				html.width() - parseFloat(width) + 'px'
+			);
+			
+			var iframeId = 'plugin-sidebar-container';
+			if (document.getElementById(iframeId)) {
+				alert('id:' + iframeId + 'taken please dont use this id!');
+				throw 'id:' + iframeId + 'taken please dont use this id!';
+			}
+			html.append(
+			'<iframe id="'+iframeId+'" scrolling="no" frameborder="0" allowtransparency="false" style="position: fixed; width: '+width+';border:none;z-index: 2147483647; top: 0px; height: 100%;right: 0px;"></iframe>'
+			);
+			document.getElementById(iframeId).contentDocument.body.innerHTML =
+			'<style type="text/css">\
+			html, body {          \
+			height: 100%; \
+			width: '+width+';        \
+			z-index: 2147483647;\
+			}                     \
+			</style>' +
+			domString;
+		
+			sideBar = $('#'+iframeId).contents();
+			/*var contents = $('body').children();
 			$('body').prepend("<div id='plugin-contents'></div>");
 			$("#plugin-contents").prepend(contents);
 			$("#plugin-contents").css("width", window.innerWidth - 260);
-			$('body').children().last().after(domString);
+			$('body').children().last().after(domString);*/
 			pl.initialize();
 		},
 		
@@ -91,7 +147,7 @@ function GraphManager() {
 			var vals = pl.toJSON(valid);
 			pl.cleanUp(valid, invalid);
 			
-			var selected = $('#graph-selector option:selected');
+			var selected = sideBar.find('#graph-selector option:selected');
 			var project = self.stringifyAttrs($(selected).attr('project'));
 			var page = self.stringifyAttrs($(selected).attr('page'));
 			var graph = self.stringifyAttrs($(selected).val());
@@ -114,13 +170,13 @@ function PointList() {
 	var self = {
 		initialize: function() {
 			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"></input></td></tr>';
-			$('#point-list').append(rowTemplate);		
+			sideBar.find('#point-list').append(rowTemplate);		
 		},
 		
 		addPoint: function() {
 			var rowTemplate = '<tr><td><input class="x" type="text"></input></td><td><input class="y" type="text"></input></td></tr>';
-			$('#point-list').append(rowTemplate);
-			$('.y').last().focus();
+			sideBar.find('#point-list').append(rowTemplate);
+			sideBar.find('.y').last().focus();
 		},
 		
 		removeBlank: function(element) {
@@ -128,15 +184,15 @@ function PointList() {
 		},
 		
 		filterValidRows: function() {
-			var rows = $('#point-list tr');
+			var rows = sideBar.find('#point-list tr');
 			var obj = new Object();
 			var valid = new Array();
 			var invalid = new Array();
 			
 			for (var i = 0; i < rows.length; i++) {
 				var row = rows[i];
-				var x = $(row).find('.x').val();
-				var y = $(row).find('.y').val();
+				var x = sideBar.find(row).find('.x').val();
+				var y = sideBar.find(row).find('.y').val();
 				
 				if (self.isValidPair(x,y)) {
 					valid.push(row);
@@ -151,7 +207,7 @@ function PointList() {
 		isValidPair: function(x,y) {
 			var validY = (y != '' && !isNaN(y));
 			var validX = false;
-			var type = $('#data-type').val();
+			var type = sideBar.find('#data-type').val();
 			var moStrs = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 			
 			if (type == "string") {
@@ -176,13 +232,13 @@ function PointList() {
 			var ys = new Array();
 			for (var i = 0; i < rows.length; i++) {
 				var row = rows[i];
-				xs.push($(row).find('.x').val());
-				ys.push($(row).find('.y').val());
+				xs.push(sideBar.find(row).find('.x').val());
+				ys.push(sideBar.find(row).find('.y').val());
 			}
 			obj.x = xs;
 			obj.y = ys;
 			obj.source = window.location.href;
-			obj.type = $('#data-type option:selected').val();
+			obj.type = sideBar.find('#data-type option:selected').val();
 			return obj;
 		},
 		
@@ -196,7 +252,7 @@ function PointList() {
 				$(valid).find('input').css("background-color", "green");
 				$(valid).hide({duration: 1500, done: function() {
 					$(valid).remove();
-					if ($('#point-list tr').length == 0)
+					if (sideBar.find('#point-list tr').length == 0)
 						self.initialize();
 				}});
 			}	
@@ -221,34 +277,34 @@ function PointList() {
 					var text = window.getSelection().toString();
 					var fl = parseFloat(text.replace(/,/g,''));
 					if (!isNaN(fl)) {
-						$('.y').last().val(fl);
-						$('.x').last().focus();
+						sideBar.find('.y').last().val(fl);
+						sideBar.find('.x').last().focus();
 					}
 				} 
 				else if (typeof document.selection != "undefined" && document.selection.type == "Text") {
 					var text = document.selection.createRange().text;
 					var fl = parseFloat(text.replace(/,/g,''));
 					if (!isNaN(fl)) {
-						$('.y').last().val(fl);	
-						$('.x').last().focus();
+						sideBar.find('.y').last().val(fl);	
+						sideBar.find('.x').last().focus();
 					}
 				}
 				
-				if ($('.x').last().is($(document.activeElement)) 
-				&& $('.x').last().val() != ''
-				&& $('.y').last().val() != '') {
+				if (sideBar.find('.x').last().is($(document.activeElement)) 
+				&& sideBar.find('.x').last().val() != ''
+				&& sideBar.find('.y').last().val() != '') {
 					self.addPoint();
 				}
 				
-				if ($('.y').last().is($(document.activeElement)) 
-				&& $('.x').last().val() != ''
-				&& $('.y').last().val() != '') {
+				if (sideBar.find('.y').last().is($(document.activeElement)) 
+				&& sideBar.find('.x').last().val() != ''
+				&& sideBar.find('.y').last().val() != '') {
 					self.addPoint();
 				}
 
-				if ($('.y').last().is($(document.activeElement))
-				&& $('.x').last().val() == '') {
-					$('.x').last().focus();
+				if (sideBar.find('.y').last().is($(document.activeElement))
+				&& sideBar.find('.x').last().val() == '') {
+					sideBar.find('.x').last().focus();
 				}	
 				
 				if (self.areBothBlank()) {
@@ -286,16 +342,16 @@ function PointList() {
 		},
 		
 		areBothBlank: function() {
-			if ($('.x').last().is($(document.activeElement)) || $('.y').last().is($(document.activeElement))) {
+			if (sideBar.find('.x').last().is($(document.activeElement)) || sideBar.find('.y').last().is($(document.activeElement))) {
 				return false;
 			}
 			
-			if ($('.x').is($(document.activeElement)) && 
+			if (sideBar.find('.x').is($(document.activeElement)) && 
 			$(document.activeElement).parent().next().children().first().val() == '' && 
 			$(document.activeElement).val() == '') {
 				return true;	
 			}
-			if ($('.y').is($(document.activeElement)) && 
+			if (sideBar.find('.y').is($(document.activeElement)) && 
 			$(document.activeElement).parent().prev().children().first().val() == '' && 
 			$(document.activeElement).val() == '') {
 				return true;	
