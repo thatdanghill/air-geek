@@ -19,17 +19,17 @@ function Creator() {
   	
 	var self = {
 		setUp: function() {
+			console.log("Setting up!");
 			self.insertDOM();
 			self.getLogic();
 			self.attachHandlers();
 		},
 		
 		insertDOM: function() {
-			var contents = $('body').children();
-			$('body').prepend("<div id='plugin-contents'></div>");
-			$("#plugin-contents").prepend(contents);
-			$("#plugin-contents").css("width", window.innerWidth - 260);
-			$('body').children().last().after("<div id='plugin-sidebar-container'></div>");
+			//var contents = $('body').children();
+			//$('body').prepend("<div id='plugin-contents'></div>");
+			//$("#plugin-contents").prepend(contents);
+			//$("#plugin-contents").css("width", window.innerWidth - 260);
 		
 			//width of sidebar
 			var width = '250px';
@@ -61,6 +61,9 @@ function Creator() {
 				currentSide = parseFloat($('html').css('right')); //parseFloat removes any 'px' and returns a number type
 			}
 			html.css({'overflow-x': 'scroll', 'white-space': 'normal'});
+			$('body').width($('body').width() - currentSide - parseFloat(width));
+			//$('body').children().last().after("<div id='plugin-sidebar-container'></div>");
+			$('body').after("<div id='plugin-sidebar-container'></div>");
 			
 			var iframeId = 'plugin-sidebar-frame';
 			if (document.getElementById(iframeId)) {
@@ -72,6 +75,7 @@ function Creator() {
 			'z-index: 2147483647;' +
 			 'top: 0px; '+
 			 'height: 100%;'+
+			 'right: 0px' +
 			 '"></iframe>'
 			);
 			document.getElementById(iframeId).contentDocument.body.innerHTML =
@@ -261,20 +265,7 @@ function PointList() {
 		
 		handleXY: function(e) {
 			if (e.which == 13) {
-				if (window.location.href.endsWith('.pdf')) {
-					/*console.log("In a PDF!");
-					var annots = this.getAnnots({nSortBy: ANSB_ModDate, bReverse: false});
-					if (annots.length != 0) {
-						var text = annots[0];
-						var fl = parseFloat(text.replace(/,/g,''));
-						if (!isNaN(fl)) {
-							$('.y').last().val(fl);
-							$('.x').last().focus();
-						}
-					}*/
-					self.showHighlight(self.getHighlightCoords());
-				}
-				else if (typeof window.getSelection != "undefined") {
+				if (typeof window.getSelection != "undefined") {
 					var text = window.getSelection().toString();
 					var fl = parseFloat(text.replace(/,/g,''));
 					if (!isNaN(fl)) {
@@ -314,34 +305,6 @@ function PointList() {
 			}
 		},
 		
-		getHighlightCoords: function() {
-			var pageIndex = window.PDFViewerApplication.pdfViewer.currentPageNumber - 1; 
-			var page = window.PDFViewerApplication.pdfViewer.pages[pageIndex];
-			var pageRect = page.canvas.getClientRects()[0];
-			var selectionRects = window.getSelection().getRangeAt(0).getClientRects();
-			var viewport = page.viewport;
-			var selected = selectionRects.map(function (r) {
-				return viewport.convertToPdfPoint(r.left - pageRect.x, r.top - pageRect.y).concat(
-				viewport.convertToPdfPoint(r.right - pageRect.x, r.bottom - pageRect.y)); 
-			});
-			return {page: pageIndex, coords: selected};
-		},
- 
-		showHighlight: function(selected) {
-			var pageIndex = selected.page; 
-			var page = PDFViewerApplication.pdfViewer.pages[pageIndex];
-			var pageElement = page.canvas.parentElement;
-			var viewport = page.viewport;
-			selected.coords.forEach(function (rect) {
-				var bounds = viewport.convertToViewportRectangle(rect);
-				var el = document.createElement('div');
-				el.setAttribute('style', 'position: absolute; background-color: pink;' + 
-				'left:' + Math.min(bounds[0], bounds[2]) + 'px; top:' + Math.min(bounds[1], 					bounds[3]) + 'px;' +
-				'width:' + Math.abs(bounds[0] - bounds[2]) + 'px; height:' + Math.abs(bounds[1] 				- bounds[3]) + 'px;');
-				pageElement.appendChild(el);
-			});
-		},
-		
 		areBothBlank: function() {
 			if (sideBar.find('.x').last().is($(document.activeElement)) || sideBar.find('.y').last().is($(document.activeElement))) {
 				return false;
@@ -366,5 +329,37 @@ function PointList() {
 
 $(document).ready(function() {
     var creator = Creator();
-    creator.setUp();
+    //var port = chrome.runtime.connect({name: "activation"});
+    chrome.runtime.onMessage.addListener(
+		function(request, sender, sendResponse) {
+			if (request.status) {
+				if ($('#plugin-sidebar-container').length) {
+					$('#plugin-sidebar-container').show();
+				} else {
+					creator.setUp();
+				}
+			} else if (request.status == 0) {
+				$('#plugin-sidebar-container').hide();
+			} else {
+				sendResponse({status: $('#plugin-sidebar-container:visible').length ? 1 : 0});
+			}
+	});
+	/*port.onMessage.addListener(function(msg) {
+		if (msg.status) {
+			if ($('#plugin-sidebar-container')) {
+				$('#plugin-sidebar-container').show();
+			} else {
+				creator.setUp();
+			}
+		} else {
+			$('#plugin-sidebar-container').hide();
+		}
+	});*/
+    //port.postMessage({});
+    /*chrome.runtime.sendMessage({}, function(response) {
+    	console.log("Got a response: " + response);
+		if (response.status) {
+			creator.setUp();
+		}
+  	});*/
 });
