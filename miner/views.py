@@ -81,6 +81,7 @@ def index(request):
             page_array = []
             maxYear = findAllMaxYear(project)
             maxMonth = findMaxMonth(project, maxYear)
+        #countryData = countryTotals(project)
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
                 special_name = project.name[:-1]
@@ -89,7 +90,7 @@ def index(request):
                 page_release = getSymbolForRelease(page)
                 page_data_type = getDataTypeSymbol(page.data_type)
                 page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'data_type': page_data_type, 'release' : page_release})
-            proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)})
+            proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)}) # 'country': countryData})
             
         context['projects'] = proj_array
             
@@ -579,3 +580,36 @@ def monthYOY(month, year, points):
     if num == 0 or denom == 0:
         return "-"
     return round((num/denom)*100 - 100,2)
+
+#----------------------------------------------------
+
+def countryTotals(project):
+    allCountries = []
+    allCountriesWithComputedTotals = []
+    pages = project.pages.all()
+    for page in pages:
+        countryName = page.country
+        allAiportsPerCountry = filter(lambda x: x.country == countryName, pages)
+        if not allAiportsPerCountry in allCountries:
+            allCountries.append(allAiportsPerCountry)
+    for countryAirports in allCountries:
+        countryAirports.sort(countryAirports, key=lambda x: Graph.objects.get(page = x, name = x.table).points.all().len())
+        countryTotal = countryAiports[0].Graph.objects.get(page = countryAirports[0], name = countryAirports[0].table).points.all()
+        for airport in countryAirports.remove[0]:
+            graph = Graph.objects.get(page = airport, name = airport.table)
+            points = graph.points.all()
+            for i in range(points.length):
+                if countryTotal[i][0] == points[i][0]:
+                    countryTotal[i][1] == countryTotal[i][1] + points[i][1]
+        allCountriesWithComputedTotals.append(countryTotal)
+    return allCountriesWithComputedTotals
+                
+  
+        
+        
+            
+        
+        
+
+    
+    
