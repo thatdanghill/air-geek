@@ -16,7 +16,7 @@ function GraphManager(container) {
 GraphManager.prototype = {
 	constructor: GraphManager,
 	initialize : function() {
-		this.container.prepend("<div id='raw-container' style='padding-left: 50px' class='graph'></div>");
+		this.container.prepend("<div id='raw-container' class='graph'></div>");
 		var raw = new RawGraph($("#raw-container"));
 		raw.plot();
 	},
@@ -26,12 +26,13 @@ function Graph(container) {
 	this.container = container;
 	this.data = [];
 	this.options = {	
-		'width' : 800,
+		'width' : 750,
 		'height' : 450,
 		'chartArea.width' : 500,
 		'chartArea.height' : 350,
-		'legend': {position: 'none'},
-		'backgroundColor': 'white'	
+		'legend': {position: 'none'}
+		
+		
 	};
 }
 
@@ -165,11 +166,11 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
+		this.options['title'] = this.title;
 		
-		this.options.vAxis = {format: 'decimal'};
 		
 		var chart = new google.charts.Line(document.getElementById('raw-view'));
-		chart.draw(table, google.charts.Line.convertOptions(this.options));
+		chart.draw(table, this.options);
 	},
 	
 	addButtons : function() {
@@ -211,7 +212,7 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		"</td></tr></tbody></table></form>";
 		
 		menustr = "<div id='calc-graph-list' style='background-color: #9eb3c0; padding: 15px; display:none'>" + selections + "</div>";
-		container.find(".title").before(menustr);
+		container.find(".view").before(menustr);
 		this.container.find('#calculatoricon').click(function(event) {
 			event.preventDefault();
 			$("#calc-graph-list").toggle('slow');
@@ -347,10 +348,10 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
-		this.options.vAxis = (this.pattern == '#.##%') ? {format: '#%'} : {format: 'decimal'};
+		this.options['title'] = this.title;
 		
 		var chart = new google.charts.Line(this.container.find(".view").first()[0]);
-		chart.draw(table, google.charts.Line.convertOptions(this.options));
+		chart.draw(table, this.options);
 	},
 	
 	addButtons: function() {
@@ -369,7 +370,7 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 
 function MonthOnMonthGraph(container, rawGraph) {
 	this.title = "Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -386,7 +387,7 @@ MonthOnMonthGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarterGraph(container, rawGraph) {
 	this.title = "Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -402,7 +403,7 @@ QuarterOnQuarterGraph.prototype.calculate = function(data) {
 
 function YearOnYearGraph(container, rawGraph) {
 	this.title = "Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -444,7 +445,7 @@ Raw3MavGraph.prototype.calculate = function(data) {
 
 function MonthOnMonth3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -476,7 +477,7 @@ MonthOnMonth3MavGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarter3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -508,7 +509,7 @@ QuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
 
 function YearOnYear3MavGraph(container, rawGraph) {
 	this.title = "3 Month Average Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -551,13 +552,13 @@ Raw12MavGraph.prototype.calculate = function(data) {
         this.data[i-12] = [];
         this.data[i-12][0] = data[i][0];
         this.data[i-12][1] = (data[i][1] + data[i-1][1] + data[i-2][1] + data[i-3][1] + data[i-4][1] + data[i-5][1] + data[i-6][1]
-                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]);
+                      + data[i-7][1] + data[i-8][1] + data[i-9][1] + data[i-10][1] + data[i-11][1]) / 12 ;
     }
 };
 
 function MonthOnMonth12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -580,7 +581,7 @@ MonthOnMonth12MavGraph.prototype.calculate = function(data) {
 
 function QuarterOnQuarter12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -603,7 +604,7 @@ QuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
 
 function YearOnYear12MavGraph(container, rawGraph) {
 	this.title = "12 Month Average Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -633,49 +634,58 @@ function SeasonallyAdjustedDataGraph(container, rawGraph) {
 inheritPrototype(SeasonallyAdjustedDataGraph, CalculatedGraph);
 
 SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
+	if ($("meta").attr("graph").substring(0,4) == "Load") {
+		console.log("It works")
+		console.log(rawGraph.objects.get(page = $("meta").attr("page"), name = $("meta").attr("page").table).points.all())
+		console.log(data.page)
 	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	for (i=0; i < data.length; i++) {
-		this.data[i] = [];
-		this.data[i][0] = data[i][0];
-		this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}	
+	
+	
+	
+	//
+	//var totalYears = [];
+	//var seasonalRatios = [];
+	//var averageSeasonalRatios = [];
+	//for (i=0; i<data.length; i++){
+	//	if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
+	//		totalYears[Math.floor(i/12)] = [];
+	//		totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
+	//		totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
+	//							+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
+	//	}
+	//}
+	//for (i=0; i < data.length; i++) {
+	//	for (j=0; j < totalYears.length; j++){
+	//		if (this.getYear(data[i][0]) == totalYears[j][0]) {
+	//			seasonalRatios[i] = [];
+	//			seasonalRatios[i][0] = data[i][0];
+	//			seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
+	//		}				
+	//	}
+	//}
+	//for (i=0; i < 12; i++) {
+	//	averageSeasonalRatios[i] = [];
+	//	averageSeasonalRatios[i][0] = i;
+	//	var monthSum = 0;
+	//	var that = this;
+	//	seasonalRatios.filter(function(point) {
+	//		return that.getMonthIndex(point[0]) == i;	
+	//	}).forEach(function(point) {
+	//			monthSum += point[1];
+	//		});
+	//	averageSeasonalRatios[i][1] = monthSum/totalYears.length;
+	//}
+	//for (i=0; i < data.length; i++) {
+	//	this.data[i] = [];
+	//	this.data[i][0] = data[i][0];
+	//	this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
+	//}	
 };
 
 
 function SeasonalMonthOnMonthGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -731,7 +741,7 @@ SeasonalMonthOnMonthGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarterGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -787,7 +797,7 @@ SeasonalQuarterOnQuarterGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYearGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -907,7 +917,7 @@ Seasonal3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalMonthOnMonth3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -978,7 +988,7 @@ SeasonalMonthOnMonth3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarter3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1050,7 +1060,7 @@ SeasonalQuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYear3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 3 Month Average Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1173,13 +1183,13 @@ Seasonal12MavGraph.prototype.calculate = function(data) {
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
         this.data[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]);
+                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
     }
 };
 
 function SeasonalMonthOnMonth12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Month on Month";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1230,7 +1240,7 @@ SeasonalMonthOnMonth12MavGraph.prototype.calculate = function(data) {
         points[i-12] = [];
         points[i-12][0] = vals[i][0];
         points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]);
+                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
     }
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
@@ -1242,7 +1252,7 @@ SeasonalMonthOnMonth12MavGraph.prototype.calculate = function(data) {
 
 function SeasonalQuarterOnQuarter12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Quarter on Quarter";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1293,7 +1303,7 @@ SeasonalQuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
         points[i-12] = [];
         points[i-12][0] = vals[i][0];
         points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]);
+                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
     }
 	for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
@@ -1304,7 +1314,7 @@ SeasonalQuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
 
 function SeasonalYearOnYear12MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 12 Month Average Year on Year";
-	this.pattern = '#.##%';
+	this.pattern = '#.###%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
@@ -1355,7 +1365,7 @@ SeasonalYearOnYear12MavGraph.prototype.calculate = function(data) {
         points[i-12] = [];
         points[i-12][0] = vals[i][0];
         points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]);
+                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
     }
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
