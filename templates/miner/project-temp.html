@@ -53,13 +53,13 @@
 						{% endfor %}
 					</tr>
 					<tr>
-						<td class="key fl"> YoY %</td>
+						<td class="key fl"> 1Y %</td>
 						{% for val in page.yoy_vals %}
 						<td class="percentage fl"> {{ val }} </td>
 						{% endfor %}
 					</tr>
 					<tr>
-						<td class="key fl"> 2YoY %</td>
+						<td class="key fl"> 2Y %</td>
 						{% for val in page.yoy2_vals %}
 						<td class="percentage fl"> {{ val }} </td>
 						{% endfor %}
@@ -74,7 +74,8 @@
 			{% endif %}
 		</div>
 		<div id=info>
-			<p>% Year on Year change</p>
+			<p>1Y% Year on Year change</p>
+			<p>2Y% 2 year Compound Annual Growth Rate (CAGR)</p>
 			<p>* Data is in RPMs (Revenue Passenger Miles)</p>
 			<p>** Data is in RPKs (Revenue Passenger Kilometers)</p>
 			<p>^ Data is released quarterly </p>

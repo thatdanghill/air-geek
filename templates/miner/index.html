@@ -26,7 +26,16 @@
 					<li><a href="{{project.url}}">{{ project.name }}</a></li>
 					{% endfor %}
 				</ul>
-			
+				<h4><b><u>Summary</u></b></h4>
+				<p>Summary tables displaying the Year To Date (YTD) figures for both airlines and airports. Along with the yearly rate of change of the YTD and raw monthly figures. <br>
+				The data is represented in a number of ways, please consult the following key for clarification</p>
+				<div>
+				<h5><b><u>Key</u></b></h5>
+				<p>* Data is in RPMs (Revenue Passenger Miles)<br>
+				** Data is in RPKs (Revenue Passenger Kilometers)<br>
+				^ Data is released quarterly <br>
+				^^ Data is released annually</p>
+				</div>
 				{% for project in projects %}
 				<div>
 					<p><br></p>
@@ -34,7 +43,7 @@
 				<table id="airline-summary" class="display compact" >
 				<thead>
 					<tr>
-						<th><a href="{{project.url}}">{{project.special_name}}</a></th>
+						<th><a href="{{project.url}}">{{project.special_name}} - YTD</a></th>
 						{% for column in project.columns %}
 							<th> {{column}} </th>
 						{% endfor %}		
@@ -49,10 +58,16 @@
 						{% endfor %}
 					</tr>
 					<tr>
-						<td class="fl"> YoY %</td>
+						<td class="fl"> YTD YoY%</td>
 						{% for val in page.YTDYoy %}
 						<td class="percentage fl"> {{ val }}</td>
 						{% endfor %}
+					<tr>
+						<td class="fl"> Mth YoY%</td>
+						{% for val in page.MthYoy %}
+						<td class="percentage fl"> {{ val }}</td>
+						{% endfor %}
+					</tr>
 					{% endfor %}
 				</tbody>
 				</table>
@@ -63,13 +78,7 @@
 			{% endif %}
 			
 		</div>
-		<div id=info>
-			<p>% Year on Year change</p>
-			<p>* Data is in RPMs (Revenue Passenger Miles)</p>
-			<p>** Data is in RPKs (Revenue Passenger Kilometers)</p>
-			<p>^ Data is released quarterly </p>
-			<p>^^ Data is released annually</p>
-		</div>
+		
 		
 		
 		

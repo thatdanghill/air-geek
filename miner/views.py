@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from miner.models import UserProfile, Project, Page, Graph, Point
 from django.template.defaultfilters import slugify
+import math
 
 
 #-------------------------------------------------------------------
@@ -87,9 +88,10 @@ def index(request):
                 special_name = project.name[:-1]
                 ytdvals = getPageYTDStats(page, maxMonth, maxYear)
                 ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
+                mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
                 page_release = getSymbolForRelease(page)
                 page_data_type = getDataTypeSymbol(page.data_type)
-                page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'data_type': page_data_type, 'release' : page_release})
+                page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
             proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)}) # 'country': countryData})
             
         context['projects'] = proj_array
@@ -400,7 +402,8 @@ def get2YoyValues(page, yr):
                 if (year - 1) == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
                     p1 = pt
             if p1 and p2 and p1.y != 0 and p2.y != 0:
-                v = round(((((p1.y / p2.y)*(point.y / p1.y)) - 1)*100), 2)
+                v = round(((math.sqrt(((p1.y / p2.y)*(point.y / p1.y))) - 1)*100), 2)
+                
                 vals.append(v)
             else:
                 vals.append("-")
@@ -561,6 +564,21 @@ def getPageYTDYoyStats(page, month, year):
     vals.reverse()
     return vals
 
+def getPageMthYoyStats(page, month, year):
+    vals = []
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        for i in range(MONTHS):
+            if month - i < 0:
+                vals.append(monthData((month-i)%12, year-1, points))
+            else:
+                vals.append(monthData((month-i)%12, year, points))
+    except Graph.DoesNotExist:
+        vals = ["-"]*MONTHS
+    vals.reverse()
+    return vals
+
 def monthYTD(month, year, pointList):
     points = filterYear(pointList, year)
     sum = 0
@@ -580,6 +598,23 @@ def monthYOY(month, year, points):
     if num == 0 or denom == 0:
         return "-"
     return round((num/denom)*100 - 100,2)
+
+def monthData(month, year, pointList):
+    points = filterYear(pointList, year)
+    for point in points:
+        if month == mos.index(point.x.split(" ")[0].lower())%12:
+            if hasattr(point, 'x'):
+                prevYear = year - 1
+                for pt in pointList:
+                    if prevYear == int(pt.x.split(" ")[1]) and month == mos.index(pt.x.split(" ")[0].lower()) % 12:
+                            v = round(((point.y / pt.y) * 100) - 100, 2)
+                            return v
+    return '-'
+            
+    
+        
+
+    
 
 #----------------------------------------------------
 
