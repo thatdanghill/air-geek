@@ -196,8 +196,7 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		"&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav'><i>12 Month Avg</i><br>" +
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-mom'>Month on Month<br>" +
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-qoq'>Quarter on Quarter<br>" +
-		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-yoy'>Year on Year<br>" +
-		"<input class='calc-select' type='checkbox' value='index-view'><i><b>Index</b></i><br></td>" +
+		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='raw-12mav-yoy'>Year on Year<br></td>" +
 		"<td><input class='calc-select' type='checkbox' value='sa'><i><b>Seasonally Adjusted</b></i><br>" +
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-mom'>Month on Month<br>" +
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-qoq'>Quarter on Quarter<br>" +
@@ -211,7 +210,8 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-12mav-qoq'>Quarter on Quarter<br>" +
 		"&nbsp;&nbsp;&nbsp;<input class='calc-select' type='checkbox' value='sa-12mav-yoy'>Year on Year<br>" +
 		"<td valign='top'><input class='calc-select' type='checkbox' value='sa-3yr'><i><b>Seasonally Adjusted 3Yr</b></i><br>" +
-		"<input class='calc-select' type='checkbox' value='sa-5yr'><i><b>Seasonally Adjusted 5Yr</b></i><br><td>" +
+		"<input class='calc-select' type='checkbox' value='sa-5yr'><i><b>Seasonally Adjusted 5Yr</b></i><br>"
+		"<input class='calc-select' type='checkbox' value='index-view'><i><b>Index</b></i><br><td>"+
 		"</td></tr></tbody></table></form>";
 		
 		menustr = "<div id='calc-graph-list' style='background-color: #9eb3c0; padding: 15px; display:none'>" + selections + "</div>";
