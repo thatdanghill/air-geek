@@ -141,7 +141,7 @@ function GraphManager() {
 				
 			}
 			
-			$('#graph-selector').html(insertStr);
+			sideBar.find('#graph-selector').html(insertStr);
 		},
 		
 		submitToGraph: function(pl, user) {
