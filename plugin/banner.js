@@ -103,11 +103,11 @@ function Creator() {
 		attachHandlers: function() {
 			$(document).keypress(pl.handleXY);
 			
-			$("#submit").click(function() {
+			sideBar.find("#submit").click(function() {
 				gm.submitToGraph(pl, user);
 			});
 			
-			$("input").change(function() {
+			sideBar.find("input").change(function() {
 				$(this).parents('tr').find('input').css("background-color", "white");
 			})
 		},
