@@ -43,16 +43,23 @@
 				<table id="airline-summary" class="display compact" >
 				<thead>
 					<tr>
-						<th><a href="{{project.url}}">{{project.special_name}} - YTD</a></th>
+						<th><a href="{{project.url}}">{{project.special_name}}</a></th>
 						{% for column in project.columns %}
 							<th> {{column}} </th>
 						{% endfor %}		
 					</tr>
 				</thead>
-				<tbody>
+				<tbody style="clear: both">
 					{% for page in project.pages %}
 					<tr>
-						<td class="mainkey" style="width:200px"><a href="{{page.url}}">{{ page.name }}{{ page.data_type }}{{page.release}}</td>
+						<td class="mainkey" style="width:200px"><a href="{{page.url}}">{{ page.name }}{{ page.data_type }}{{page.release}}</a><span class="fl">Mth</span></td>
+						
+						{% for val in page.Mthvals %}
+						<td class = 'fl'> {{ val }}</td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="fl"> YTD </td>
 						{% for val in page.YTDvals %}
 						<td class='fl'> {{ val }} </td>
 						{% endfor %}

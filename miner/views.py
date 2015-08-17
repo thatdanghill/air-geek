@@ -86,12 +86,13 @@ def index(request):
             for page in project.pages.all().order_by('name'):
                 page_url = proj_url + "/page/" + page.slug
                 special_name = project.name[:-1]
+                mthvals = getPageMthStats(page, maxMonth, maxYear)
                 ytdvals = getPageYTDStats(page, maxMonth, maxYear)
                 ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
                 mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
                 page_release = getSymbolForRelease(page)
                 page_data_type = getDataTypeSymbol(page.data_type)
-                page_array.append({'name': page.name, 'url': page_url, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
+                page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
             proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)}) # 'country': countryData})
             
         context['projects'] = proj_array
@@ -535,6 +536,21 @@ def columnize(monthIndex, year):
     columns.reverse()
     return columns
 
+def getPageMthStats(page, month, year):
+    vals = []
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        for i in range(MONTHS):
+            if month - i < 0:
+                vals.append(monthData((month-i)%12, year-1, points))
+            else:
+                vals.append(monthData((month-i)%12, year, points))
+    except Graph.DoesNotExist:
+        vals = ["-"]*MONTHS
+    vals.reverse()
+    return vals
+
 def getPageYTDStats(page, month, year):
     vals = []
     try:
@@ -555,9 +571,9 @@ def getPageYTDYoyStats(page, month, year):
         graph = Graph.objects.get(page = page, name = page.table)
         for i in range(MONTHS):
             if month - i < 0:
-                vals.append(monthYOY((month-i)%12, year-1, graph.points.all()))
+                vals.append(monthYTDYoY((month-i)%12, year-1, graph.points.all()))
             else:
-                vals.append(monthYOY((month-i)%12, year, graph.points.all()))
+                vals.append(monthYTDYoY((month-i)%12, year, graph.points.all()))
     
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
@@ -571,9 +587,9 @@ def getPageMthYoyStats(page, month, year):
         points = graph.points.all()
         for i in range(MONTHS):
             if month - i < 0:
-                vals.append(monthData((month-i)%12, year-1, points))
+                vals.append(monthYoYData((month-i)%12, year-1, points))
             else:
-                vals.append(monthData((month-i)%12, year, points))
+                vals.append(monthYoYData((month-i)%12, year, points))
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
     vals.reverse()
@@ -592,14 +608,14 @@ def monthYTD(month, year, pointList):
             return sum + calculateRealValue(point.y , point.graph)
     return 0
 
-def monthYOY(month, year, points):
+def monthYTDYoY(month, year, points):
     num = monthYTD(month, year, points)
     denom = monthYTD(month, year-1, points)
     if num == 0 or denom == 0:
         return "-"
     return round((num/denom)*100 - 100,2)
 
-def monthData(month, year, pointList):
+def monthYoYData(month, year, pointList):
     points = filterYear(pointList, year)
     for point in points:
         if month == mos.index(point.x.split(" ")[0].lower())%12:
@@ -610,8 +626,14 @@ def monthData(month, year, pointList):
                             v = round(((point.y / pt.y) * 100) - 100, 2)
                             return v
     return '-'
-            
-    
+
+def monthData(month, year, pointList):
+    points = filterYear(pointList, year)
+    for point in points:
+        if month == mos.index(point.x.split(" ")[0].lower())%12:
+            return formatThousands(int(calculateRealValue(point.y, point.graph)))
+    return '-'           
+
         
 
     
