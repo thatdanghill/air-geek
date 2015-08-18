@@ -67,39 +67,66 @@ def pluginUser(request):
     except User.DoesNotExist:
         pass
 
-#TODO: un-hardcode username
-def latestSummary(request):
+def index(request):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         context = {'projects': []}
         username = "super"
         user = User.objects.get(username = username)
         userprofile = UserProfile.objects.get(user = user)
         projects = userprofile.projects.all().order_by('name')
+        for project in projects:
+            proj_url = BASE_DIR + project.slug
+            context['projects'].append({'name': project.name, 'url': proj_url})
+        return render(request, 'miner/index.html', context)
+
+    except User.DoesNotExist:
+        pass
+
+def charts(request, project_name):
+    return render(request, 'miner/charts.html', {})
+
+#TODO: un-hardcode username
+def latestSummary(request, project_name):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        userprofile = UserProfile.objects.get(user = user)
+        project = userprofile.projects.get(slug = project_name)
         
         proj_array = []
-        for project in projects:
-            proj_url = "user/" + username + "/project/" + project.slug
-            page_array = []
-            maxYear = findAllMaxYear(project)
-            maxMonth = findMaxMonth(project, maxYear)
+        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
+        page_array = []
+        maxYear = findAllMaxYear(project)
+        maxMonth = findMaxMonth(project, maxYear)
         #countryData = countryTotals(project)
-            for page in project.pages.all().order_by('name'):
-                page_url = proj_url + "/page/" + page.slug
-                special_name = project.name[:-1]
-                mthvals = getPageMthStats(page, maxMonth, maxYear)
-                ytdvals = getPageYTDStats(page, maxMonth, maxYear)
-                ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
-                mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
-                page_release = getSymbolForRelease(page)
-                page_data_type = getDataTypeSymbol(page.data_type)
-                page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
-            proj_array.append({'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)}) # 'country': countryData})
-            
-        context['projects'] = proj_array
+        for page in project.pages.all().order_by('name'):
+            page_url = proj_url + "/page/" + page.slug
+            special_name = project.name[:-1]
+            mthvals = getPageMthStats(page, maxMonth, maxYear)
+            ytdvals = getPageYTDStats(page, maxMonth, maxYear)
+            ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
+            mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
+            page_release = getSymbolForRelease(page)
+            page_data_type = getDataTypeSymbol(page.data_type)
+            page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
+        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
             
         return render(request, 'miner/latest-summary.html', context)
     except User.DoesNotExist:
         pass
+    except Project.DoesNotExist:
+        return HttpResponse("Failure")
+
+def threeMonth(request, project_name):
+    return render(request, 'miner/three-month.html', {})
+
+def annualSummary(request, project_name):
+    return render(request, 'miner/annual-summary.html', {})
+
+def forecast(request, project_name):
+    return render(request, 'miner/forecast.html', {})
 
 #TODO: un-hardcode username
 def project(request, user_name, project_name):

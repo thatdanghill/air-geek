@@ -19,13 +19,6 @@
 		</div>
 		<div id="manager">
 			
-			<p><b><i> Select a project below </i></b></p>
-			{% if projects %}
-            	<ul>
-                	{% for project in projects %}
-					<li><a href="{{project.url}}">{{ project.name }}</a></li>
-					{% endfor %}
-				</ul>
 				<h4><b><u>Summary</u></b></h4>
 				<p>Summary tables displaying the Year To Date (YTD) figures for both airlines and airports. Along with the yearly rate of change of the YTD and raw monthly figures. <br>
 				The data is represented in a number of ways, please consult the following key for clarification</p>
@@ -36,21 +29,20 @@
 				^ Data is released quarterly <br>
 				^^ Data is released annually</p>
 				</div>
-				{% for project in projects %}
 				<div>
 					<p><br></p>
 				</div>
 				<table id="airline-summary" class="display compact" >
 				<thead>
 					<tr>
-						<th><a href="{{project.url}}">{{project.special_name}}</a></th>
-						{% for column in project.columns %}
+						<th><a href="{{project.url}}">{{special_name}}</a></th>
+						{% for column in columns %}
 							<th> {{column}} </th>
 						{% endfor %}		
 					</tr>
 				</thead>
 				<tbody style="clear: both">
-					{% for page in project.pages %}
+					{% for page in pages %}
 					<tr>
 						<td class="mainkey" style="width:200px"><a href="{{page.url}}">{{ page.name }}{{ page.data_type }}{{page.release}}</a><span class="fl">Mth</span></td>
 						
@@ -78,11 +70,6 @@
 					{% endfor %}
 				</tbody>
 				</table>
-				{% endfor %}
-				
-			{% else %}
-            <p><b><i>You currently have no projects started.</i></b></p>
-			{% endif %}
 			
 		</div>
 		
