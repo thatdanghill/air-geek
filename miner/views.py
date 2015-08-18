@@ -68,7 +68,7 @@ def pluginUser(request):
         pass
 
 #TODO: un-hardcode username
-def index(request):
+def latestSummary(request):
     try:
         context = {'projects': []}
         username = "super"
@@ -97,7 +97,7 @@ def index(request):
             
         context['projects'] = proj_array
             
-        return render(request, 'miner/index.html', context)
+        return render(request, 'miner/latest-summary.html', context)
     except User.DoesNotExist:
         pass
 
