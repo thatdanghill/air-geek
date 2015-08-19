@@ -8,10 +8,16 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return self.user.username
 
+class Continent(models.Model):
+    name = models.CharField(max_length = 40)
+    
+    def __unicode__(self):
+        return self.name
+
 class Project(models.Model):
     user = models.ForeignKey(UserProfile, related_name='projects')
     name = models.CharField(max_length=128, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField()
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -28,6 +34,7 @@ class Page(models.Model):
     data_type = models.CharField(max_length=128)
     quarterly = models.BooleanField(default=False)
     annualy = models.BooleanField(default=False)
+    continent = models.ForeignKey(Continent, related_name='pages')
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -61,5 +68,4 @@ class Point(models.Model):
 
     def __unicode__(self):
         return self.graph.__unicode__() + ": (" + self.x + "," + str(self.y) + ")"
-
 

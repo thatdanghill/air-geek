@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from miner.models import UserProfile, Project, Page, Graph, Point
+from miner.models import UserProfile, Project, Page, Graph, Point, Continent
 from django.template.defaultfilters import slugify
 import math
 
@@ -84,7 +84,27 @@ def index(request):
         pass
 
 def charts(request, project_name):
-    return render(request, 'miner/charts.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        context = {'home': BASE_DIR, 'continents': []}
+        username = "super"
+        user = User.objects.get(username = username)
+        userprofile = UserProfile.objects.get(user=user)
+        project = userprofile.projects.get(slug = project_name)
+        for continent in Continent.objects.all():
+            pages = continent.pages.filter(project = project)
+            continent_context = []
+            for page in pages:
+                url = BASE_DIR + project_name + "/charts/" + page.slug
+                page_context = {'name': page.name, 'url': url}
+                continent_context.append(page_context)
+            context['continents'].append({'name': continent.name, 'pages': continent_context})
+    
+        return render(request, 'miner/charts.html', context)
+    except User.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
 
 #TODO: un-hardcode username
 def latestSummary(request, project_name):
@@ -120,7 +140,49 @@ def latestSummary(request, project_name):
         return HttpResponse("Failure")
 
 def threeMonth(request, project_name):
-    return render(request, 'miner/three-month.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        pages = project.pages.all().order_by('name')
+        
+        max = 0
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                yr = findMaxYear(graph.points.all())
+                if yr > max:
+                    max = yr
+            except Graph.DoesNotExist:
+                pass
+        yrs = []
+        for i in range(YEARS):
+            yrs.append(max - i)
+        yrs.reverse()
+        
+        context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        
+        for page in pages:
+            url = "page/" + page.slug
+            volume_vals = []
+            yoy_vals = []
+            yoy2_vals = []
+            for year in yrs:
+                volume_vals.extend(getVolumeVals(page, year))
+                yoy_vals.extend(getYoyValues(page,year))
+                yoy2_vals.extend(get2YoyValues(page,year))
+            context['pages'].append({'name': page.name, 'url': url, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+        
+        
+        return render(request, 'miner/three-month.html', context)
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
 
 def annualSummary(request, project_name):
     return render(request, 'miner/annual-summary.html', {})
@@ -133,7 +195,7 @@ def project(request, user_name, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         username = "super"
-        user = User.objects.get(username = user_name)
+        user = User.objects.get(username = username)
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
@@ -176,22 +238,22 @@ def project(request, user_name, project_name):
         pass
 
 #TODO: un-hardcode username
-def page(request, user_name, project_name, page_name):
+def page(request, project_name, page_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         username = "super"
-        user = User.objects.get(username = user_name)
+        user = User.objects.get(username = username)
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
         page = Page.objects.get(project = project, slug=page_name)
         graphs = page.graphs.all().order_by('name')
         
-        dir_str = 'user/' + user_name + '/project/' + project_name
+        dir_str = project_name + '/charts'
         rel_dir = BASE_DIR + dir_str
         context = {'graphs' : [], 'paths': {'home_url': BASE_DIR, 'project':{'name': project.name, 'url': rel_dir}, 'page': page.name}}
 
         for graph in graphs:
-            url = "graph/" + graph.slug
+            url = graph.slug
             context['graphs'].append({'name':graph.name, 'url': url})
 
         return render(request, 'miner/page-temp.html', context)
@@ -205,19 +267,19 @@ def page(request, user_name, project_name, page_name):
     except Page.DoesNotExist:
         pass
 
-def graph(request, user_name, project_name, page_name, graph_name):
+def graph(request, project_name, page_name, graph_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
         username = "super"
-        user = User.objects.get(username = user_name)
+        user = User.objects.get(username = username)
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
         page = Page.objects.get(project = project, slug=page_name)
         graph = Graph.objects.get(page=page, slug=graph_name)
         
-        proj_dir = BASE_DIR + 'user/' + user_name + '/project/' + project_name
-        page_dir = proj_dir + '/page/' + page_name
-        context = {'paths': {'home_url': BASE_DIR, 'user': user_name, 'project':{'name': project.name, 'url': proj_dir}, 'page': {'name': page.name, 'url': page_dir}, 'graph': graph.name}}
+        proj_dir = BASE_DIR + project_name + '/charts/'
+        page_dir = proj_dir + page_name
+        context = {'paths': {'home_url': BASE_DIR, 'user': username, 'project':{'name': project.name, 'url': proj_dir}, 'page': {'name': page.name, 'url': page_dir}, 'graph': graph.name}}
         
         return render(request, 'miner/graph-temp.html', context)
     

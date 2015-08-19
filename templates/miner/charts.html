@@ -17,7 +17,22 @@
 			<h1> AirGeek </h1>	
 		</div>
 		<div id="manager">
-			
+			<a href="{{home}}">Home</a>
+			{% if continents %}
+			{% for continent in continents %}
+			{% if continent.pages|length > 0 %}
+				<h2>{{continent.name}}</h2>
+				<ul>
+					{% for page in continent.pages %}
+					<li><a href="{{page.url}}">{{page.name}}</a></li>
+					{% endfor %}
+				</ul>
+			{% else %}
+			{% endif %}
+			{% endfor %}
+			{% else %}
+			<p> No data available </p>
+			{% endif %}
 		</div>
 	</body>
 </html>
