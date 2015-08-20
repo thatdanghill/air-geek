@@ -2925,7 +2925,7 @@ Seasonal5YrYearOnYearGraph.prototype.calculate = function(data) {
 
 function Seasonal5Yr3MavGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 5Yr 3MAV";
-	this.pattern = '#.##%';
+	this.pattern = '#,###';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
