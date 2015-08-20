@@ -26,8 +26,10 @@ class Page(models.Model):
     slug = models.SlugField()
     table = models.CharField(max_length=128)
     data_type = models.CharField(max_length=128)
+    country = models.CharField(max_length=128)
     quarterly = models.BooleanField(default=False)
     annualy = models.BooleanField(default=False)
+    
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
