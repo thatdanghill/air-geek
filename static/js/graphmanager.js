@@ -3683,7 +3683,7 @@ Seasonal5YrYearOnYear12MavGraph.prototype.calculate = function(data) {
 
 function Seasonal5YrIndexGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted 5Yr Index";
-	this.pattern = '#.##%';
+	this.pattern = '#,###';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
