@@ -1,5 +1,5 @@
 from django.contrib import admin
-from miner.models import UserProfile, Project, Page, Graph, Point
+from miner.models import UserProfile, Project, Page, Graph, Point, Continent
 
 def divide_by_k(modeladmin, request, queryset):
     for point in queryset:
@@ -54,3 +54,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(Graph, GraphAdmin)
 admin.site.register(Point, PointAdmin)
+admin.site.register(Continent)
