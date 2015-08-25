@@ -183,13 +183,51 @@ def threeMonth(request, project_name):
         pass
     except Project.DoesNotExist:
         pass
-
+#TODO: un-hardcode username
 def annualSummary(request, project_name):
-    return render(request, 'miner/annual-summary.html', {})
+    # BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    # try:
+    #     username = "super"
+    #     user = User.objects.get(username = username)
+    #     up = UserProfile.objects.get(user = user)
+    #     project = Project.objects.get(user = up, slug = project_name)
+    #     pages = project.pages.all().order_by('name')
+    #     
+    #     for page in pages
+    #     
+    #      context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+     return render(request, 'miner/annual-summary.html', {})
 
 def forecast(request, project_name):
-    return render(request, 'miner/forecast.html', {})
-
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        pages = project.pages.all().order_by('name')
+        
+        proj_array = []
+        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
+        page_array = []
+        maxYear = findAllMaxYear(project)
+        for page in project.pages.all().order_by('name'):
+            page_url = proj_url + "/page/" + page.slug
+            special_name = project.name[:-1]
+            latestVals = getLatestVals(page)
+            print(latestVals)
+            forecastVals = getForecastData(page)
+            page_release = getSymbolForRelease(page)
+            page_data_type = getDataTypeSymbol(page.data_type)
+            page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
+        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
+        return render(request, 'miner/forecast.html', context)
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
 #TODO: un-hardcode username
 def project(request, user_name, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -536,6 +574,14 @@ def findMaxYear(points):
             max = ptyr
     return max
 
+def findMinYear(points):
+    min = 100000000
+    for point in points:
+        ptyr = int(point.x.split(" ")[1])
+        if ptyr < min:
+            min = ptyr
+    return min
+
 def orderedFilter(points, year):
     return orderByMonth(filterYear(points, year))
 
@@ -724,7 +770,83 @@ def monthData(month, year, pointList):
     return '-'           
 
         
-
+def getForecastData(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        maxYear = findMaxYear(points)
+        minYear = findMinYear(points)
+        pts = filterYear(points, maxYear)
+        totalYears = []
+        seasonalRatios = []
+        averageSeasonalRatios = []
+        vals = []
+        finalData = []
+        
+ 
+        for i in range(0, len(points)):
+                if i+11 < len(points) and mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and  mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i+11].x.split(" ")[1]) == int(points[i].x.split(" ")[1]):
+                    total = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y
+                    totalYears.append([int(points[i].x.split(" ")[1]), total])
+                    
+        if not totalYears:
+            finalData = []
+                 
+        else:
+            for i in range(0, len(points)):
+                for j in range(0, len(totalYears)):
+                    if int(points[i].x.split(" ")[1]) == totalYears[j][0]:
+                        seasonalRatios.append([points[i].x, points[i].y/totalYears[j][1]])
+        
+            for i in range(0, 12):
+                monthSum = 0
+                monthData = [item for item in seasonalRatios if mos.index(item[0].split(" ")[0].lower())%12 == i]
+                for data in monthData:
+                    monthSum = monthSum + data[1]
+                if not len(totalYears) == 0:
+                    averageSeasonalRatios.append([i, monthSum/len(totalYears)])
+            
+            for pt in pts:
+                val = int((calculateRealValue(pt.y,graph))/(averageSeasonalRatios[mos.index(pt.x.split(" ")[0].lower())%12][1]))
+                vals.append([pt.x, val])
+                  
+            for i in range(mos.index(vals[-1][0].split(' ')[0].lower())%12, 11):
+                val = int(vals[-1][1]*averageSeasonalRatios[i+1][1])
+                finalData.append(formatThousands(val))
+                
+        return finalData 
+                          
+    except Graph.DoesNotExist:        
+        pass
+        
+              
+            
+def getLatestVals(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        maxYear = findMaxYear(points)
+        pts = filterYear(points, maxYear)
+        data = []
+        totalYears = []
+        print(pts)
+        
+        for i in range(0, len(points)):
+                if i+11 < len(points) and mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and  mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i+11].x.split(" ")[1]) == int(points[i].x.split(" ")[1]):
+                    total = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y
+                    totalYears.append([int(points[i].x.split(" ")[1]), total])
+                    
+        if not totalYears:
+            data = ["-"]*12
+            
+        else:
+            for pt in pts:
+                data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
+          
+        return data   
+    except Graph.DoesNotExist:        
+        data = ["-"]*12
+    
     
 
 #----------------------------------------------------
