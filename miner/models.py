@@ -68,4 +68,3 @@ class Point(models.Model):
 
     def __unicode__(self):
         return self.graph.__unicode__() + ": (" + self.x + "," + str(self.y) + ")"
-
