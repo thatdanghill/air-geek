@@ -48,6 +48,7 @@ class Graph(models.Model):
     page = models.ForeignKey(Page, related_name='graphs')
     slug = models.SlugField()
     url = models.URLField(default="http://google.com/")
+    complement = models.CharField(max_length=128)
     thousand = models.BooleanField(default=False)
     million = models.BooleanField(default=False)
     billion = models.BooleanField(default=False)

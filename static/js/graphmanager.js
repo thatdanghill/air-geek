@@ -25,6 +25,7 @@ GraphManager.prototype = {
 function Graph(container) {
 	this.container = container;
 	this.data = [];
+	this.complement = [];
 	this.options = {	
 		'width' : 750,
 		'height' : 450,
@@ -148,6 +149,7 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 				return;
 			}
 			that.data = data['points'];
+			that.complement = data['complement'];
 			that.url = data['url'];
 			that.render();
 			that.addButtons();

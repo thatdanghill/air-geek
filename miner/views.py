@@ -86,13 +86,13 @@ def index(request):
 def charts(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
-        context = {'home': BASE_DIR, 'continents': []}
         username = "super"
         user = User.objects.get(username = username)
         userprofile = UserProfile.objects.get(user=user)
         project = userprofile.projects.get(slug = project_name)
-        for continent in Continent.objects.all():
-            pages = continent.pages.filter(project = project)
+        context = {'home': BASE_DIR, 'project': project.name, 'continents': []}
+        for continent in Continent.objects.all().order_by('name'):
+            pages = continent.pages.filter(project = project).order_by('name')
             continent_context = []
             for page in pages:
                 url = BASE_DIR + project_name + "/charts/" + page.slug
@@ -116,12 +116,12 @@ def latestSummary(request, project_name):
         project = userprofile.projects.get(slug = project_name)
         
         proj_array = []
-        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
+        proj_url = BASE_DIR + project.slug
         page_array = []
         maxYear = findAllMaxYear(project)
         maxMonth = findMaxMonth(project, maxYear)
         for page in project.pages.all().order_by('name'):
-            page_url = proj_url + "/page/" + page.slug
+            page_url = proj_url + "/charts/" + page.slug
             special_name = project.name[:-1]
             mthvals = getPageMthStats(page, maxMonth, maxYear)
             ytdvals = getPageYTDStats(page, maxMonth, maxYear)
@@ -130,7 +130,7 @@ def latestSummary(request, project_name):
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
-        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
+        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
             
         return render(request, 'miner/latest-summary.html', context)
     except User.DoesNotExist:
@@ -164,7 +164,7 @@ def threeMonth(request, project_name):
         context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
-            url = "page/" + page.slug
+            url = BASE_DIR + project.slug + "/charts/" + page.slug
             volume_vals = []
             yoy_vals = []
             yoy2_vals = []
@@ -232,6 +232,7 @@ def annualSummary(request, project_name):
                     
             context['pages'].append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
         
+
         return render(request, 'miner/annual-summary.html', context)
     except User.DoesNotExist:
         pass
@@ -261,7 +262,7 @@ def forecast(request, project_name):
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
-        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
+        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
         return render(request, 'miner/forecast.html', context)
     except User.DoesNotExist:
         pass
@@ -383,6 +384,7 @@ def allPoints(request):
             project = up.projects.get(name=projectname)
             page = project.pages.get(name=pagename)
             graph = page.graphs.get(name=graphname)
+            
             return JsonResponse(pointQueryToJSON(graph))
         
         else:
@@ -650,10 +652,18 @@ def calculateYTD(points):
 # allPoints
 
 def pointQueryToJSON(graph):
-    context = {"points":[], "url": graph.url}
+    context = {"points":[], "complement":[], "url": graph.url}
+    
     points = graph.points.all().order_by('index')
     for point in points:
         context['points'].append([point.x, calculateRealValue(point.y, point.graph)])
+    try:
+        comp_graph = graph.page.graphs.get(name=graph.complement)
+        comp_points = comp_graph.points.all().order_by('index')
+        for point in comp_points:
+            context['comp_points'].append([point.x, calculateRealValue(point.y, point.graph)])
+    except Graph.DoesNotExist:
+        pass
     return context
 
 def getDataTypeSymbol(data_type):
