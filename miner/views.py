@@ -116,13 +116,13 @@ def latestSummary(request, project_name):
         project = userprofile.projects.get(slug = project_name)
         
         proj_array = []
-        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
+        proj_url = BASE_DIR + project.slug
         page_array = []
         maxYear = findAllMaxYear(project)
         maxMonth = findMaxMonth(project, maxYear)
         #countryData = countryTotals(project)
         for page in project.pages.all().order_by('name'):
-            page_url = proj_url + "/page/" + page.slug
+            page_url = proj_url + "/charts/" + page.slug
             special_name = project.name[:-1]
             mthvals = getPageMthStats(page, maxMonth, maxYear)
             ytdvals = getPageYTDStats(page, maxMonth, maxYear)
@@ -165,7 +165,7 @@ def threeMonth(request, project_name):
         context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
-            url = "page/" + page.slug
+            url = BASE_DIR + project.slug + "/charts/" + page.slug
             volume_vals = []
             yoy_vals = []
             yoy2_vals = []
