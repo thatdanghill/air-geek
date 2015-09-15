@@ -345,6 +345,7 @@ def allPoints(request):
             project = up.projects.get(name=projectname)
             page = project.pages.get(name=pagename)
             graph = page.graphs.get(name=graphname)
+            
             return JsonResponse(pointQueryToJSON(graph))
         
         else:
@@ -612,10 +613,18 @@ def calculateYTD(points):
 # allPoints
 
 def pointQueryToJSON(graph):
-    context = {"points":[], "url": graph.url}
+    context = {"points":[], "complement":[], "url": graph.url}
+    
     points = graph.points.all().order_by('index')
     for point in points:
         context['points'].append([point.x, calculateRealValue(point.y, point.graph)])
+    try:
+        comp_graph = graph.page.graphs.get(name=graph.complement)
+        comp_points = comp_graph.points.all().order_by('index')
+        for point in comp_points:
+            context['comp_points'].append([point.x, calculateRealValue(point.y, point.graph)])
+    except Graph.DoesNotExist:
+        pass
     return context
 
 def getDataTypeSymbol(data_type):
