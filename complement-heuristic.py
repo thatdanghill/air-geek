@@ -12,10 +12,22 @@ for project in Project.objects.all():
             graph.complement = ''
             graph.save()
             if "Load-Factor" in graph.name:
-                newname = graph.name.replace("Load-Factor", "Passenger-Volume")
+                passname = graph.name.replace("Load-Factor", "Passenger-Volume")
+                rpmsname = graph.name.replace("Load-Factor", "RPMs")
+                rpksname = graph.name.replace("Load-Factor", "RPKs")
                 try:
-                    comp = graph.page.graphs.get(name=newname)
-                    graph.complement = newname
+                    comp = graph.page.graphs.get(name=passname)
+                    graph.complement = passname
                     graph.save()
                 except Graph.DoesNotExist:
-                    pass
+                    try:
+                        comp = graph.page.graphs.get(name=rpmsname)
+                        graph.complement = rpmsname
+                        graph.save()
+                    except Graph.DoesNotExist:
+                        try:
+                            comp = graph.page.graphs.get(name=rpksname)
+                            graph.complement = rpksname
+                            graph.save()
+                        except Graph.DoesNotExist:
+                            pass
