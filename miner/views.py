@@ -120,7 +120,6 @@ def latestSummary(request, project_name):
         page_array = []
         maxYear = findAllMaxYear(project)
         maxMonth = findMaxMonth(project, maxYear)
-        #countryData = countryTotals(project)
         for page in project.pages.all().order_by('name'):
             page_url = proj_url + "/page/" + page.slug
             special_name = project.name[:-1]
@@ -185,18 +184,61 @@ def threeMonth(request, project_name):
         pass
 #TODO: un-hardcode username
 def annualSummary(request, project_name):
-    # BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
-    # try:
-    #     username = "super"
-    #     user = User.objects.get(username = username)
-    #     up = UserProfile.objects.get(user = user)
-    #     project = Project.objects.get(user = up, slug = project_name)
-    #     pages = project.pages.all().order_by('name')
-    #     
-    #     for page in pages
-    #     
-    #      context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
-     return render(request, 'miner/annual-summary.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        pages = project.pages.all().order_by('name')
+        
+        proj_array = []
+        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
+        page_array = []
+        maxYear = findAllMaxYear(project)
+        maxMonth = findMaxMonth(project, maxYear)
+        
+        min = maxYear
+        for page in pages:
+            try:
+                graph = Graph.objects.get(page = page, name = page.table)
+                yr = findMinYear(graph.points.all())
+                if yr < min:
+                    min = yr
+            except Graph.DoesNotExist:
+                pass
+        yrs = []
+        for i in range((maxYear - min) + 1):
+            yrs.append(maxYear - i)
+        yrs.reverse()
+        
+        context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        
+        for page in pages:
+            url = "page/" + page.slug
+            total_vals = []
+            yoy_vals = []
+            for year in yrs:
+                if year == maxYear:
+                    total_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
+                    yoy_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
+                else:
+                    if getYearTotalVals(page, year) == "-":
+                        total_vals.append(getYearTotalVals(page, year))
+                    else:
+                        total_vals.append(formatThousands(getYearTotalVals(page, year)))
+                    yoy_vals.append(getYoYTotalVals(page,year))      
+                    
+                    
+            context['pages'].append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+        
+        return render(request, 'miner/annual-summary.html', context)
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
 
 def forecast(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -215,7 +257,6 @@ def forecast(request, project_name):
             page_url = proj_url + "/page/" + page.slug
             special_name = project.name[:-1]
             latestVals = getLatestVals(page)
-            print(latestVals)
             forecastVals = getForecastData(page)
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
@@ -847,7 +888,50 @@ def getLatestVals(page):
     except Graph.DoesNotExist:        
         data = ["-"]*12
     
+def getYearTotalVals(page, year):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        maxYear = findMaxYear(points)
+        minYear = findMinYear(points)
+        
+        if year < minYear:
+            return "-"
+        
+        else:
+            pts = filterYear(points, year)
+            data = []
+            yearTotal = 0
+            
+            for pt in pts:
+                yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
+            
+            return yearTotal
     
+    except Graph.DoesNotExist:        
+        return "-"
+        
+def getYoYTotalVals(page, year):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        maxYear = findMaxYear(points)
+        minYear = findMinYear(points)
+        
+        if (year - 1) < minYear:
+            return "-"
+        else:
+          currentYearTotal = getYearTotalVals(page, year)
+          previousYearTotal = getYearTotalVals(page, year-1)
+        
+        if previousYearTotal == 0:
+            return "-"
+        
+        else:
+            return ((currentYearTotal/previousYearTotal) - 1) * 100
+    
+    except Graph.DoesNotExist:        
+        return "-"
 
 #----------------------------------------------------
 
