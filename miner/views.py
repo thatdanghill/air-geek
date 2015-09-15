@@ -86,13 +86,13 @@ def index(request):
 def charts(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     try:
-        context = {'home': BASE_DIR, 'continents': []}
         username = "super"
         user = User.objects.get(username = username)
         userprofile = UserProfile.objects.get(user=user)
         project = userprofile.projects.get(slug = project_name)
-        for continent in Continent.objects.all():
-            pages = continent.pages.filter(project = project)
+        context = {'home': BASE_DIR, 'project': project.name, 'continents': []}
+        for continent in Continent.objects.all().order_by('name'):
+            pages = continent.pages.filter(project = project).order_by('name')
             continent_context = []
             for page in pages:
                 url = BASE_DIR + project_name + "/charts/" + page.slug
@@ -131,7 +131,7 @@ def latestSummary(request, project_name):
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
-        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
+        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
             
         return render(request, 'miner/latest-summary.html', context)
     except User.DoesNotExist:
@@ -185,18 +185,21 @@ def threeMonth(request, project_name):
         pass
 #TODO: un-hardcode username
 def annualSummary(request, project_name):
-    # BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
-    # try:
-    #     username = "super"
-    #     user = User.objects.get(username = username)
-    #     up = UserProfile.objects.get(user = user)
-    #     project = Project.objects.get(user = up, slug = project_name)
-    #     pages = project.pages.all().order_by('name')
-    #     
-    #     for page in pages
-    #     
-    #      context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
-     return render(request, 'miner/annual-summary.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        pages = project.pages.all().order_by('name')
+        context = {'pages' : [], 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        return render(request, 'miner/annual-summary.html', context)
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
 
 def forecast(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -220,7 +223,7 @@ def forecast(request, project_name):
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
-        context = {'name': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
+        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
         return render(request, 'miner/forecast.html', context)
     except User.DoesNotExist:
         pass
