@@ -221,7 +221,7 @@ def annualSummary(request, project_name):
             for year in yrs:
                 if year == maxYear:
                     total_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
-                    yoy_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
+                    yoy_vals.append(getPageYTDYoyStats(page, maxMonth, year)[-1])
                 else:
                     if getYearTotalVals(page, year) == "-":
                         total_vals.append(getYearTotalVals(page, year))
@@ -904,19 +904,23 @@ def getYearTotalVals(page, year):
         points = graph.points.all()
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
+        pts = filterYear(points, year)
         
         if year < minYear:
             return "-"
         
         else:
-            pts = filterYear(points, year)
-            data = []
-            yearTotal = 0
+            if len(pts) == 12:
+                yearTotal = 0
+                for pt in pts:
+                    yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
             
-            for pt in pts:
-                yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
+                return yearTotal
+        
+            else:
+                return "-"
             
-            return yearTotal
+            
     
     except Graph.DoesNotExist:        
         return "-"
@@ -928,17 +932,17 @@ def getYoYTotalVals(page, year):
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
         
-        if (year - 1) < minYear:
+        if year <= minYear:
             return "-"
         else:
           currentYearTotal = getYearTotalVals(page, year)
           previousYearTotal = getYearTotalVals(page, year-1)
-        
-        if previousYearTotal == 0:
+          
+        if previousYearTotal == 0 or type(previousYearTotal) == type(" ") or type(currentYearTotal) == type(" "):
             return "-"
         
         else:
-            return ((currentYearTotal/previousYearTotal) - 1) * 100
+            return round(((float(currentYearTotal) / previousYearTotal) - 1) * 100, 2)
     
     except Graph.DoesNotExist:        
         return "-"
