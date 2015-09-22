@@ -783,56 +783,18 @@ SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
 	}	
 };
 
-
 function SeasonalMonthOnMonthGraph(container, rawGraph) {
 	this.title = "Seasonally Adjusted Month on Month";
 	this.pattern = '#.##%';
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalMonthOnMonthGraph, CalculatedGraph);
+inheritPrototype(SeasonalMonthOnMonthGraph, SeasonallyAdjustedDataGraph);
 
 SeasonalMonthOnMonthGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	
+	SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 1; i < vals.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = vals[i][0];
@@ -846,48 +808,12 @@ function SeasonalQuarterOnQuarterGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalQuarterOnQuarterGraph, CalculatedGraph);
+inheritPrototype(SeasonalQuarterOnQuarterGraph, SeasonallyAdjustedDataGraph);
 
 SeasonalQuarterOnQuarterGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
+	SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 5; i < vals.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = vals[i][0];
@@ -902,48 +828,12 @@ function SeasonalYearOnYearGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalYearOnYearGraph, CalculatedGraph);
+inheritPrototype(SeasonalYearOnYearGraph, SeasonallyAdjustedDataGraph);
 
 SeasonalYearOnYearGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
+	SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 12; i < vals.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
@@ -957,48 +847,12 @@ function Seasonal3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3MavGraph, SeasonallyAdjustedDataGraph);
 
 Seasonal3MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
+	SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 0; i < vals.length; i++){
         this.data[i] = [];
         if (i == 0) {
@@ -1022,64 +876,12 @@ function SeasonalMonthOnMonth3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalMonthOnMonth3MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalMonthOnMonth3MavGraph, Seasonal3MavGraph);
 
 SeasonalMonthOnMonth3MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
+	Seasonal3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = points[i][0];
@@ -1093,66 +895,13 @@ function SeasonalQuarterOnQuarter3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalQuarterOnQuarter3MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalQuarterOnQuarter3MavGraph, SeasonalMonthOnMonth3MavGraph);
 
 SeasonalQuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
-	
-	for (var i = 5; i < points.length; i++){
+	SeasonalMonthOnMonth3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
+		for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = points[i][0];
         this.data[i-5][1] = ((points[i][1] + points[i-1][1] + points[i-2][1])/(points[i-3][1] + points[i-4][1] + points[i-5][1]) - 1);
@@ -1165,65 +914,12 @@ function SeasonalYearOnYear3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalYearOnYear3MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalYearOnYear3MavGraph, SeasonalMonthOnMonth3MavGraph);
 
 SeasonalYearOnYear3MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
-	
+	SeasonalMonthOnMonth3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = points[i][0];
@@ -1237,49 +933,12 @@ function Seasonal12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal12MavGraph, SeasonallyAdjustedDataGraph);
 
 Seasonal12MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
+	SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 12; i < vals.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
@@ -1294,55 +953,12 @@ function SeasonalMonthOnMonth12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalMonthOnMonth12MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalMonthOnMonth12MavGraph, Seasonal12MavGraph);
 
 SeasonalMonthOnMonth12MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 12; i < vals.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
-    }
+	Seasonal12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = points[i][0];
@@ -1357,55 +973,12 @@ function SeasonalQuarterOnQuarter12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalQuarterOnQuarter12MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalQuarterOnQuarter12MavGraph, Seasonal12MavGraph);
 
 SeasonalQuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 12; i < vals.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
-    }
+	Seasonal12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = points[i][0];
@@ -1419,55 +992,12 @@ function SeasonalYearOnYear12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalYearOnYear12MavGraph, CalculatedGraph);
+inheritPrototype(SeasonalYearOnYear12MavGraph, Seasonal12MavGraph);
 
 SeasonalYearOnYear12MavGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
-	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
-	for (var i = 12; i < vals.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12;
-    }
+	Seasonal12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = points[i][0];
@@ -1482,49 +1012,13 @@ function SeasonalIndexGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(SeasonalIndexGraph, CalculatedGraph);
+inheritPrototype(SeasonalIndexGraph, SeasonallyAdjustedDataGraph);
 
 SeasonalIndexGraph.prototype.calculate = function(data) {
-    var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	var vals =[];
+    SeasonallyAdjustedDataGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	var points = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
-	}
-	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0];
-		vals[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}
 	for (var i = 0; i < vals.length; i++){
         points[i] = [];
         if (i == 0) {
@@ -1619,65 +1113,12 @@ function Seasonal3YrMonthOnMonthGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrMonthOnMonthGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrMonthOnMonthGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3YrMonthOnMonthGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 1; i < vals.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = vals[i][0];
@@ -1691,65 +1132,12 @@ function Seasonal3YrQuarterOnQuarterGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrQuarterOnQuarterGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrQuarterOnQuarterGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3YrQuarterOnQuarterGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 5; i < vals.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = vals[i][0];
@@ -1764,65 +1152,12 @@ function Seasonal3YrYearOnYearGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrYearOnYearGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrYearOnYearGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3YrYearOnYearGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	 for (var i = 12; i < vals.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
@@ -1837,65 +1172,12 @@ function Seasonal3Yr3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3Yr3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3Yr3MavGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3Yr3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 0; i < vals.length; i++){
         this.data[i] = [];
         if (i == 0) {
@@ -1920,82 +1202,12 @@ function Seasonal3YrMonthOnMonth3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrMonthOnMonth3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrMonthOnMonth3MavGraph, Seasonal3Yr3MavGraph);
 
 Seasonal3YrMonthOnMonth3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
-	
+	Seasonal3Yr3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = points[i][0];
@@ -2010,82 +1222,12 @@ function Seasonal3YrQuarterOnQuarter3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrQuarterOnQuarter3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrQuarterOnQuarter3MavGraph, Seasonal3Yr3MavGraph);
 
 Seasonal3YrQuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
-	
+	Seasonal3Yr3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = points[i][0];
@@ -2100,82 +1242,13 @@ function Seasonal3YrYearOnYear3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrYearOnYear3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrYearOnYear3MavGraph, Seasonal3Yr3MavGraph);
 
 Seasonal3YrYearOnYear3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
-	
+	Seasonal3Yr3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
+
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = points[i][0];
@@ -2191,66 +1264,13 @@ function Seasonal3Yr12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3Yr12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3Yr12MavGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3Yr12MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 12; i < data.length; i++){
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
+		for (var i = 12; i < data.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
         this.data[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
@@ -2265,73 +1285,12 @@ function Seasonal3YrMonthOnMonth12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrMonthOnMonth12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrMonthOnMonth12MavGraph, Seasonal3Yr12MavGraph);
 
 Seasonal3YrMonthOnMonth12MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 12; i < data.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12 ;
-    }
-	
+	Seasonal3Yr12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];	
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = points[i][0];
@@ -2345,73 +1304,12 @@ function Seasonal3YrQuarterOnQuarter12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrQuarterOnQuarter12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrQuarterOnQuarter12MavGraph, Seasonal3Yr12MavGraph);
 
 Seasonal3YrQuarterOnQuarter12MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 12; i < data.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12 ;
-    }
-	
+	Seasonal3Yr12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];		
 	for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = points[i][0];
@@ -2425,73 +1323,12 @@ function Seasonal3YrYearOnYear12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrYearOnYear12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrYearOnYear12MavGraph, Seasonal3Yr12MavGraph);
 
 Seasonal3YrYearOnYear12MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
-	for (var i = 12; i < data.length; i++){
-        points[i-12] = [];
-        points[i-12][0] = vals[i][0];
-        points[i-12][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1] + vals[i-3][1] + vals[i-4][1] + vals[i-5][1] + vals[i-6][1]
-                      + vals[i-7][1] + vals[i-8][1] + vals[i-9][1] + vals[i-10][1] + vals[i-11][1]) / 12 ;
-    }
-	
+	Seasonal3Yr12MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];	
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = points[i][0];
@@ -2506,66 +1343,13 @@ function Seasonal3YrIndexGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal3YrIndexGraph, CalculatedGraph);
+inheritPrototype(Seasonal3YrIndexGraph, SeasonallyAdjustedData3YrGraph);
 
 Seasonal3YrIndexGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <2) {
-		alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/3;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i-24][1])/3;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1])/3;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1])/3;	
-			}		
-		}	
-	}	
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	
+	SeasonallyAdjustedData3YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];	
+	var points = [];	
 	for (var i = 0; i < vals.length; i++){
         points[i] = [];
         if (i == 0) {
@@ -2676,76 +1460,12 @@ function Seasonal5YrMonthOnMonthGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrMonthOnMonthGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrMonthOnMonthGraph, SeasonallyAdjustedData5YrGraph);
 
 Seasonal5YrMonthOnMonthGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
+	SeasonallyAdjustedData5YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];	
 	
 	for (var i = 1; i < vals.length; i++) {
 		this.data[i-1] = [];
@@ -2761,76 +1481,12 @@ function Seasonal5YrQuarterOnQuarterGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrQuarterOnQuarterGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrQuarterOnQuarterGraph, SeasonallyAdjustedData5YrGraph);
 
 Seasonal5YrQuarterOnQuarterGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
+	SeasonallyAdjustedData5YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];	
 	for (var i = 5; i < vals.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = vals[i][0];
@@ -2846,76 +1502,12 @@ function Seasonal5YrYearOnYearGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrYearOnYearGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrYearOnYearGraph, SeasonallyAdjustedData5YrGraph);
 
 Seasonal5YrYearOnYearGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
+	SeasonallyAdjustedData5YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];	
 	for (var i = 12; i < vals.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = vals[i][0];
@@ -2931,76 +1523,12 @@ function Seasonal5Yr3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5Yr3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal5Yr3MavGraph, SeasonallyAdjustedData5YrGraph);
 
 Seasonal5Yr3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
+	SeasonallyAdjustedData5YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];	
 	for (var i = 0; i < vals.length; i++){
         this.data[i] = [];
         if (i == 0) {
@@ -3027,92 +1555,12 @@ function Seasonal5YrMonthOnMonth3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrMonthOnMonth3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrMonthOnMonth3MavGraph, Seasonal5Yr3MavGraph);
 
 Seasonal5YrMonthOnMonth3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
+	Seasonal5Yr3MavGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	for (var i = 1; i < points.length; i++) {
 		this.data[i-1] = [];
 		this.data[i-1][0] = points[i][0];
@@ -3126,92 +1574,12 @@ function Seasonal5YrQuarterOnQuarter3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrQuarterOnQuarter3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrQuarterOnQuarter3MavGraph, Seasonal5Yr3MavGraph);
 
 Seasonal5YrQuarterOnQuarter3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
+	Seasonal5Yr3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 5; i < points.length; i++){
         this.data[i-5] = [];
         this.data[i-5][0] = points[i][0];
@@ -3225,92 +1593,12 @@ function Seasonal5YrYearOnYear3MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5YrYearOnYear3MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal5YrYearOnYear3MavGraph, Seasonal5Yr3MavGraph);
 
 Seasonal5YrYearOnYear3MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
-	for (var i = 0; i < vals.length; i++){
-        points[i] = [];
-        if (i == 0) {
-            points[i][0] = vals[i][0];
-            points[i][1] = vals[i][1];
-        }
-        else if (i == 1) {
-            points[i][0] = vals[i][0];
-			points[i][1] = (vals[i][1] + vals[i-1][1]) / 2;
-        }
-        else {
-            points[i][0] = vals[i][0];
-            points[i][1] = (vals[i][1] + vals[i-1][1] + vals[i-2][1]) / 3;
-        } 
-    }
+	Seasonal5Yr3MavGraph.prototype.calculate.call(this, data);
+	var points = this.data;
+	this.data = [];
 	for (var i = 12; i < points.length; i++){
         this.data[i-12] = [];
         this.data[i-12][0] = points[i][0];
@@ -3324,77 +1612,12 @@ function Seasonal5Yr12MavGraph(container, rawGraph) {
 	CalculatedGraph.call(this, container, rawGraph);
 }
 
-inheritPrototype(Seasonal5Yr12MavGraph, CalculatedGraph);
+inheritPrototype(Seasonal5Yr12MavGraph, SeasonallyAdjustedData5YrGraph);
 
 Seasonal5Yr12MavGraph.prototype.calculate = function(data) {
-	var vals = [];
-	var points = [];
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
-		}
-	}
-	if (totalYears.length <4) {
-		  alert("More years required");
-    }
-		
-	
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
-		}
-	}
-	for(i=0; i < data.length; i++){
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = data[i][0]
-		if (seasonalRatios[i] == undefined) {
-			if (seasonalRatios[i+12] == undefined) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i-12][1] + seasonalRatios[i-24][1]
-											   + seasonalRatios[i-36][1] + seasonalRatios[i-48][1] + seasonalRatios[i-60][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i+12][1] + seasonalRatios[i+24][1]
-											   + seasonalRatios[i+36][1]+ seasonalRatios[i+48][1] + seasonalRatios[i+60][1])/5;	
-				}
-		}
-		else {
-			if (seasonalRatios[i-48]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1] + seasonalRatios[i-48][1])/5;
-			}
-			else if (seasonalRatios[i-36] && seasonalRatios[i+12]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i-36][1])/5;
-			}
-			else if (seasonalRatios[i-24] && seasonalRatios[i+24]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i-24][1] + seasonalRatios[i+24][1])/5;
-			}
-			else if (seasonalRatios[i-12] && seasonalRatios[i+36]) {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i-12][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+24][1] + seasonalRatios[i+36][1])/5;
-			}
-			else {
-				averageSeasonalRatios[i][1] = (seasonalRatios[i][1] + seasonalRatios[i+24][1] + seasonalRatios[i+12][1]
-											   + seasonalRatios[i+36][1] + seasonalRatios[i+48][1])/5;	
-			}
-		}	
-	}
-	for (i=0; i < data.length; i++) {
-		vals[i] = [];
-		vals[i][0] = data[i][0]
-		vals[i][1] = data[i][1]/averageSeasonalRatios[i][1]	
-	}
+	SeasonallyAdjustedData5YrGraph.prototype.calculate.call(this, data);
+	var vals = this.data;
+	this.data = [];
 	
 	for (var i = 12; i < vals.length; i++){
         this.data[i-12] = [];
