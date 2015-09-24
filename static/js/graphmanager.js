@@ -257,8 +257,7 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 				var dom = "<div id='"+str+"' class='graph' style='padding-left: 50px'></div>";
 				$("#graph-holder").append(dom);
 				var cgraph = that.whichObj(str, $("#graph-holder").find("#" + str), that);
-				cgraph.calculate(that.data);
-				cgraph.plot();
+				cgraph.makeGraph();
 			}
 		} else {
 			$('#' + str).hide();
@@ -439,7 +438,7 @@ function CalculatedGraph(container, rawGraph) {
 inheritPrototype(CalculatedGraph, Graph);
 
 CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
-	plot: function() {
+	makeGraph: function() {
 		var user = $("meta").attr("user");
 		if (user == '') {
 			this.data = [];
@@ -458,10 +457,15 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 				return;
 			}
 			that.complement = data['complement'];
-			that.render();
-			that.addButtons();
+			that.calculate(that.data);
+			that.plot();
 			}
 		});
+	},
+	
+	plot: function() {
+		this.render();
+		this.addButtons();
 	},
 	
 	render: function() {
