@@ -149,7 +149,6 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 				return;
 			}
 			that.data = data['points'];
-			that.complement = data['complement'];
 			that.url = data['url'];
 			that.render();
 			that.addButtons();
@@ -440,10 +439,29 @@ function CalculatedGraph(container, rawGraph) {
 inheritPrototype(CalculatedGraph, Graph);
 
 CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
-	
 	plot: function() {
-		this.render();
-		this.addButtons();
+		var user = $("meta").attr("user");
+		if (user == '') {
+			this.data = [];
+			return;
+		}
+		
+		var project = $("meta").attr("project");
+		var page = $("meta").attr("page");
+		var graph = this.raw.title;
+		var that = this;
+		$.ajax({
+			url: '/complement_points/', 
+			data: {user : user, project : project, page: page, graph: graph}, 
+			success: function(data) {
+			if (data == '') {
+				return;
+			}
+			that.complement = data['complement'];
+			that.render();
+			that.addButtons();
+			}
+		});
 	},
 	
 	render: function() {

@@ -21,7 +21,8 @@ urlpatterns = patterns('',
     url(r'^user/(?P<user_name>[\w\-]+)/project/(?P<project_name>[\w\-]+)/$', views.project, name='project'),
     url(r'^(?P<project_name>[\w\-]+)/charts/(?P<page_name>[\w\-]+)/$', views.page, name='page'),
     url(r'^(?P<project_name>[\w\-]+)/charts/(?P<page_name>[\w\-]+)/(?P<graph_name>[\w\-]+)/$', views.graph, name='graph'),
-    url(r'^all_points/$', views.allPoints, name='all_points')
+    url(r'^all_points/$', views.allPoints, name='all_points'),
+    url(r'^complement_points/$', views.complementPoints, name='complement_points')
 )
 
 if not settings.DEBUG:

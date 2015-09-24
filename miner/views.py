@@ -215,7 +215,7 @@ def annualSummary(request, project_name):
         context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
-            url = "page/" + page.slug
+            url = BASE_DIR + project.slug + '/charts/' + page.slug
             total_vals = []
             yoy_vals = []
             for year in yrs:
@@ -400,7 +400,31 @@ def allPoints(request):
     except Graph.DoesNotExist:
         return HttpResponse('')
 
+def complementPoints(request):
+    try:
+        if request.method == 'GET':
+            username = request.GET['user']
+            projectname = request.GET['project']
+            pagename = request.GET['page']
+            graphname = request.GET['graph']
+            user = User.objects.get(username=username)
+            up = UserProfile.objects.get(user=user)
+            project = up.projects.get(name=projectname)
+            page = project.pages.get(name=pagename)
+            graph = page.graphs.get(name=graphname)
 
+            return JsonResponse(complementToJSON(graph))
+
+    except User.DoesNotExist:
+        return HttpResponse('')
+    except UserProfile.DoesNotExist:
+        return HttpResponse('')
+    except Project.DoesNotExist:
+        return HttpResponse('')
+    except Page.DoesNotExist:
+        return HttpResponse('')
+    except Graph.DoesNotExist:
+        return HttpResponse('')
 
 #-------------------------------------------------------------------
 # Helpers
@@ -652,11 +676,15 @@ def calculateYTD(points):
 # allPoints
 
 def pointQueryToJSON(graph):
-    context = {"points":[], "complement":[], "url": graph.url}
+    context = {"points":[], "url": graph.url}
     
     points = graph.points.all().order_by('index')
     for point in points:
         context['points'].append([point.x, calculateRealValue(point.y, point.graph)])
+    return context
+
+def complementToJSON(graph):
+    context = {"complement":[]}
     try:
         comp_graph = graph.page.graphs.get(name=graph.complement)
         comp_points = comp_graph.points.all().order_by('index')
