@@ -457,7 +457,7 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 				return;
 			}
 			that.complement = data['complement'];
-			that.calculate(that.data);
+			that.calculate(that.raw.data);
 			that.plot();
 			}
 		});
