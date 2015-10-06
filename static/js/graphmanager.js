@@ -766,43 +766,130 @@ function SeasonallyAdjustedDataGraph(container, rawGraph) {
 inheritPrototype(SeasonallyAdjustedDataGraph, CalculatedGraph);
 
 SeasonallyAdjustedDataGraph.prototype.calculate = function(data) {
-	var totalYears = [];
-	var seasonalRatios = [];
-	var averageSeasonalRatios = [];
-	for (i=0; i<data.length; i++){
-		if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
-			totalYears[Math.floor(i/12)] = [];
-			totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
-			totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
-								+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
+	
+	if (this.complement.length == 0){
+		var totalYears = [];
+		var seasonalRatios = [];
+		var averageSeasonalRatios = [];
+		for (i=0; i<data.length; i++){
+			if (this.getMonthIndex(data[i][0]) == 0 && data[i+11] && this.getMonthIndex(data[i+11][0]) == 11 && this.getYear(data[i][0]) == this.getYear(data[i+11][0])){
+				totalYears[Math.floor(i/12)] = [];
+				totalYears[Math.floor(i/12)][0] = this.getYear(data[i][0]);
+				totalYears[Math.floor(i/12)][1] = (data[i][1] + data[i+1][1] + data[i+2][1] + data[i+3][1] + data[i+4][1] + data[i+5][1]
+									+ data[i+6][1] + data[i+7][1] + data[i+8][1] + data[i+9][1] + data[i+10][1] + data[i+11][1])
+			}
 		}
-	}
-	for (i=0; i < data.length; i++) {
-		for (j=0; j < totalYears.length; j++){
-			if (this.getYear(data[i][0]) == totalYears[j][0]) {
-				seasonalRatios[i] = [];
-				seasonalRatios[i][0] = data[i][0];
-				seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
-			}				
+		for (i=0; i < data.length; i++) {
+			for (j=0; j < totalYears.length; j++){
+				if (this.getYear(data[i][0]) == totalYears[j][0]) {
+					seasonalRatios[i] = [];
+					seasonalRatios[i][0] = data[i][0];
+					seasonalRatios[i][1] = data[i][1]/totalYears[j][1];	
+				}				
+			}
 		}
+		for (i=0; i < 12; i++) {
+			averageSeasonalRatios[i] = [];
+			averageSeasonalRatios[i][0] = i;
+			var monthSum = 0;
+			var that = this;
+			seasonalRatios.filter(function(point) {
+				return that.getMonthIndex(point[0]) == i;	
+			}).forEach(function(point) {
+					monthSum += point[1];
+				});
+			averageSeasonalRatios[i][1] = monthSum/totalYears.length;
+		}
+		for (i=0; i < data.length; i++) {
+			this.data[i] = [];
+			this.data[i][0] = data[i][0];
+			this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
+		}		
 	}
-	for (i=0; i < 12; i++) {
-		averageSeasonalRatios[i] = [];
-		averageSeasonalRatios[i][0] = i;
-		var monthSum = 0;
-		var that = this;
-		seasonalRatios.filter(function(point) {
-			return that.getMonthIndex(point[0]) == i;	
-		}).forEach(function(point) {
-				monthSum += point[1];
-			});
-		averageSeasonalRatios[i][1] = monthSum/totalYears.length;
+	
+	else{
+		passenger_vols = this.complement
+		var max_pass_vols = []
+		
+		for (i=0; i < data.length; i++) {
+			for (j=0; j<passenger_vols.length; j++) {
+				if (this.getMonthIndex(data[i][0]) == this.getMonthIndex(passenger_vols[j][0]) && this.getYear(data[i][0]) == this.getYear(passenger_vols[j][0])) {
+					max_pass_vols[i] = []
+					max_pass_vols[i][0] = data[i][0]
+					max_pass_vols[i][1] = passenger_vols[j][1]/data[i][1]
+				}
+			}
+		}
+		
+		var totalYearsPoss = []
+		
+		for (i=0; i<max_pass_vols.length; i++){
+			if (this.getMonthIndex(max_pass_vols[i][0]) == 0 && max_pass_vols[i+11] && this.getMonthIndex(max_pass_vols[i+11][0]) == 11 && this.getYear(max_pass_vols[i][0]) == this.getYear(data[i+11][0])){
+				totalYearsPoss[Math.floor(i/12)] = [];
+				totalYearsPoss[Math.floor(i/12)][0] = this.getYear(max_pass_vols[i][0]);
+				totalYearsPoss[Math.floor(i/12)][1] = (max_pass_vols[i][1] + max_pass_vols[i+1][1] + max_pass_vols[i+2][1] + max_pass_vols[i+3][1] + max_pass_vols[i+4][1] + max_pass_vols[i+5][1]
+									+ max_pass_vols[i+6][1] + max_pass_vols[i+7][1] + max_pass_vols[i+8][1] + max_pass_vols[i+9][1] + max_pass_vols[i+10][1] + max_pass_vols[i+11][1])
+			}
+		}
+		
+		var totalYears = []
+		
+		for (i=0; i<passenger_vols.length; i++){
+			if (this.getMonthIndex(data[i][0]) == 0 && passenger_vols[i+11] && this.getMonthIndex(passenger_vols[i+11][0]) == 11 && this.getYear(passenger_vols[i][0]) == this.getYear(passenger_vols[i+11][0])){
+				totalYears[Math.floor(i/12)] = [];
+				totalYears[Math.floor(i/12)][0] = this.getYear(passenger_vols[i][0]);
+				totalYears[Math.floor(i/12)][1] = (passenger_vols[i][1] + passenger_vols[i+1][1] + passenger_vols[i+2][1] + passenger_vols[i+3][1] + passenger_vols[i+4][1] + passenger_vols[i+5][1]
+									+ passenger_vols[i+6][1] + passenger_vols[i+7][1] + passenger_vols[i+8][1] + passenger_vols[i+9][1] + passenger_vols[i+10][1] + passenger_vols[i+11][1])
+			}
+		}
+		
+		var yearLoadFactor = []
+		
+		for (i=0; i<totalYears.length; i++) {
+			for (j=0; j<totalYearsPoss.length; j++) {
+				if (totalYears[i][0] == totalYearsPoss[j][0]) {
+					yearLoadFactor[i] = []
+					yearLoadFactor[i][0] = totalYears[i][0]
+					yearLoadFactor[i][1] = totalYears[i][1]/totalYearsPoss[j][1]
+					}
+			}
+		}
+		
+		var seasonalRatios = []
+		
+		for (i=0; i < data.length; i++) {
+			for (j=0; j < yearLoadFactor.length; j++){
+				if (this.getYear(data[i][0]) == yearLoadFactor[j][0]) {
+					seasonalRatios[i] = [];
+					seasonalRatios[i][0] = data[i][0];
+					seasonalRatios[i][1] = data[i][1]/yearLoadFactor[j][1];	
+				}
+			}
+		}
+		
+		var averageSeasonalRatios = []
+		
+		for (i=0; i < 12; i++) {
+			averageSeasonalRatios[i] = [];
+			averageSeasonalRatios[i][0] = i;
+			var monthSum = 0;
+			var that = this;
+			seasonalRatios.filter(function(point) {
+				return that.getMonthIndex(point[0]) == i;	
+			}).forEach(function(point) {
+					monthSum += point[1];
+				});
+			averageSeasonalRatios[i][1] = monthSum/totalYears.length;
+		}
+		
+		for (i=0; i < data.length; i++) {
+			this.data[i] = [];
+			this.data[i][0] = data[i][0];
+			this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
+		}		//code
+		
 	}
-	for (i=0; i < data.length; i++) {
-		this.data[i] = [];
-		this.data[i][0] = data[i][0];
-		this.data[i][1] = data[i][1]/averageSeasonalRatios[this.getMonthIndex(data[i][0])][1];
-	}	
+	
 };
 
 function SeasonalMonthOnMonthGraph(container, rawGraph) {
