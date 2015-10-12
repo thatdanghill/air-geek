@@ -258,9 +258,10 @@ def forecast(request, project_name):
         page_array = []
         maxYear = findAllMaxYear(project)
         for page in project.pages.all().order_by('name'):
-            page_url = proj_url + "/page/" + page.slug
+            page_url = BASE_DIR + project.slug + '/charts/' + page.slug
             special_name = project.name[:-1]
             latestVals = getLatestVals(page, maxYear)
+            print(page.name)
             forecastVals = getForecastData(page)
             print(latestVals)
             print(forecastVals)
@@ -927,7 +928,7 @@ def getLatestVals(page, year):
         pts = filterYear(points, year)
         data = []
         totalYears = []
-        print(pts)
+        
         
         if not pts:
             data = ["-"]*12
@@ -959,6 +960,7 @@ def getLatestVals(page, year):
             else:
                 
                 for pt in pts:
+                    print(pt.y)
                     data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
         
 
