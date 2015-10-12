@@ -27,13 +27,13 @@ function Graph(container) {
 	this.data = [];
 	this.complement = [];
 	this.options = {	
+		'theme': 'material',
+		'backgroundColor': {fill: 'white'},
 		'width' : 750,
-		'height' : 450,
-		'chartArea.width' : 500,
-		'chartArea.height' : 350,
-		'legend': {position: 'none'}
-		
-		
+		'height' : 550,
+		'hAxis' : {slantedText: true, showTextEvery: 12},
+		'chartArea' : {width: 650, height: 470, top: 20, left: 90},
+		'legend': {position: 'none'},
 	};
 }
 
@@ -81,6 +81,7 @@ Graph.prototype = {
 			next = iter.next().value;
 		}
 		//return Array.from(years).sort();
+		vals.reverse();
 		return vals;
 	},
 	
@@ -167,10 +168,10 @@ RawGraph.prototype = $.extend({}, RawGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
-		this.options['title'] = this.title;
+		//this.options['title'] = this.title;
 		
 		
-		var chart = new google.charts.Line(document.getElementById('raw-view'));
+		var chart = new google.visualization.LineChart(document.getElementById('raw-view'));
 		chart.draw(table, this.options);
 	},
 	
@@ -480,9 +481,9 @@ CalculatedGraph.prototype = $.extend({}, CalculatedGraph.prototype, {
 		table.addColumn('string', "Month");
 		table.addColumn('number', this.title);
 		table.addRows(data);
-		this.options['title'] = this.title;
+		//this.options['title'] = this.title;
 		
-		var chart = new google.charts.Line(this.container.find(".view").first()[0]);
+		var chart = new google.visualization.LineChart(this.container.find(".view").first()[0]);
 		chart.draw(table, this.options);
 	},
 	
@@ -2042,5 +2043,5 @@ Seasonal5YrIndexGraph.prototype.calculate = function(data) {
 
 		
 
-google.load('visualization', '1.0', {packages:['line', 'table']});
+google.load('visualization', '1.0', {packages:['corechart', 'line', 'table']});
 google.setOnLoadCallback(setUp);
