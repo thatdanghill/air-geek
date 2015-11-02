@@ -279,10 +279,38 @@ def forecast(request, project_name):
         pass
 
 def links(request, project_name):
-    return render(request, 'miner/links.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    context = {}
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        context = {'home': BASE_DIR, 'project': project.name}
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+    return render(request, 'miner/links.html', context)
 
 def forecastCompare(request, project_name):
-    return render(request, 'miner/forecase-compare.html', {})
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    context = {}
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        up = UserProfile.objects.get(user = user)
+        project = Project.objects.get(user = up, slug = project_name)
+        context = {'home': BASE_DIR, 'project': project.name}
+    except User.DoesNotExist:
+        pass
+    except UserProfile.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        pass
+    return render(request, 'miner/forecast-comparison.html', context)
 
 #TODO: un-hardcode username
 def project(request, user_name, project_name):
