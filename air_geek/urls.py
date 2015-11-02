@@ -24,7 +24,10 @@ urlpatterns = patterns('',
     url(r'^(?P<project_name>[\w\-]+)/charts/(?P<page_name>[\w\-]+)/$', views.page, name='page'),
     url(r'^(?P<project_name>[\w\-]+)/charts/(?P<page_name>[\w\-]+)/(?P<graph_name>[\w\-]+)/$', views.graph, name='graph'),
     url(r'^all_points/$', views.allPoints, name='all_points'),
-    url(r'^complement_points/$', views.complementPoints, name='complement_points')
+    url(r'^complement_points/$', views.complementPoints, name='complement_points'),
+    url(r'^miner/register/$', views.register, name='register'),
+    url(r'^login/$', views.user_login, name='login'),
+    url(r'^logout/$', views.user_logout, name='logout'),
 )
 
 if not settings.DEBUG:
