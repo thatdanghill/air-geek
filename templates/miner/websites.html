@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+	<head>
+		<title>AirGeek</title>
+		<link rel="stylesheet" href="{% static "css/formatting.css" %}" />
+		<link rel="stylesheet" href="{% static "js/datatables/media/css/jquery.dataTables.css" %}">
+		<script src="{% static "js/jquery.js" %}"></script>
+		<script src="{% static "js/dist/jquery.floatThead.min.js" %}"></script>
+		<!--script src="{% static "js/datatables/media/js/jquery.dataTables.js" %}"></script>
+		<script src="{% static "js/datatables/media/js/dataTables.fixedColumns.js" %}"></script-->
+		<!--script src="{% static "js/indextable.js" %}"></script>
+		<script src="{% static "js/graphlogic.js" %}"></script-->
+	</head>
+	
+	<body>
+		<div id="header">
+			<h1> AirGeek </h1>	
+		</div>
+		<div id="manager">
+			<p><a href="{{ home }}">Home</a>->{{ project }}: Charts</p>
+				<h2>Africa</h2>
+				<ul>
+					<li><a>Kenya Airways (N/A)</a></li>
+					<li><a>Kulula (N/A)</a></li>
+				</ul>
+				<h2>Asia</h2>
+				<ul>
+					<li><a href="http://www.airarabia.com/en/investor-presentations">Air Arabia</a></li>
+					<li><a href="http://www.aavplc.com/index.html?menu=operational_statistic&lang=en">Air Asia</a></li>
+					<li><a href="http://www.airchina.com.cn/www/en/html/index/ir/traffic/">Air China</a></li>
+					<li><a href="http://us.flyasiana.com/C/en/boardContents.do?menuId=005003001000000&menuType=BOARD&boardCode=BOARD_MANAGE">Asiana Airlines</a></li>
+					<li><a>Bangkok Airlines (N/A)</a></li>
+					<li><a href="http://www.cathaypacific.com/cx/en_CA/about-us/investor-relations/latest-traffic-figures.html">Cathay Pacific</a></li>
+					<li><a href="http://www.china-airlines.com/en/about_ca/monthly_results.html">China Airlines</a></li>
+					<li><a href="http://en.ceair.com/about/yysj/index.html">China Eastern</a></li>
+					<li><a href="http://www.csair.com/en/about/touzizheguanxiz/shengcanshuju/">China Southern</a></li>
+					<li><a href="http://www.csair.com/en/about/touzizheguanxiz/shengcanshuju/">EVA Air</a></li>
+					<li><a>Emirates (N/A)</a></li>
+					<li><a>Hainan Airlines (N/A)</a></li>
+					<li><a href="http://press.jal.co.jp/en/release/201501/003212.html">Japan Airlines</a></li>
+					<li><a>Jet Airways (N/A)</a></li>
+					<li><a href="https://www.koreanair.com/global/en/about/economic-responsibility-investor-relations.html#cta-large=/global/en/about/economic-responsibility-investor-relations/investor-relations/annual_reports.html">Korean Air</a></li>
+					<li><a>Qatar (N/A)</a></li>
+					<li><a>Royal Jordanian Airlines (N/A)</a></li>
+					<li><a>Shandong Airlines (N/A)</a></li>
+					<li><a>Spring Airlines (N/A)</a></li>
+					<li><a href="http://thai.listedcompany.com/statistic.html">Thai Airways</a></li>
+					<li><a href="http://investor.turkishairlines.com/en/financial-operational/traffic-results/1/2015">Turkish Airlines</a></li>
+				</ul>
+				<h2>Europe</h2>
+				<ul>
+					<li><a href="http://en.aegeanair.com/investor-relations/announcements/">Aegean Airlines</a></li>
+					<li><a href="http://www.iagshares.com/phoenix.zhtml?c=240949&p=irol-traffic">Aerlingus</a></li>
+					<li><a href="http://www.aeroflot.com/cms/en/reports_item/504">Aeroflot</a></li>
+					<li><a href="http://ir.airberlin.com/en/ir/dates-events/financial-calendar/2015/Traffic-figures-JANUARY-2015">Air Berlin</a></li>
+					<li><a href="http://www.airfranceklm.com/en/finance/financial-news/financial-press-releases#77">Air France-KLM</a></li>
+					<li><a>Alitalia (N/A)</a></li>
+					<li><a href="http://www.iairgroup.com/phoenix.zhtml?c=240949&p=irol-newsArticle&ID=2013549">British Airways</a></li>
+					<li><a href="http://corporate.easyjet.com/investors/monthly-traffic-statistics/2015/english/january.aspx?sc_lang=en">Easy Jet</a></li>
+					<li><a href="http://www.finnairgroup.com/investors/investors_7.html">Finnair</a></li>
+					<li><a href="http://www.iairgroup.com/phoenix.zhtml?c=240949&p=irol-newsArticle&ID=2013549">IAG</a></li>
+					<li><a href="http://www.iairgroup.com/phoenix.zhtml?c=240949&p=irol-newsArticle&ID=2013549">Iberia</a></li>
+					<li><a href="http://www.icelandairgroup.com/investors/traffic-data/">Iceland Air</a></li>
+					<li><a href="http://investor-relations.lufthansagroup.com/en/finanzberichte/traffic-figures.html">Lufthansa</a></li>
+					<li><a href="http://media.norwegian.com/en/#/pressreleases/norwegian-reports-higher-load-factor-and-continued-traffic-growth-in-january-2015-1113777">Norwegian Air</a></li>
+					<li><a href="http://investor.ryanair.com/regulatory-news/">Ryan Air</a></li>
+					<li><a href="http://www.sasgroup.net/en/sas-traffic-figures/?sheet=distribution-of-load-factor">Scandinavian Airlines</a></li>
+					<li><a>TAP Portugal (N/A)</a></li>
+					<li><a>Thomson Airways (N/A)</a></li>
+					<li><a href="http://transaero.ru/en/company/press-centre/news?year=2015&id=190215-press-en">Transaero Airlines</a></li>
+					<li><a href="http://www.iairgroup.com/phoenix.zhtml?c=240949&p=irol-newsArticle&ID=2013549">Vueling</a></li>
+					<li><a href="http://corporate.wizzair.com/en-GB/investor_relations/traffic_statistics">Wizz Air</a></li>
+				</ul>
+				<h2>North America</h2>
+				<ul>
+					<li><a href="http://aircanada.mediaroom.com/index.php?year=2015&s=news_releases">Air Canada</a></li>
+					<li><a>Air Transat (N/A)</a></li>
+					<li><a href="http://www.alaskaair.com/newsroom/">Alaska Airlines</a></li>
+					<li><a href="http://phx.corporate-ir.net/phoenix.zhtml?c=117098&p=irol-trafficnews&nyo=0">American Airlines</a></li>
+					<li><a href="http://investor.shareholder.com/copa/">Copa Airlines</a></li>
+					<li><a href="http://ir.delta.com/">Delta</a></li>
+					<li><a>FlyBE (N/A)</a></li>
+					<li><a href="http://investor.jetblue.com/investor-relations/press-releases.aspx">Jet Blue</a></li>
+					<li><a href="http://southwest.investorroom.com/index.php?year=2015&s=43">SouthWest Airlines</a></li>
+					<li><a href="http://ir.spirit.com/releases.cfm">Spirit Airlines</a></li>
+					<li><a>US Airways (N/A)</a></li>
+					<li><a href="http://ir.unitedcontinentalholdings.com/phoenix.zhtml?c=83680&p=irol-newsArticle&ID=2014997">United Airlines</a></li>
+					<li><a href="http://ir.virginamerica.com/phoenix.zhtml?c=253736&p=irol-irhome">Virgin America</a></li>
+					<li><a href="http://www.westjet.com/guest/en/media-investors/performance.shtml">WestJet</a></li>
+				</ul>
+				<h2>Oceania</h2>
+				<ul>
+					<li><a href="http://www.anahd.co.jp/en/investors/irdata/transrecord.html">ANA</a></li>
+					<li><a href="http://www.airnewzealand.ca/monthly-operating-data">Air New Zealand</a></li>
+					<li><a href="http://www.ir-garuda-indonesia.com/index.php?catid=60&artid=1268&mnid=393&menu=389">Garuda</a></li>
+					<li><a href="http://www.qantas.com.au/travel/airlines/investors-traffic-statistics/global/en">Qantas</a></li>
+					<li><a href="http://www.singaporeair.com/jsp/cms/en_UK/global_header/operatingstatistics.jsp">Singapore Airlines</a></li>
+					<li><a href="http://www.virginaustralia.com/au/en/about-us/company-overview/investor-information/traffic-and-capacity-statistics/">Virgin Australia</a></li>
+				</ul>
+				<h2>South America</h2>
+				<ul>
+					<li><a href="http://www.aviancaholdings.com/en/operational-figures">Avianca</a></li>
+					<li><a href="http://www.latamairlinesgroup.net/phoenix.zhtml?c=81136&p=irol-irhome">LATAM Airlines</a></li>
+					<li><a>PAL (N/A)</a></li>
+				</ul>
+		</div>
+	</body>
+</html>

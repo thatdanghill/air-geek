@@ -119,7 +119,7 @@ def latestSummary(request, project_name):
         proj_url = BASE_DIR + project.slug
         page_array = []
         maxYear = findAllMaxYear(project)
-        maxMonth = findMaxMonth(project, maxYear)
+        maxMonth = findMaxMonthProject(project, maxYear)
         for page in project.pages.all().order_by('name'):
             page_url = proj_url + "/charts/" + page.slug
             special_name = project.name[:-1]
@@ -194,10 +194,9 @@ def annualSummary(request, project_name):
         pages = project.pages.all().order_by('name')
         
         proj_array = []
-        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
         page_array = []
         maxYear = findAllMaxYear(project)
-        maxMonth = findMaxMonth(project, maxYear)
+        maxMonth = findMaxMonthProject(project, maxYear)
         
         min = maxYear
         for page in pages:
@@ -219,10 +218,14 @@ def annualSummary(request, project_name):
             url = BASE_DIR + project.slug + '/charts/' + page.slug
             total_vals = []
             yoy_vals = []
+            maxMonth = findMaxMonthPage(page, maxYear)
             for year in yrs:
                 if year == maxYear:
+                    
                     total_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
                     yoy_vals.append(getPageYTDYoyStats(page, maxMonth, year)[-1])
+                    print(page.name)
+                    print(getPageYTDStats(page, maxMonth, year))
                 else:
                     if getYearTotalVals(page, year) == "-":
                         total_vals.append(getYearTotalVals(page, year))
@@ -256,10 +259,13 @@ def forecast(request, project_name):
         page_array = []
         maxYear = findAllMaxYear(project)
         for page in project.pages.all().order_by('name'):
-            page_url = proj_url + "/page/" + page.slug
+            page_url = BASE_DIR + project.slug + '/charts/' + page.slug
             special_name = project.name[:-1]
-            latestVals = getLatestVals(page)
+            latestVals = getLatestVals(page, maxYear)
+            print(page.name)
             forecastVals = getForecastData(page)
+            print(latestVals)
+            print(forecastVals)
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
@@ -736,7 +742,7 @@ def findAllMaxYear(project):
             pass
     return max
 
-def findMaxMonth(project, year):
+def findMaxMonthProject(project, year):
     max = 0
     for page in project.pages.all():
         try:
@@ -749,6 +755,21 @@ def findMaxMonth(project, year):
         except Graph.DoesNotExist:
             pass
     return max
+
+def findMaxMonthPage(page, year):
+    max = 0
+    try:
+            graph = Graph.objects.get(page = page, name = page.table)
+            points = filterYear(graph.points.all(), year)
+            for point in points:
+                mi = mos.index(point.x.split(" ")[0].lower()) % 12
+                if mi > max:
+                    max = mi
+    except Graph.DoesNotExist:
+        pass
+    
+    return max
+
 
 def columnize(monthIndex, year):
     columns = []
@@ -908,29 +929,57 @@ def getForecastData(page):
         
               
             
-def getLatestVals(page):
+def getLatestVals(page, year):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.all()
-        maxYear = findMaxYear(points)
-        pts = filterYear(points, maxYear)
+        pts = filterYear(points, year)
         data = []
         totalYears = []
-        print(pts)
         
-        for i in range(0, len(points)):
-                if i+11 < len(points) and mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and  mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i+11].x.split(" ")[1]) == int(points[i].x.split(" ")[1]):
-                    total = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y
-                    totalYears.append([int(points[i].x.split(" ")[1]), total])
-                    
-        if not totalYears:
+        
+        if not pts:
             data = ["-"]*12
             
+        elif pts:
+            if page.quarterly:
+                
+                for pt in pts:
+                    data.append("-")
+                    data.append("-")
+                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
+                    
+            elif page.annualy:
+                
+                for pt in pts:
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append("-")
+                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
+            
+            else:
+                
+                for pt in pts:
+                    print(pt.y)
+                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
+        
+
         else:
-            for pt in pts:
-                data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
-          
-        return data   
+            data = ["-"]*12
+        
+        if not pts:
+            data = ["-"]*12
+            
+        return data
+            
     except Graph.DoesNotExist:        
         data = ["-"]*12
     
