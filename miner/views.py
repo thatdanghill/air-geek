@@ -182,6 +182,7 @@ def threeMonth(request, project_name):
         pass
     except Project.DoesNotExist:
         pass
+
 #TODO: un-hardcode username
 def annualSummary(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -270,6 +271,13 @@ def forecast(request, project_name):
         pass
     except Project.DoesNotExist:
         pass
+
+def links(request, project_name):
+    return render(request, 'miner/links.html', {})
+
+def forecastCompare(request, project_name):
+    return render(request, 'miner/forecase-compare.html', {})
+
 #TODO: un-hardcode username
 def project(request, user_name, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'

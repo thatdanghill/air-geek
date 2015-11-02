@@ -26,11 +26,17 @@
 				{% with ""|add:project.url|add:"/three-month" as url2 %}
 				{% with ""|add:project.url|add:"/annual-summary" as url3 %}
 				{% with ""|add:project.url|add:"/forecast" as url4 %}
+				{% with ""|add:project.url|add:"/links" as url5 %}
+				{% with ""|add:project.url|add:"/forecast-compare" as url6 %}
 				<li><a href="{{url0}}"> Latest Summary </a></li>
 				<li><a href="{{url1}}"> Charts </a></li>
 				<li><a href="{{url2}}"> 3 Year Monthly Data </a></li>
 				<li><a href="{{url3}}"> Annual Summary </a></li>
 				<li><a href="{{url4}}"> Forecast </a></li>
+				<li><a href="{{url4}}"> Links </a></li>
+				<li><a href="{{url4}}"> Forecast Comparison </a></li>
+				{% endwith %}
+				{% endwith %}
 				{% endwith %}
 				{% endwith %}
 				{% endwith %}
