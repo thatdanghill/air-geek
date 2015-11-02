@@ -296,7 +296,32 @@ def links(request, project_name):
         user = User.objects.get(username = username)
         up = UserProfile.objects.get(user = user)
         project = Project.objects.get(user = up, slug = project_name)
-        context = {'home': BASE_DIR, 'project': project.name}
+        pages = project.pages.all().order_by('name')
+    
+        africa = []
+        asia = []
+        europe = []
+        oceania = []
+        northamerica = []
+        southamerica = []
+    
+        for page in pages:
+            if page.continent.name == 'Africa':
+                africa.append({'name':page.name, 'url':page.url_guess})
+            elif page.continent.name == 'Asia':
+                asia.append({'name':page.name, 'url':page.url_guess})
+            elif page.continent.name == 'Europe':
+                europe.append({'name':page.name, 'url':page.url_guess})
+            elif page.continent.name == 'Oceania':
+                oceania.append({'name':page.name, 'url':page.url_guess})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name':page.name, 'url':page.url_guess})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name':page.name, 'url':page.url_guess})
+                    
+        context = {'home': BASE_DIR, 'project': project.name, 'africa':africa, 'asia':asia,
+                    'europe':europe, 'oceania':oceania, 'northamerica':northamerica, 'southamerica':southamerica}
+
     except User.DoesNotExist:
         pass
     except UserProfile.DoesNotExist:

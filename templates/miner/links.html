@@ -27,12 +27,15 @@
 				<div id = "linklist">
 				<h2>Africa</h2>
 				<ul>
-					<li><a>Kenya Airways (N/A)</a></li>
-					<li><a>Kulula (N/A)</a></li>
+					<!--li><a>Kenya Airways (N/A)</a></li>
+					<li><a>Kulula (N/A)</a></li-->
+					{% for link in africa %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				<h2>Asia</h2>
 				<ul>
-					<li><a href="http://www.airarabia.com/en/investor-presentations">Air Arabia</a></li>
+					<!--li><a href="http://www.airarabia.com/en/investor-presentations">Air Arabia</a></li>
 					<li><a href="http://www.aavplc.com/index.html?menu=operational_statistic&lang=en">Air Asia</a></li>
 					<li><a href="http://www.airchina.com.cn/www/en/html/index/ir/traffic/">Air China</a></li>
 					<li><a href="http://us.flyasiana.com/C/en/boardContents.do?menuId=005003001000000&menuType=BOARD&boardCode=BOARD_MANAGE">Asiana Airlines</a></li>
@@ -52,11 +55,14 @@
 					<li><a>Shandong Airlines (N/A)</a></li>
 					<li><a>Spring Airlines (N/A)</a></li>
 					<li><a href="http://thai.listedcompany.com/statistic.html">Thai Airways</a></li>
-					<li><a href="http://investor.turkishairlines.com/en/financial-operational/traffic-results/1/2015">Turkish Airlines</a></li>
+					<li><a href="http://investor.turkishairlines.com/en/financial-operational/traffic-results/1/2015">Turkish Airlines</a></li-->
+					{% for link in asia %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				<h2>Europe</h2>
 				<ul>
-					<li><a href="http://en.aegeanair.com/investor-relations/announcements/">Aegean Airlines</a></li>
+					<!--li><a href="http://en.aegeanair.com/investor-relations/announcements/">Aegean Airlines</a></li>
 					<li><a href="http://www.iagshares.com/phoenix.zhtml?c=240949&p=irol-traffic">Aerlingus</a></li>
 					<li><a href="http://www.aeroflot.com/cms/en/reports_item/504">Aeroflot</a></li>
 					<li><a href="http://ir.airberlin.com/en/ir/dates-events/financial-calendar/2015/Traffic-figures-JANUARY-2015">Air Berlin</a></li>
@@ -76,11 +82,14 @@
 					<li><a>Thomson Airways (N/A)</a></li>
 					<li><a href="http://transaero.ru/en/company/press-centre/news?year=2015&id=190215-press-en">Transaero Airlines</a></li>
 					<li><a href="http://www.iairgroup.com/phoenix.zhtml?c=240949&p=irol-newsArticle&ID=2013549">Vueling</a></li>
-					<li><a href="http://corporate.wizzair.com/en-GB/investor_relations/traffic_statistics">Wizz Air</a></li>
+					<li><a href="http://corporate.wizzair.com/en-GB/investor_relations/traffic_statistics">Wizz Air</a></li-->
+					{% for link in europe %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				<h2>North America</h2>
 				<ul>
-					<li><a href="http://aircanada.mediaroom.com/index.php?year=2015&s=news_releases">Air Canada</a></li>
+					<!--li><a href="http://aircanada.mediaroom.com/index.php?year=2015&s=news_releases">Air Canada</a></li>
 					<li><a>Air Transat (N/A)</a></li>
 					<li><a href="http://www.alaskaair.com/newsroom/">Alaska Airlines</a></li>
 					<li><a href="http://phx.corporate-ir.net/phoenix.zhtml?c=117098&p=irol-trafficnews&nyo=0">American Airlines</a></li>
@@ -93,22 +102,31 @@
 					<li><a>US Airways (N/A)</a></li>
 					<li><a href="http://ir.unitedcontinentalholdings.com/phoenix.zhtml?c=83680&p=irol-newsArticle&ID=2014997">United Airlines</a></li>
 					<li><a href="http://ir.virginamerica.com/phoenix.zhtml?c=253736&p=irol-irhome">Virgin America</a></li>
-					<li><a href="http://www.westjet.com/guest/en/media-investors/performance.shtml">WestJet</a></li>
+					<li><a href="http://www.westjet.com/guest/en/media-investors/performance.shtml">WestJet</a></li-->
+					{% for link in northamerica %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				<h2>Oceania</h2>
 				<ul>
-					<li><a href="http://www.anahd.co.jp/en/investors/irdata/transrecord.html">ANA</a></li>
+					<!--li><a href="http://www.anahd.co.jp/en/investors/irdata/transrecord.html">ANA</a></li>
 					<li><a href="http://www.airnewzealand.ca/monthly-operating-data">Air New Zealand</a></li>
 					<li><a href="http://www.ir-garuda-indonesia.com/index.php?catid=60&artid=1268&mnid=393&menu=389">Garuda</a></li>
 					<li><a href="http://www.qantas.com.au/travel/airlines/investors-traffic-statistics/global/en">Qantas</a></li>
 					<li><a href="http://www.singaporeair.com/jsp/cms/en_UK/global_header/operatingstatistics.jsp">Singapore Airlines</a></li>
-					<li><a href="http://www.virginaustralia.com/au/en/about-us/company-overview/investor-information/traffic-and-capacity-statistics/">Virgin Australia</a></li>
+					<li><a href="http://www.virginaustralia.com/au/en/about-us/company-overview/investor-information/traffic-and-capacity-statistics/">Virgin Australia</a></li-->
+					{% for link in oceania %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				<h2>South America</h2>
 				<ul>
-					<li><a href="http://www.aviancaholdings.com/en/operational-figures">Avianca</a></li>
+					<!--li><a href="http://www.aviancaholdings.com/en/operational-figures">Avianca</a></li>
 					<li><a href="http://www.latamairlinesgroup.net/phoenix.zhtml?c=81136&p=irol-irhome">LATAM Airlines</a></li>
-					<li><a>PAL (N/A)</a></li>
+					<li><a>PAL (N/A)</a></li-->
+					{% for link in southamerica %}
+					<li><a href="{{link.url}}">{{link.name}}</a></li>
+					{% endfor %}
 				</ul>
 				</div>
 		</div>
