@@ -674,7 +674,7 @@ def placeInOrder(x, y, points, graph):
     
     ind = findIndex(year, month, points)
     
-    for i in range(ind, points.count()):
+    for i in range(points.count()-1, ind-1, -1):
         q = points[i]
         q.index += 1
         q.save()
