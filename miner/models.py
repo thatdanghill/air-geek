@@ -36,6 +36,8 @@ class Page(models.Model):
     annualy = models.BooleanField(default=False)
     continent = models.ForeignKey(Continent, related_name='pages')
     url = models.URLField(default="http://google.com/")
+    date_released = models.CharField(max_length=128, default='')
+    
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Page, self).save(*args, **kwargs)
@@ -48,7 +50,6 @@ class Graph(models.Model):
     page = models.ForeignKey(Page, related_name='graphs')
     slug = models.SlugField()
     url = models.URLField(default="http://google.com/")
-    date_released = models.CharField(max_length=128)
     complement = models.CharField(max_length=128)
     thousand = models.BooleanField(default=False)
     million = models.BooleanField(default=False)
