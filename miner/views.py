@@ -305,17 +305,17 @@ def links(request, project_name):
     
         for page in pages:
             if page.continent.name == 'Africa':
-                africa.append({'name':page.name, 'url':page.url})
+                africa.append({'name':page.name, 'url':page.url, 'release':page.date_released})
             elif page.continent.name == 'Asia':
-                asia.append({'name':page.name, 'url':page.url})
+                asia.append({'name':page.name, 'url':page.url, 'release':page.date_released})
             elif page.continent.name == 'Europe':
-                europe.append({'name':page.name, 'url':page.url})
+                europe.append({'name':page.name, 'url':page.url, 'release':page.date_released})
             elif page.continent.name == 'Oceania':
-                oceania.append({'name':page.name, 'url':page.url})
+                oceania.append({'name':page.name, 'url':page.url, 'release':page.date_released})
             elif page.continent.name == 'North America':
-                northamerica.append({'name':page.name, 'url':page.url})
+                northamerica.append({'name':page.name, 'url':page.url, 'release':page.date_released})
             elif page.continent.name == 'South America':
-                southamerica.append({'name':page.name, 'url':page.url})
+                southamerica.append({'name':page.name, 'url':page.url, 'release':page.date_released})
                     
         context = {'home': BASE_DIR, 'project': project.name, 'africa':africa, 'asia':asia,
                     'europe':europe, 'oceania':oceania, 'northamerica':northamerica, 'southamerica':southamerica}
