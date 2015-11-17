@@ -232,8 +232,8 @@ def annualSummary(request, project_name):
                     
                     total_vals.append(getPageYTDStats(page, maxMonth, year)[-1])
                     yoy_vals.append(getPageYTDYoyStats(page, maxMonth, year)[-1])
-                    print(page.name)
-                    print(getPageYTDStats(page, maxMonth, year))
+                    # print(page.name)
+                    # print(getPageYTDStats(page, maxMonth, year))
                 else:
                     if getYearTotalVals(page, year) == "-":
                         total_vals.append(getYearTotalVals(page, year))
@@ -268,13 +268,11 @@ def forecast(request, project_name):
         page_array = []
         maxYear = findAllMaxYear(project)
         for page in project.pages.all().order_by('name'):
+            maxMonth = findMaxMonthPage(page, maxYear)
             page_url = BASE_DIR + project.slug + '/charts/' + page.slug
             special_name = project.name[:-1]
             latestVals = getLatestVals(page, maxYear)
-            print(page.name)
-            forecastVals = getForecastData(page)
-            print(latestVals)
-            print(forecastVals)
+            forecastVals = getForecastData(page, maxMonth)
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
             page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
@@ -307,17 +305,17 @@ def links(request, project_name):
     
         for page in pages:
             if page.continent.name == 'Africa':
-                africa.append({'name':page.name, 'url':page.url_guess})
+                africa.append({'name':page.name, 'url':page.url})
             elif page.continent.name == 'Asia':
-                asia.append({'name':page.name, 'url':page.url_guess})
+                asia.append({'name':page.name, 'url':page.url})
             elif page.continent.name == 'Europe':
-                europe.append({'name':page.name, 'url':page.url_guess})
+                europe.append({'name':page.name, 'url':page.url})
             elif page.continent.name == 'Oceania':
-                oceania.append({'name':page.name, 'url':page.url_guess})
+                oceania.append({'name':page.name, 'url':page.url})
             elif page.continent.name == 'North America':
-                northamerica.append({'name':page.name, 'url':page.url_guess})
+                northamerica.append({'name':page.name, 'url':page.url})
             elif page.continent.name == 'South America':
-                southamerica.append({'name':page.name, 'url':page.url_guess})
+                southamerica.append({'name':page.name, 'url':page.url})
                     
         context = {'home': BASE_DIR, 'project': project.name, 'africa':africa, 'asia':asia,
                     'europe':europe, 'oceania':oceania, 'northamerica':northamerica, 'southamerica':southamerica}
@@ -897,6 +895,71 @@ def getSymbolForRelease(page):
 
 #-------------------------------------------------------------------
 # index
+def findAverageSeasonalRatios(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.order_by('index')
+        maxYear = findMaxYear(points)
+        minYear = findMinYear(points)
+        maxMonth = findMaxMonthPage(page, maxYear)
+        if page.quarterly:
+            totalYears = [[0 for j in range(2)] for i in range(maxYear-minYear)]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - ((maxMonth + 1)/3))]
+            averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
+        
+            for i in range(len(points)):
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
+                    totalYears[int(math.floor(i/4))][0] = int(points[i].x.split(" ")[1])
+                    totalYears[int(math.floor(i/4))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y 
+            # print(page.name)    
+            # print(totalYears)
+            
+            for i in range(len(points)):
+                for j in range(len(totalYears)):
+                    if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
+                        seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
+                        seasonalRatios[i][1] = points[i].y/totalYears[j][1]
+        
+            for i in range(0,12):
+                averageSeasonalRatios[i][0] = i
+                monthSum = 0
+                for j in range(len(seasonalRatios)):
+                    if i == seasonalRatios[j][0]:
+                            monthSum = monthSum + seasonalRatios[j][1]
+                averageSeasonalRatios[i][1] = monthSum/len(totalYears)
+        
+        else:
+            totalYears = [[0 for j in range(2)] for i in range(maxYear - minYear)]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (maxMonth + 1))]
+            averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
+            
+            for i in range(len(points)):
+                # print(points[i])
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
+                    totalYears[int(math.floor(i/12))][0] = int(points[i].x.split(" ")[1])
+                    totalYears[int(math.floor(i/12))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y 
+                    # print(points[i])
+            # print(page.name)    
+            print(totalYears)
+            # 
+            for i in range(len(points)):
+                for j in range(len(totalYears)):
+                    if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
+                        seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
+                        seasonalRatios[i][1] = points[i].y/totalYears[j][1]
+            # print(seasonalRatios)
+            for i in range(0,12):
+                averageSeasonalRatios[i][0] = i
+                monthSum = 0
+                for j in range(len(seasonalRatios)):
+                    if i == seasonalRatios[j][0]:
+                        monthSum = monthSum + seasonalRatios[j][1]
+                averageSeasonalRatios[i][1] = monthSum/len(totalYears)
+        
+    except Graph.DoesNotExist:
+            pass
+    
+    return averageSeasonalRatios
 
 def findAllMaxYear(project):
     max = 0
@@ -1046,55 +1109,85 @@ def monthData(month, year, pointList):
     return '-'           
 
         
-def getForecastData(page):
+        
+def getForecastData(page, month):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        points = graph.points.all()
+        points = graph.points.order_by('index')
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
         pts = filterYear(points, maxYear)
         totalYears = []
         seasonalRatios = []
-        averageSeasonalRatios = []
         vals = []
+        print(page.name)
+        if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "KoreanAir" or page.name == "AsianaAirlines" or page.name == "WizzAir" or page.name == "SpiritAirlines" or page.name == "UnitedAirlines":
+            for i in range(len(points)):
+                print(points[i])
+            return vals
+        averageSeasonalRatios = findAverageSeasonalRatios(page)
+        
         finalData = []
-        
- 
-        for i in range(0, len(points)):
-                if i+11 < len(points) and mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and  mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i+11].x.split(" ")[1]) == int(points[i].x.split(" ")[1]):
-                    total = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y
-                    totalYears.append([int(points[i].x.split(" ")[1]), total])
-                    
-        if not totalYears:
-            finalData = []
-                 
-        else:
-            for i in range(0, len(points)):
-                for j in range(0, len(totalYears)):
-                    if int(points[i].x.split(" ")[1]) == totalYears[j][0]:
-                        seasonalRatios.append([points[i].x, points[i].y/totalYears[j][1]])
-        
-            for i in range(0, 12):
-                monthSum = 0
-                monthData = [item for item in seasonalRatios if mos.index(item[0].split(" ")[0].lower())%12 == i]
-                for data in monthData:
-                    monthSum = monthSum + data[1]
-                if not len(totalYears) == 0:
-                    averageSeasonalRatios.append([i, monthSum/len(totalYears)])
-            
-            for pt in pts:
-                val = int((calculateRealValue(pt.y,graph))/(averageSeasonalRatios[mos.index(pt.x.split(" ")[0].lower())%12][1]))
-                vals.append([pt.x, val])
-                  
-            for i in range(mos.index(vals[-1][0].split(' ')[0].lower())%12, 11):
-                val = int(vals[-1][1]*averageSeasonalRatios[i+1][1])
-                finalData.append(formatThousands(val))
+        YTD_current = getPageYTDStats(page, month, maxYear)
+        # print(YTD_current)
+        if maxYear - 1 >= minYear:
+            YTD_prev = getPageYTDStats(page, month, maxYear-1)
+            # print(YTD_prev)
+            # print(int(YTD_current[-1].replace(',','')))
+            # print(int(YTD_prev[-1].replace(',','')))
+            a = int(YTD_current[-1].replace(',',''))
+            b = int(YTD_prev[-1].replace(',',''))
+            x = float(a)/b
+            # print(x)
+            if page.quarterly:
+                sum_3mth_pres = points[len(points)-1].y
+                sum_3mth_prev = points[len(points)-5].y
                 
-        return finalData 
-                          
-    except Graph.DoesNotExist:        
-        pass
-        
+            else:
+                sum_3mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y
+                sum_3mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y
+            y = sum_3mth_pres/sum_3mth_prev
+            # print(sum_3mth_pres)
+            # print(sum_3mth_prev)
+            # print(y)
+            if page.quarterly:
+                sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y
+                sum_12mth_prev = points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y
+            else:
+                sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y + points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y + points[len(points)-9].y + points[len(points)-10].y + points[len(points)-11].y + points[len(points)-12].y
+                sum_12mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y + points[len(points)-16].y + points[len(points)-17].y + points[len(points)-18].y + points[len(points)-19].y + points[len(points)-20].y + points[len(points)-21].y + points[len(points)-22].y +  points[len(points)-23].y + points[len(points)-24].y
+            z = sum_12mth_pres/sum_12mth_prev
+            # print(sum_12mth_pres)
+            # print(sum_12mth_prev)
+            # print(z)
+            avg = (((x-1)*100) + ((y-1)*100) + ((z-1)*100))/3
+            # print(avg)
+            # print(getYearTotalVals(page, maxYear -1))
+            yr_frcst = getYearTotalVals(page, maxYear -1)*((avg/100)+1)
+            # print(yr_frcst)
+            remaining_pass = yr_frcst - int(YTD_current[-1].replace(',',''))
+            print(remaining_pass)
+            
+            
+            
+            
+            # print(findAverageSeasonalRatios(page))
+            sum_avg_seas = 0
+            for i in range(month+1, 12):
+                # print(averageSeasonalRatios[i][1])
+                sum_avg_seas = sum_avg_seas + (averageSeasonalRatios[i][1])*100
+                # print(sum_avg_seas)
+            for i in range(month+1, 12):
+                # print(((averageSeasonalRatios[i][1])*100)/sum_avg_seas)
+                vals.append((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)
+                # print(vals)
+                # 
+        print(vals)
+        return vals   
+            
+    except Graph.DoesNotExist:
+        vals = ["-"]*11
+    
               
             
 def getLatestVals(page, year):
@@ -1136,7 +1229,7 @@ def getLatestVals(page, year):
             else:
                 
                 for pt in pts:
-                    print(pt.y)
+                    # print(pt.y)
                     data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
         
 
@@ -1169,6 +1262,14 @@ def getYearTotalVals(page, year):
                     yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
             
                 return yearTotal
+            elif len(pts) == 4:
+                yearTotal = 0
+                for pt in pts:
+                    yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
+                    
+                return yearTotal
+                
+                
         
             else:
                 return "-"
