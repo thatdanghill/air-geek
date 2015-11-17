@@ -1001,6 +1001,23 @@ def findMaxMonthPage(page, year):
     
     return max
 
+def findMinMonthPage(page, year):
+    min = 13
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = filterYear(graph.points.all(), year)
+        for point in points:
+            mi = mos.index(point.x.split(" ")[0].lower()) % 12
+            if mi < min:
+                min = mi
+                
+    except Graph.DoesNotExist:
+        pass
+    
+    return min
+        
+
+
 
 def columnize(monthIndex, year):
     columns = []
@@ -1121,9 +1138,9 @@ def getForecastData(page, month):
         seasonalRatios = []
         vals = []
         print(page.name)
-        if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "KoreanAir" or page.name == "AsianaAirlines" or page.name == "WizzAir" or page.name == "SpiritAirlines" or page.name == "UnitedAirlines":
-            for i in range(len(points)):
-                print(points[i])
+        if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "WizzAir":
+            for i in range(0, 11-month):
+                vals.append("-")
             return vals
         averageSeasonalRatios = findAverageSeasonalRatios(page)
         
@@ -1179,7 +1196,10 @@ def getForecastData(page, month):
                 # print(sum_avg_seas)
             for i in range(month+1, 12):
                 # print(((averageSeasonalRatios[i][1])*100)/sum_avg_seas)
-                vals.append((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)
+                if (((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass == 0:
+                    vals.append("-")
+                else:
+                    vals.append((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)
                 # print(vals)
                 # 
         print(vals)
@@ -1194,8 +1214,10 @@ def getLatestVals(page, year):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.all()
+        maxMonth = findMaxMonthPage(page, year)
+        minMonth = findMinMonthPage(page, year)
         pts = filterYear(points, year)
-        data = []
+        data = [[0 for j in range(1)] for i in range(maxMonth + 1)]
         totalYears = []
         
         
@@ -1206,38 +1228,65 @@ def getLatestVals(page, year):
             if page.quarterly:
                 
                 for pt in pts:
-                    data.append("-")
-                    data.append("-")
-                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
-                    
+                    data[mos.index(pt.x.split(" ")[0].lower())%12] = (formatThousands(int(calculateRealValue(pt.y, graph))))
+                
+                if minMonth == 2:
+                    if maxMonth == 11:
+                        for i in range(minMonth+1, minMonth+3):
+                            data[i] = "-"
+                        for i in range(minMonth+4, minMonth+7):
+                            data[i] = "-"
+                        for i in range(minMonth+7, minMonth+10):
+                            data[i] = "-"
+                    if maxMonth == 8:
+                        for i in range(minMonth+1, minMonth+3):
+                            data[i] = "-"
+                        for i in range(minMonth+4, minMonth+7):
+                            data[i] = "-"
+                    if maxMonth == 5:
+                        for i in range(minMonth+1, minMonth+3):
+                            data[i] = "-"
+                            
+                if minMonth == 5:
+                        if maxMonth == 11:
+                            for i in range(minMonth+1, minMonth+3):
+                                data[i] = "-"
+                            for i in range(minMonth+4, minMonth+7):
+                                data[i] = "-"
+                        if maxMonth == 8:
+                            for i in range(minMonth+1, minMonth+3):
+                                data[i] = "-"
+                if minMonth == 8:
+                    if maxMonth == 11:
+                            for i in range(minMonth+1, minMonth+3):
+                                data[i] = "-"
+
             elif page.annualy:
                 
                 for pt in pts:
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append("-")
-                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
+                   data[mos.index(pt.x.split(" ")[0].lower())%12] = (formatThousands(int(calculateRealValue(pt.y, graph))))
             
             else:
                 
                 for pt in pts:
-                    # print(pt.y)
-                    data.append(formatThousands(int(calculateRealValue(pt.y, graph))))
-        
+                    data[mos.index(pt.x.split(" ")[0].lower())%12] = (formatThousands(int(calculateRealValue(pt.y, graph))))
+            
+            if not minMonth == 0:
+                for i in range(0, minMonth):
+                    data[i] = "-"
+                print(data)
+            
+            
+                    
+                
+            
 
         else:
             data = ["-"]*12
         
         if not pts:
             data = ["-"]*12
+        
             
         return data
             
