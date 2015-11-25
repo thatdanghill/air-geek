@@ -168,18 +168,28 @@ def threeMonth(request, project_name):
             yrs.append(max - i)
         yrs.reverse()
         
+        
         context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         
         for page in pages:
+            graph = Graph.objects.get(page = page, name = page.table)
+            points = graph.points.all()
+            maxYear = findMaxYear(points)
+            maxMonth = findMaxMonthPage(page, maxYear)
             url = BASE_DIR + project.slug + "/charts/" + page.slug
             volume_vals = []
             yoy_vals = []
             yoy2_vals = []
+            forecast = getForecastData(page, maxMonth)
+            latest_vals = getLatestVals(page, maxYear)
+            print(latest_vals)
             for year in yrs:
-                volume_vals.extend(getVolumeVals(page, year))
                 yoy_vals.extend(getYoyValues(page,year))
                 yoy2_vals.extend(get2YoyValues(page,year))
-            context['pages'].append({'name': page.name, 'url': url, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+                if not year == maxYear:
+                    volume_vals.extend(getVolumeVals(page, year))
+            # print(volume_vals)
+            context['pages'].append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
         
         
         return render(request, 'miner/three-month.html', context)
@@ -721,6 +731,7 @@ def getVolumeVals(page, yr):
         return ["-"]*12
     vals = []
     recentVals = orderedFilter(points, yr)
+    
     for pt in recentVals:
         if pt:
             vals.append(formatThousands(int(calculateRealValue(pt.y, graph))))
@@ -1183,7 +1194,7 @@ def getForecastData(page, month):
             yr_frcst = getYearTotalVals(page, maxYear -1)*((avg/100)+1)
             # print(yr_frcst)
             remaining_pass = yr_frcst - int(YTD_current[-1].replace(',',''))
-            print(remaining_pass)
+            # print(remaining_pass)
             
             
             
@@ -1199,10 +1210,10 @@ def getForecastData(page, month):
                 if (((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass == 0:
                     vals.append("-")
                 else:
-                    vals.append((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)
+                    vals.append(formatThousands(int((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)))
                 # print(vals)
                 # 
-        print(vals)
+        # print(vals)
         return vals   
             
     except Graph.DoesNotExist:

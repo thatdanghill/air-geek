@@ -28,18 +28,18 @@
 					<tr>
 						<th class="key">Airline</th>
 						{% for year in years %}
-						<th> January {{ year }}</th>
-						<th> February {{ year }}</th>
-						<th> March {{ year }}</th>
-						<th> April {{ year }}</th>
+						<th> Jan {{ year }}</th>
+						<th> Feb {{ year }}</th>
+						<th> Mar {{ year }}</th>
+						<th> Apr {{ year }}</th>
 						<th> May {{ year }}</th>
-						<th> June {{ year }}</th>
-						<th> July {{ year }}</th>
-						<th> August {{ year }}</th>
-						<th> September {{ year }}</th>
-						<th> October {{ year }}</th>
-						<th> November {{ year }}</th>
-						<th> December {{ year }}</th>
+						<th> Jun {{ year }}</th>
+						<th> Jul {{ year }}</th>
+						<th> Aug {{ year }}</th>
+						<th> Sep {{ year }}</th>
+						<th> Oct {{ year }}</th>
+						<th> Nov {{ year }}</th>
+						<th> Dec {{ year }}</th>
 						{% endfor %}
 					</tr>
 					</thead>
@@ -51,6 +51,15 @@
 						{% for val in page.volume_vals %}
 						<td class="fl"> {{ val }} </td>
 						{% endfor %}
+						
+						{% for val in page.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in page.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
 					</tr>
 					<tr>
 						<td class="key fl"> 1Y %</td>

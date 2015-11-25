@@ -90,7 +90,7 @@ td.fl{
 td.fc{
 	text-align: right;
 	font-size: 14px;
-	color: purple;
+	color: blue;
 }
 
 #airline-summary {
@@ -101,12 +101,6 @@ table#airline-ytd-summary{
 	width: 33%;
 }
 
-#table-holder {
-	width: 100%;
-	height: auto;
-    overflow-x:scroll;  
-    overflow-y:visible;
-}
 
 .mainkey {
 	background-color: #edeedb;
