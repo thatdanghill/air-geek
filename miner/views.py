@@ -913,6 +913,7 @@ def findAverageSeasonalRatios(page):
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
         maxMonth = findMaxMonthPage(page, maxYear)
+        print(page.name)
         if page.quarterly:
             totalYears = [[0 for j in range(2)] for i in range(maxYear-minYear)]
             seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - ((maxMonth + 1)/3))]
@@ -930,7 +931,7 @@ def findAverageSeasonalRatios(page):
                     if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
                         seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
                         seasonalRatios[i][1] = points[i].y/totalYears[j][1]
-        
+                        
             for i in range(0,12):
                 averageSeasonalRatios[i][0] = i
                 monthSum = 0
@@ -941,7 +942,7 @@ def findAverageSeasonalRatios(page):
         
         else:
             totalYears = [[0 for j in range(2)] for i in range(maxYear - minYear)]
-            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (maxMonth + 1))]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (12-maxMonth))]
             averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
             
             for i in range(len(points)):
@@ -958,6 +959,7 @@ def findAverageSeasonalRatios(page):
                     if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
                         seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
                         seasonalRatios[i][1] = points[i].y/totalYears[j][1]
+                        #print(seasonalRatios)
             # print(seasonalRatios)
             for i in range(0,12):
                 averageSeasonalRatios[i][0] = i
@@ -1148,7 +1150,7 @@ def getForecastData(page, month):
         totalYears = []
         seasonalRatios = []
         vals = []
-        print(page.name)
+        # print(page.name)
         if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "WizzAir":
             for i in range(0, 11-month):
                 vals.append("-")
@@ -1245,14 +1247,14 @@ def getLatestVals(page, year):
                     if maxMonth == 11:
                         for i in range(minMonth+1, minMonth+3):
                             data[i] = "-"
-                        for i in range(minMonth+4, minMonth+7):
+                        for i in range(minMonth+4, minMonth+6):
                             data[i] = "-"
-                        for i in range(minMonth+7, minMonth+10):
+                        for i in range(minMonth+7, minMonth+9):
                             data[i] = "-"
                     if maxMonth == 8:
                         for i in range(minMonth+1, minMonth+3):
                             data[i] = "-"
-                        for i in range(minMonth+4, minMonth+7):
+                        for i in range(minMonth+4, minMonth+6):
                             data[i] = "-"
                     if maxMonth == 5:
                         for i in range(minMonth+1, minMonth+3):
@@ -1262,7 +1264,7 @@ def getLatestVals(page, year):
                         if maxMonth == 11:
                             for i in range(minMonth+1, minMonth+3):
                                 data[i] = "-"
-                            for i in range(minMonth+4, minMonth+7):
+                            for i in range(minMonth+4, minMonth+6):
                                 data[i] = "-"
                         if maxMonth == 8:
                             for i in range(minMonth+1, minMonth+3):
@@ -1285,7 +1287,7 @@ def getLatestVals(page, year):
             if not minMonth == 0:
                 for i in range(0, minMonth):
                     data[i] = "-"
-                print(data)
+                # print(data)
             
             
                     
