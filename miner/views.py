@@ -923,8 +923,7 @@ def findAverageSeasonalRatios(page):
                 if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
                     totalYears[int(math.floor(i/4))][0] = int(points[i].x.split(" ")[1])
                     totalYears[int(math.floor(i/4))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y 
-            # print(page.name)    
-            # print(totalYears)
+            
             
             for i in range(len(points)):
                 for j in range(len(totalYears)):
@@ -941,26 +940,22 @@ def findAverageSeasonalRatios(page):
                 averageSeasonalRatios[i][1] = monthSum/len(totalYears)
         
         else:
-            totalYears = [[0 for j in range(2)] for i in range(maxYear - minYear)]
-            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (12-maxMonth))]
+            totalYears = [[0 for j in range(2)] for i in range((maxYear - minYear) + 1)]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (11-maxMonth))]
             averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
             
             for i in range(len(points)):
-                # print(points[i])
                 if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
+                    print(int(points[i].x.split(" ")[1]))
                     totalYears[int(math.floor(i/12))][0] = int(points[i].x.split(" ")[1])
-                    totalYears[int(math.floor(i/12))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y 
-                    # print(points[i])
-            # print(page.name)    
-            print(totalYears)
-            # 
+                    totalYears[int(math.floor(i/12))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y    
+            
             for i in range(len(points)):
                 for j in range(len(totalYears)):
                     if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
                         seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
                         seasonalRatios[i][1] = points[i].y/totalYears[j][1]
-                        #print(seasonalRatios)
-            # print(seasonalRatios)
+                        
             for i in range(0,12):
                 averageSeasonalRatios[i][0] = i
                 monthSum = 0
