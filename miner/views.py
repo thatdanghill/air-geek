@@ -185,10 +185,7 @@ def threeMonth(request, project_name):
         for i in range(YEARS):
             yrs.append(max - i)
         yrs.reverse()
-        
-        
-        
-        
+
         africa = []
         asia = []
         europe = []
@@ -266,9 +263,15 @@ def annualSummary(request, project_name):
         yrs = []
         for i in range((maxYear - min) + 1):
             yrs.append(maxYear - i)
-        yrs.reverse()
         
-        context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        
+        
+        africa = []
+        asia = []
+        europe = []
+        oceania = []
+        northamerica = []
+        southamerica = []
         
         for page in pages:
             url = BASE_DIR + project.slug + '/charts/' + page.slug
@@ -287,11 +290,25 @@ def annualSummary(request, project_name):
                         total_vals.append(getYearTotalVals(page, year))
                     else:
                         total_vals.append(formatThousands(getYearTotalVals(page, year)))
-                    yoy_vals.append(getYoYTotalVals(page,year))      
-                    
-                    
-            context['pages'].append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-        
+                    yoy_vals.append(getYoYTotalVals(page,year))
+            # total_vals.reverse()
+            # yoy_vals.reverse()
+            if page.continent.name == 'Africa':
+                africa.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Asia':
+                asia.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Europe':
+                europe.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Oceania':
+                    oceania.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name': page.name, 'url': url, 'total_vals': total_vals, 'yoy_vals': yoy_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+             
+            context = {'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
+                        'oceania':oceania, 'southamerica':southamerica, 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}       
+            
 
         return render(request, 'miner/annual-summary.html', context)
     except User.DoesNotExist:
