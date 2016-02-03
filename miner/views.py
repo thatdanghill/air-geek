@@ -126,6 +126,12 @@ def latestSummary(request, project_name):
         page_array = []
         maxYear = findAllMaxYear(project)
         maxMonth = findMaxMonthProject(project, maxYear)
+        africa = []
+        asia = []
+        europe = []
+        oceania = []
+        northamerica = []
+        southamerica = []
         for page in project.pages.all().order_by('name'):
             page_url = proj_url + "/charts/" + page.slug
             special_name = project.name[:-1]
@@ -135,8 +141,20 @@ def latestSummary(request, project_name):
             mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
             page_release = getSymbolForRelease(page)
             page_data_type = getDataTypeSymbol(page.data_type)
-            page_array.append({'name': page.name, 'url': page_url, 'Mthvals': mthvals, 'YTDvals': ytdvals, 'YTDYoy': ytdyoy, 'MthYoy': mthyoy, 'data_type': page_data_type, 'release' : page_release})
-        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array, 'columns': columnize(maxMonth, maxYear)} # 'country': countryData})
+            if page.continent.name == 'Africa':
+                africa.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Asia':
+                asia.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Europe':
+                europe.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Oceania':
+                oceania.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name':page.name, 'url':page_url, 'mthvals':mthvals, 'ytdvals':ytdvals, 'ytdyoy':ytdyoy, 'mthyoy':mthyoy, 'data_type': page_data_type, 'release' : page_release})
+        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
+                        'oceania':oceania, 'southamerica':southamerica, 'columns':columnize(maxMonth, maxYear)}
             
         return render(request, 'miner/latest-summary.html', context)
     except User.DoesNotExist:
@@ -169,7 +187,14 @@ def threeMonth(request, project_name):
         yrs.reverse()
         
         
-        context = {'pages' : [], 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+        
+        
+        africa = []
+        asia = []
+        europe = []
+        oceania = []
+        northamerica = []
+        southamerica = []
         
         for page in pages:
             graph = Graph.objects.get(page = page, name = page.table)
@@ -188,10 +213,23 @@ def threeMonth(request, project_name):
                 yoy2_vals.extend(get2YoyValues(page,year))
                 if not year == maxYear:
                     volume_vals.extend(getVolumeVals(page, year))
-            # print(volume_vals)
-            context['pages'].append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-        
-        
+            if page.continent.name == 'Africa':
+                africa.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Asia':
+                asia.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Europe':
+                europe.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Oceania':
+                oceania.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            
+            #context['pages'].append({'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
+                       # 'oceania':oceania, 'southamerica':southamerica})
+            context = { 'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
+                        'oceania':oceania, 'southamerica':southamerica, 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         return render(request, 'miner/three-month.html', context)
     except User.DoesNotExist:
         pass

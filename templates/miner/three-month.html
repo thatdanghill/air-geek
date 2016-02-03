@@ -22,7 +22,6 @@
 			{% else %}
 			{% endif %}
 			<p><b><i> Select a page below </i></b></p>
-			{% if pages %}
 				<table id="airline-summary" class="display compact">
 					<thead>
 					<tr>
@@ -44,43 +43,219 @@
 					</tr>
 					</thead>
 					<tbody>
-					{% for page in pages %}
+					{% if africa|length %}
 					<tr>
-
-						<td class = "mainkey key"><a href="{{page.url}}">{{ page.name }}{{ page.data_type }}{{page.release}}</td>
-						{% for val in page.volume_vals %}
+						<td class="ct">Africa</td>
+					</tr>
+					{% for link in africa %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
 						<td class="fl"> {{ val }} </td>
 						{% endfor %}
 						
-						{% for val in page.latest_vals %}
+						{% for val in link.latest_vals %}
 						<td class="fl"> {{ val }}</td>
 						{% endfor %}
 						
-						{% for val in page.forecast %}
+						{% for val in link.forecast %}
 						<td class="fc"> {{ val }}</td>
 						{% endfor %}
 						
 					</tr>
 					<tr>
 						<td class="key fl"> 1Y %</td>
-						{% for val in page.yoy_vals %}
+						{% for val in link.yoy_vals %}
 						<td class="percentage fl"> {{ val }} </td>
 						{% endfor %}
 					</tr>
 					<tr>
 						<td class="key fl"> 2Y %</td>
-						{% for val in page.yoy2_vals %}
+						{% for val in link.yoy2_vals %}
 						<td class="percentage fl"> {{ val }} </td>
 						{% endfor %}
 					</tr>
 					
 					{% endfor %}
+					{% endif %}
+					{% if asia|length %}
+					<tr>
+						<td class="ct">Asia</td>
+					</tr>
+					{% for link in asia %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
+						<td class="fl"> {{ val }} </td>
+						{% endfor %}
+						
+						{% for val in link.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in link.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
+					</tr>
+					<tr>
+						<td class="key fl"> 1Y %</td>
+						{% for val in link.yoy_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="key fl"> 2Y %</td>
+						{% for val in link.yoy2_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
+					{% endfor %}
+					{% endif %}
+					{% if europe|length %}
+					<tr>
+						<td class="ct">Europe</td>
+					</tr>
+					{% for link in europe %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
+						<td class="fl"> {{ val }} </td>
+						{% endfor %}
+						
+						{% for val in link.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in link.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
+					</tr>
+					<tr>
+						<td class="key fl"> 1Y %</td>
+						{% for val in link.yoy_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="key fl"> 2Y %</td>
+						{% for val in link.yoy2_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
+					{% endfor %}
+					{% endif %}
+					{% if northamerica|length %}
+					<tr>
+						<td class="ct">North America</td>
+					</tr>
+					{% for link in northamerica %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
+						<td class="fl"> {{ val }} </td>
+						{% endfor %}
+						
+						{% for val in link.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in link.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
+					</tr>
+					<tr>
+						<td class="key fl"> 1Y %</td>
+						{% for val in link.yoy_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="key fl"> 2Y %</td>
+						{% for val in link.yoy2_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
+					{% endfor %}
+					{% endif %}
+					{% if oceania|length %}
+					<tr>
+						<td class="ct">Oceania</td>
+					</tr>
+					{% for link in oceania %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
+						<td class="fl"> {{ val }} </td>
+						{% endfor %}
+						
+						{% for val in link.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in link.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
+					</tr>
+					<tr>
+						<td class="key fl"> 1Y %</td>
+						{% for val in link.yoy_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="key fl"> 2Y %</td>
+						{% for val in link.yoy2_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
+					{% endfor %}
+					{% endif %}
+					{% if southamerica|length %}
+					<tr>
+						<td class="ct">South America</td>
+					</tr>
+					{% for link in southamerica %}
+					<tr>
+						<td class = "mainkey key"><a href="{{link.url}}">{{ link.name }}{{ link.data_type }}{{link.release}}</td>
+						{% for val in link.volume_vals %}
+						<td class="fl"> {{ val }} </td>
+						{% endfor %}
+						
+						{% for val in link.latest_vals %}
+						<td class="fl"> {{ val }}</td>
+						{% endfor %}
+						
+						{% for val in link.forecast %}
+						<td class="fc"> {{ val }}</td>
+						{% endfor %}
+						
+					</tr>
+					<tr>
+						<td class="key fl"> 1Y %</td>
+						{% for val in link.yoy_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="key fl"> 2Y %</td>
+						{% for val in link.yoy2_vals %}
+						<td class="percentage fl"> {{ val }} </td>
+						{% endfor %}
+					</tr>
+					
+					{% endfor %}
+					{% endif %}
 					</tbody>
 				</table>
-			{% else %}
 			
-            	<p><b><i>You currently have no pages in this project.</i></b></p>
-			{% endif %}
 		</div>
 		<div id=info>
 			<p>1Y% Year on Year change</p>
