@@ -93,6 +93,11 @@ td.fc{
 	color: blue;
 }
 
+td.ct{
+    font-size: 20px;
+    font-weight: bold;
+}
+
 #airline-summary {
 	overflow: auto;
 }
