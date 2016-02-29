@@ -968,23 +968,41 @@ def findAverageSeasonalRatios(page):
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
         maxMonth = findMaxMonthPage(page, maxYear)
+        minMonth = findMinMonthPage(page, minYear)
+        deadPoints = numberOfPointsBeforeFirstFullYear(page)
+        test = [[0 for j in range(1)] for i in range(3)]
+        test[0] = 1
+        test[1] = 2
+        test[2] = 3
         print(page.name)
+        print(len(points))
+        
+    
         if page.quarterly:
-            totalYears = [[0 for j in range(2)] for i in range(maxYear-minYear)]
-            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - ((maxMonth + 1)/3))]
+            fullYears = []
+            for i in range(len(points)):
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
+                    fullYears.append(1)    
+            totalYears = [[0 for j in range(2)] for i in range(len(fullYears))]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(fullYears)*4)]
             averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
         
             for i in range(len(points)):
                 if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
-                    totalYears[int(math.floor(i/4))][0] = int(points[i].x.split(" ")[1])
-                    totalYears[int(math.floor(i/4))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y 
+                    totalYears[int(math.floor((i-deadPoints)/4))][0] = int(points[i].x.split(" ")[1])
+                    totalYears[int(math.floor((i-deadPoints)/4))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y 
+            print(totalYears)
+            if (4-minMonth) == 4:
+                index = 0
+            else:
+                index = (4-minMonth)
+                
             
-            
-            for i in range(len(points)):
+            for i in range(index,len(points)):
                 for j in range(len(totalYears)):
                     if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
-                        seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
-                        seasonalRatios[i][1] = points[i].y/totalYears[j][1]
+                        seasonalRatios[i - index][0] = mos.index(points[i].x.split(" ")[0].lower())%12
+                        seasonalRatios[i - index][1] = points[i].y/totalYears[j][1]
                         
             for i in range(0,12):
                 averageSeasonalRatios[i][0] = i
@@ -995,22 +1013,31 @@ def findAverageSeasonalRatios(page):
                 averageSeasonalRatios[i][1] = monthSum/len(totalYears)
         
         else:
-            totalYears = [[0 for j in range(2)] for i in range((maxYear - minYear) + 1)]
-            seasonalRatios = [[0 for j in range(2)] for i in range(len(points) - (11-maxMonth))]
+            fullYears = []
+            for i in range(len(points)):
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
+                    fullYears.append(int(points[i].x.split(" ")[1]))
+            totalYears = [[0 for j in range(2)] for i in range(len(fullYears))]
+            seasonalRatios = [[0 for j in range(2)] for i in range(len(fullYears)*12)]
             averageSeasonalRatios = [[0 for j in range(2)] for i in range(12)]
+            iYBFFY = fullYears[0] - minYear
             
             for i in range(len(points)):
                 if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
-                    print(int(points[i].x.split(" ")[1]))
-                    totalYears[int(math.floor(i/12))][0] = int(points[i].x.split(" ")[1])
-                    totalYears[int(math.floor(i/12))][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y    
+                    print(i-deadPoints)
+                    totalYears[(i-deadPoints)/12][0] = int(points[i].x.split(" ")[1])
+                    totalYears[(i-deadPoints)/12][1] = points[i].y + points[i+1].y + points[i+2].y + points[i+3].y + points[i+4].y + points[i+5].y + points[i+6].y + points[i+7].y + points[i+8].y + points[i+9].y + points[i+10].y + points[i+11].y    
+            print(totalYears)
+            
+                    
+            
             
             for i in range(len(points)):
                 for j in range(len(totalYears)):
                     if (int(points[i].x.split(" ")[1]) == totalYears[j][0]):
-                        seasonalRatios[i][0] = mos.index(points[i].x.split(" ")[0].lower())%12
-                        seasonalRatios[i][1] = points[i].y/totalYears[j][1]
-                        
+                        seasonalRatios[i - deadPoints][0] = mos.index(points[i].x.split(" ")[0].lower())%12
+                        seasonalRatios[i - deadPoints][1] = points[i].y/totalYears[j][1]
+                print(i)
             for i in range(0,12):
                 averageSeasonalRatios[i][0] = i
                 monthSum = 0
@@ -1023,6 +1050,28 @@ def findAverageSeasonalRatios(page):
             pass
     
     return averageSeasonalRatios
+
+
+def numberOfPointsBeforeFirstFullYear(page):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.order_by('index')
+        vals = []
+        
+        if page.quarterly:
+            for i in range(len(points)):
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
+                    vals.append(i)  
+        
+        else:
+            for i in range(len(points)):
+                if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
+                    vals.append(i)
+        
+        return vals[0]
+    
+    except Graph.DoesNotExist:
+            pass
 
 def findAllMaxYear(project):
     max = 0
@@ -1242,7 +1291,7 @@ def getForecastData(page, month):
             # print(z)
             avg = (((x-1)*100) + ((y-1)*100) + ((z-1)*100))/3
             # print(avg)
-            # print(getYearTotalVals(page, maxYear -1))
+            print(getYearTotalVals(page, maxYear -1))
             yr_frcst = getYearTotalVals(page, maxYear -1)*((avg/100)+1)
             # print(yr_frcst)
             remaining_pass = yr_frcst - int(YTD_current[-1].replace(',',''))
