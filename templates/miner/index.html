@@ -19,25 +19,32 @@
 		<div id="manager">
 			{% if user.is_authenticated %}
 			<h2> Welcome, {{user.username}} </h2>
-			<a href="/logout/">Logout</a><br />
+			<a href="/logout/">Logout</a><br/>
 			{% for project in projects %}
 			<h2> {{project.name}} </h2>
 			<ul>
 				{% if project.url %}
 				{% with ""|add:project.url|add:"/latest-summary" as url0 %}
-				{% with ""|add:project.url|add:"/charts" as url1 %}
-				{% with ""|add:project.url|add:"/three-month" as url2 %}
-				{% with ""|add:project.url|add:"/annual-summary" as url3 %}
-				{% with ""|add:project.url|add:"/forecast" as url4 %}
-				{% with ""|add:project.url|add:"/links" as url5 %}
-				{% with ""|add:project.url|add:"/forecast-comparison" as url6 %}
-				<li><a href="{{url0}}"> Latest Summary </a></li>
-				<li><a href="{{url1}}"> Charts </a></li>
-				<li><a href="{{url2}}"> 3 Year Monthly Data </a></li>
-				<li><a href="{{url3}}"> Annual Summary </a></li>
-				<li><a href="{{url4}}"> Forecast </a></li>
-				<li><a href="{{url5}}"> Links </a></li>
-				<li><a href="{{url6}}"> Forecast Comparison </a></li>
+				{% with ""|add:project.url|add:"/three-month" as url1 %}
+				{% with ""|add:project.url|add:"/annual-summary" as url2 %}
+				{% with ""|add:project.url|add:"/forecast" as url3 %}
+				{% with ""|add:project.url|add:"/forecast-cal-summary" as url4 %}
+				{% with ""|add:project.url|add:"/charts" as url5 %}
+				{% with ""|add:project.url|add:"/news" as url6 %}
+				{% with ""|add:project.url|add:"/links" as url7 %}
+				
+
+				
+				<li><a href="{{url0}}"> Latest Data - Summary </a></li>
+				<li><a href="{{url1}}"> Monthly Data - 3 Years </a></li>
+				<li><a href="{{url2}}"> Annual Summary </a></li>
+				<li><a href="{{url3}}"> Forecast </a></li>
+				<li><a href="{{url4}}"> Forecast Summary - Calendar Year</a></li>
+				<li><a href="{{url5}}"> Charts</a></li>
+				<li><a href="{{url6}}"> News </a></li>
+				<li><a href="{{url7}}"> Links </a></li>
+				
+				{% endwith %}
 				{% endwith %}
 				{% endwith %}
 				{% endwith %}
