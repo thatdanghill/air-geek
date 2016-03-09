@@ -111,6 +111,7 @@ def charts(request, project_name):
     except Project.DoesNotExist:
         pass
 
+
 #TODO: un-hardcode username
 @login_required
 def latestSummary(request, project_name):
@@ -125,7 +126,7 @@ def latestSummary(request, project_name):
         proj_url = BASE_DIR + project.slug
         page_array = []
         maxYear = findAllMaxYear(project)
-        maxMonth = findMaxMonthProject(project, maxYear)
+        maxMonth = findAllMaxMonth(project)
         africa = []
         asia = []
         europe = []
@@ -136,7 +137,7 @@ def latestSummary(request, project_name):
             page_url = proj_url + "/charts/" + page.slug
             special_name = project.name[:-1]
             mthvals = getPageMthStats(page, maxMonth, maxYear)
-            ytdvals = getPageYTDStats(page, maxMonth, maxYear)
+            ytdvals = getPageYTDStats(page, maxMonth, MONTHS, maxYear)
             ytdyoy = getPageYTDYoyStats(page, maxMonth, maxYear)
             mthyoy = getPageMthYoyStats(page, maxMonth, maxYear)
             page_release = getSymbolForRelease(page)
@@ -161,7 +162,79 @@ def latestSummary(request, project_name):
         pass
     except Project.DoesNotExist:
         return HttpResponse("Failure")
-
+    
+@login_required
+def forecastCalSummary(request, project_name):
+    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
+    try:
+        username = "super"
+        user = User.objects.get(username = username)
+        userprofile = UserProfile.objects.get(user = user)
+        project = userprofile.projects.get(slug = project_name)
+        
+        proj_array = []
+        proj_url = BASE_DIR + project.slug
+        page_array = []
+        maxYearProj = findAllMaxYear(project)
+        maxMonthProj = findAllMaxMonth(project)
+        years = [maxYearProj-2, maxYearProj-1, maxYearProj]
+        africa = []
+        asia = []
+        europe = []
+        oceania = []
+        northamerica = []
+        southamerica = []
+        for page in project.pages.all().order_by('name'):
+            graph = Graph.objects.get(page = page, name = page.table)
+            points = graph.points.all()
+            page_url = proj_url + "/charts/" + page.slug
+            special_name = project.name[:-1]
+            maxYear = findMaxYear(points)
+            maxMonth = findMaxMonthPage(page, maxYear)
+            if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "WizzAir":
+                frcst == ['-', '-', '-']
+                prevTotals == ['-', '-', '-']
+                prev_yoy = ['-', '-']
+                frcst_yoy = ['-']
+            elif maxYearProj == maxYear:
+                frcst = [formatThousands(getForecastSummaryCalData(page, maxMonth))]
+                prevTotals = [formatThousands(getYearTotal(page, maxYearProj-2)), formatThousands(getYearTotal(page, maxYearProj-1))]
+                prev_yoy = [getYoy(getYearTotal(page, maxYearProj-2), getYearTotal(page, maxYearProj-3), page), getYoy(getYearTotal(page, maxYearProj-1), getYearTotal(page, maxYearProj-2), page)]
+                frcst_yoy = [getYoy(getForecastSummaryCalData(page, maxMonth), getYearTotal(page, maxYearProj-1), page)]
+            elif (maxYearProj - maxYear) == 1:
+                frcst = [formatThousands(getForecastSummaryCalData(page, maxMonth)), '-']
+                prevTotals = [formatThousands(getYearTotal(page, maxYearProj-2))]
+                prev_yoy = [getYoy(getYearTotal(page, maxYearProj-2), getYearTotal(page, maxYearProj-3), page), getYoy(getForecastSummaryCalData(page, maxMonth), getYearTotal(page, maxYearProj-2), page)]
+                frcst_yoy = ['-']
+            else:
+                prevTotals = []
+                prev_yoy = ['-', '-']
+                frcst_yoy = ['-']
+            
+            page_release = getSymbolForRelease(page)
+            page_data_type = getDataTypeSymbol(page.data_type)
+            if page.continent.name == 'Africa':
+                africa.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Asia':
+                asia.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Europe':
+                europe.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'Oceania':
+                oceania.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name':page.name, 'url':page_url, 'forecast':frcst, 'prevyears':prevTotals, 'frcst_yoy':frcst_yoy, 'prev_yoy':prev_yoy, 'data_type': page_data_type, 'release' : page_release})
+        
+        context = {'home': BASE_DIR, 'project': project.name, 'special_name': special_name, 'url' : proj_url, 'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
+                        'oceania':oceania, 'southamerica':southamerica, 'years':years}
+           
+        return render(request, 'miner/forecast-cal-summary.html', context)
+    except User.DoesNotExist:
+        pass
+    except Project.DoesNotExist:
+        return HttpResponse("Failure")
+    
 @login_required
 def threeMonth(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -172,20 +245,17 @@ def threeMonth(request, project_name):
         project = Project.objects.get(user = up, slug = project_name)
         pages = project.pages.all().order_by('name')
         maxYearProj = findAllMaxYear(project)
-        # max = 0
-        # for page in pages:
-        #     try:
-        #         graph = Graph.objects.get(page = page, name = page.table)
-        #         yr = findMaxYear(graph.points.all())
-        #         if yr > max:
-        #             max = yr
-        #     except Graph.DoesNotExist:
-        #         pass
+        maxMonthProj = findAllMaxMonth(project)
+        mths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        mths = mths[:-(11-maxMonthProj)]
+        
+        
         yrs = []
         for i in range(YEARS):
             yrs.append(maxYearProj - i)
         yrs.reverse()
-
+        prevYrs =  [yrs[0],yrs[1]]
+        
         africa = []
         asia = []
         europe = []
@@ -202,10 +272,9 @@ def threeMonth(request, project_name):
             volume_vals = []
             yoy_vals = []
             yoy2_vals = []
-            forecast = getForecastData(page, maxMonth)
             
             if maxYear < maxYearProj:
-                latest_vals = ["-"]*12
+                latest_vals = ["-"]*(maxMonthProj+1)
             else:
                 latest_vals = getLatestVals(page, maxYear)
                 
@@ -215,25 +284,29 @@ def threeMonth(request, project_name):
                 if not year == maxYearProj:
                     volume_vals.extend(getVolumeVals(page, year))
             print(page.name)
-            print(volume_vals)
-            print(latest_vals)
-            if page.continent.name == 'Africa':
-                africa.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            elif page.continent.name == 'Asia':
-                asia.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            elif page.continent.name == 'Europe':
-                europe.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            elif page.continent.name == 'Oceania':
-                oceania.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            elif page.continent.name == 'North America':
-                northamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
-            elif page.continent.name == 'South America':
-                southamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'forecast': forecast, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            print(yoy_vals)
+            print(yoy2_vals)
+            yoy_vals = yoy_vals[:-(11-maxMonthProj)]
+            yoy2_vals = yoy2_vals[:-(11-maxMonthProj)]
+            print(yoy_vals)
+            print(yoy2_vals)
             
-            #context['pages'].append({'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
-                       # 'oceania':oceania, 'southamerica':southamerica})
+            
+            if page.continent.name == 'Africa':
+                africa.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Asia':
+                asia.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Europe':
+                europe.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'Oceania':
+                oceania.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'North America':
+                northamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+            elif page.continent.name == 'South America':
+                southamerica.append({'name': page.name, 'url': url, 'latest_vals': latest_vals, 'volume_vals': volume_vals, 'yoy_vals': yoy_vals, 'yoy2_vals' : yoy2_vals, 'data_type': getDataTypeSymbol(page.data_type), 'release' : getSymbolForRelease(page)})
+           
             context = { 'africa':africa, 'asia':asia, 'europe':europe, 'northamerica':northamerica,
-                        'oceania':oceania, 'southamerica':southamerica, 'years': yrs, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
+                        'oceania':oceania, 'southamerica':southamerica, 'years': prevYrs, 'year':maxYearProj, 'mths':mths, 'mth':maxMonthProj, 'paths': {'home_url': BASE_DIR, 'project': project.name}}
         return render(request, 'miner/three-month.html', context)
     except User.DoesNotExist:
         pass
@@ -256,7 +329,7 @@ def annualSummary(request, project_name):
         proj_array = []
         page_array = []
         maxYear = findAllMaxYear(project)
-        maxMonth = findMaxMonthProject(project, maxYear)
+        maxMonth = findAllMaxMonth(project)
         
         min = maxYear
         for page in pages:
@@ -323,38 +396,7 @@ def annualSummary(request, project_name):
     except Project.DoesNotExist:
         pass
 
-@login_required
-def forecast(request, project_name):
-    BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
-    try:
-        username = "super"
-        user = User.objects.get(username = username)
-        up = UserProfile.objects.get(user = user)
-        project = Project.objects.get(user = up, slug = project_name)
-        pages = project.pages.all().order_by('name')
-        
-        proj_array = []
-        proj_url = BASE_DIR + "user/" + username + "/project/" + project.slug
-        page_array = []
-        maxYear = findAllMaxYear(project)
-        for page in project.pages.all().order_by('name'):
-            maxMonth = findMaxMonthPage(page, maxYear)
-            page_url = BASE_DIR + project.slug + '/charts/' + page.slug
-            special_name = project.name[:-1]
-            latestVals = getLatestVals(page, maxYear)
-            forecastVals = getForecastData(page, maxMonth)
-            page_release = getSymbolForRelease(page)
-            page_data_type = getDataTypeSymbol(page.data_type)
-            page_array.append({'name': page.name, 'url': page_url, 'latest': latestVals, 'forecast': forecastVals, 'data_type': page_data_type, 'release' : page_release})
-        context = {'home': BASE_DIR, 'project': project.name,'special_name': special_name, 'url' : proj_url, 'pages':page_array} # 'country': countryData})
-        return render(request, 'miner/forecast.html', context)
-    except User.DoesNotExist:
-        pass
-    except UserProfile.DoesNotExist:
-        pass
-    except Project.DoesNotExist:
-        pass
-
+    
 @login_required
 def links(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
@@ -399,7 +441,7 @@ def links(request, project_name):
     return render(request, 'miner/links.html', context)
 
 @login_required
-def forecastCompare(request, project_name):
+def news(request, project_name):
     BASE_DIR = 'http://' + request.META['HTTP_HOST'] + '/'
     context = {}
     try:
@@ -414,7 +456,7 @@ def forecastCompare(request, project_name):
         pass
     except Project.DoesNotExist:
         pass
-    return render(request, 'miner/forecast-comparison.html', context)
+    return render(request, 'miner/news.html', context)
 
 #TODO: un-hardcode username
 @login_required
@@ -776,13 +818,13 @@ def findIndex(year, month, points):
 #-------------------------------------------------------------------
 # project
 
-def getProjectTableVals(page, maxyr):
-    try:
-        graph = Graph.objects.get(page = page, name = page.table)
-        return calculateYoy(getRecentValues(graph.points.all(), maxyr), graph.points.all())
-    except Graph.DoesNotExist:
-        return []
-         
+# def getProjectTableVals(page, maxyr):
+#     try:
+#         graph = Graph.objects.get(page = page, name = page.table)
+#         return calculateYoy(getRecentValues(graph.points.all(), maxyr), graph.points.all())
+#     except Graph.DoesNotExist:
+#         return []
+#          
 def getVolumeVals(page, yr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
@@ -828,6 +870,39 @@ def getYoyValues(page, yr):
             
     return vals
 
+def getYoy(x, y, page):
+    print(x)
+    print(y)
+    if page.name == "Aeroflot":
+        return ['-', '-', '-']
+    if x == '-':
+        yoy = '-'
+    elif y == '-':
+        yoy = '-'
+    else:
+        yoy = (float(x)/float(y) -1)*100
+        yoy = round(yoy, 2)
+    return yoy
+
+# def calculateYoy(points, all):
+#     vals = []
+#     for point in points:
+#         if hasattr(point, 'x'):
+#             p = None
+#             year = int(point.x.split(" ")[1]) - 1
+#             vals.append(formatThousands(int((calculateRealValue(point.y, point.graph)))))
+#             month = point.x.split(" ")[0]
+#             for pt in all:
+#                 if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
+#                     p = pt
+#             if p:
+#                 v = round(((point.y / p.y) * 100) - 100, 2)
+#                 vals.append(v)
+#             else:
+#                 vals.append("-")
+#                 vals.append("-")
+#     return vals
+
 def get2YoyValues(page, yr):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
@@ -857,27 +932,7 @@ def get2YoyValues(page, yr):
                 vals.append("-")
     return vals
         
-            
-
-def calculateYoy(points, all):
-    vals = []
-    for point in points:
-        if hasattr(point, 'x'):
-            p = None
-            year = int(point.x.split(" ")[1]) - 1
-            vals.append(formatThousands(int((calculateRealValue(point.y, point.graph)))))
-            month = point.x.split(" ")[0]
-            for pt in all:
-                if year == int(pt.x.split(" ")[1]) and mos.index(month.lower()) % 12 == mos.index(pt.x.split(" ")[0].lower()) % 12:
-                    p = pt
-            if p:
-                v = round(((point.y / p.y) * 100) - 100, 2)
-                vals.append(v)
-            else:
-                vals.append("-")
-                vals.append("-")
-    return vals
-
+ 
 def formatThousands(num):
     if num == 0:
         return "-"
@@ -916,11 +971,11 @@ def orderByMonth(points):
         pts[mos.index(point.x.split(" ")[0].lower()) % 12] = point
     return pts
 
-def calculateYTD(points):
+def calculatePointsSum(graph, points):
     sum = 0
     for point in points:
         if hasattr(point, 'y'):
-            sum = sum + point.y
+            sum = sum + int(calculateRealValue(point.y, graph))
     return sum
 
 #-------------------------------------------------------------------
@@ -974,8 +1029,11 @@ def findAverageSeasonalRatios(page):
         minYear = findMinYear(points)
         maxMonth = findMaxMonthPage(page, maxYear)
         minMonth = findMinMonthPage(page, minYear)
-        deadPoints = numberOfPointsBeforeFirstFullYear(page)
-    
+        print(page.name)
+        deadPoints = numberOfPointsBeforeFirstFullYear(page)[0]
+        
+        if page.name == "WizzAir":
+            return [1]
         if page.quarterly:
             fullYears = []
             for i in range(len(points)):
@@ -1046,17 +1104,24 @@ def numberOfPointsBeforeFirstFullYear(page):
         points = graph.points.order_by('index')
         vals = []
         
+        if page.name == "WizzAir":
+            vals = [0]
+            
+        
         if page.quarterly:
             for i in range(len(points)):
-                if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
-                    vals.append(i)  
+                if len(vals) == 0:
+                    if mos.index(points[i].x.split(" ")[0].lower())%12 == 2 and i+3 < len(points) and mos.index(points[i+3].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+3].x.split(" ")[1]):
+                        vals.append(i)  
         
         else:
             for i in range(len(points)):
-                if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
-                    vals.append(i)
+                if len(vals) == 0:
+                    if mos.index(points[i].x.split(" ")[0].lower())%12 == 0 and i+11 < len(points) and mos.index(points[i+11].x.split(" ")[0].lower())%12 == 11 and int(points[i].x.split(" ")[1]) == int(points[i+11].x.split(" ")[1]):
+                        vals.append(i)
+                        
         
-        return vals[0]
+        return vals
     
     except Graph.DoesNotExist:
             pass
@@ -1073,12 +1138,13 @@ def findAllMaxYear(project):
             pass
     return max
 
-def findMaxMonthProject(project, year):
+def findAllMaxMonth(project):
     max = 0
+    maxYear = findAllMaxYear(project)
     for page in project.pages.all():
         try:
             graph = Graph.objects.get(page = page, name = page.table)
-            points = filterYear(graph.points.all(), year)
+            points = filterYear(graph.points.all(), maxYear)
             for point in points:
                 mi = mos.index(point.x.split(" ")[0].lower()) % 12
                 if mi > max:
@@ -1115,8 +1181,6 @@ def findMinMonthPage(page, year):
         pass
     
     return min
-        
-
 
 
 def columnize(monthIndex, year):
@@ -1142,15 +1206,15 @@ def getPageMthStats(page, month, year):
     vals.reverse()
     return vals
 
-def getPageYTDStats(page, month, year):
+def getPageYTDStats(page, max_month, months, year):
     vals = []
     try:
         graph = Graph.objects.get(page = page, name = page.table)
-        for i in range(MONTHS):
-            if month - i < 0:
-                vals.append(formatThousands(int(monthYTD((month-i)%12, year-1, graph.points.all()))))
+        for i in range(months):
+            if max_month - i < 0:
+                vals.append(formatThousands(int(monthYTD((max_month-i)%12, year-1, graph.points.all()))))
             else:
-                vals.append(formatThousands(int(monthYTD((month-i)%12, year, graph.points.all()))))
+                vals.append(formatThousands(int(monthYTD((max_month-i)%12, year, graph.points.all()))))
     except Graph.DoesNotExist:
         vals = ["-"]*MONTHS
     vals.reverse()
@@ -1224,76 +1288,107 @@ def monthData(month, year, pointList):
         if month == mos.index(point.x.split(" ")[0].lower())%12:
             return formatThousands(int(calculateRealValue(point.y, point.graph)))
     return '-'           
-
+ 
+# def getYearTotal(page, year):
+#     try:
+#         graph = Graph.objects.get(page = page, name = page.table)
+#         points = graph.points.order_by('index')
+#         volumeVals = filterYear(points, year)
+#         total = calculatePointsSum(volumeVals)
+#         
+#         return total
+#     except Graph.DoesNotExist:
+#         return '-'
         
-        
-def getForecastData(page, month):
+def getForecastSummaryCalData(page, month):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.order_by('index')
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
-        pts = filterYear(points, maxYear)
-        totalYears = []
-        seasonalRatios = []
-        vals = []
-        
-        if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "WizzAir":
-            for i in range(0, 11-month):
-                vals.append("-")
-            return vals
+        maxMonth = findMaxMonthPage(page, maxYear)
+        prevYearVals = filterYear(points, maxYear-1)
+        prevYearTotal = calculatePointsSum(graph, prevYearVals)
+        currentYearVals = filterYear(points, maxYear)
+        currentYearValsTotal = calculatePointsSum(graph, currentYearVals)
+        prevYTD= getPageYTDStats(page, maxMonth, maxMonth, maxYear-1)
+        prevYTDTotal = calculatePointsSum(graph, prevYTD)
         averageSeasonalRatios = findAverageSeasonalRatios(page)
         
-        finalData = []
-        YTD_current = getPageYTDStats(page, month, maxYear)
+        if page.name == "Aeroflot" or page.name == "Iberia" or page.name == "WizzAir":
+            return '-'
+            
+        if page.quarterly:
+            sum_3mth_pres = points[len(points)-1].y
+            sum_3mth_prev = points[len(points)-5].y                
+            
+        else:
+            sum_3mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y
+            sum_3mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y
+        x = sum_3mth_pres/sum_3mth_prev
+            
+        if page.quarterly:
+            sum_6mth_pres = points[len(points)-1].y + points[len(points)-2].y 
+            sum_6mth_prev = points[len(points)-5].y + points[len(points)-6].y 
+            
+        else:
+            sum_6mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y + points[len(points)-5].y + points[len(points)-6].y 
+            sum_6mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y + points[len(points)-16].y + points[len(points)-17].y + points[len(points)-18].y 
+        y = sum_6mth_pres/sum_6mth_prev
         
-        if maxYear - 1 >= minYear:
-            YTD_prev = getPageYTDStats(page, month, maxYear-1)
+        if page.quarterly:
+            sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y
+            sum_12mth_prev = points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y
             
-            a = int(YTD_current[-1].replace(',',''))
-            b = int(YTD_prev[-1].replace(',',''))
-            x = float(a)/b
-            
-            if page.quarterly:
-                sum_3mth_pres = points[len(points)-1].y
-                sum_3mth_prev = points[len(points)-5].y
-                
-            else:
-                sum_3mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y
-                sum_3mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y
-            y = sum_3mth_pres/sum_3mth_prev
-            
-            if page.quarterly:
-                sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y
-                sum_12mth_prev = points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y
-            else:
-                sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y + points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y + points[len(points)-9].y + points[len(points)-10].y + points[len(points)-11].y + points[len(points)-12].y
-                sum_12mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y + points[len(points)-16].y + points[len(points)-17].y + points[len(points)-18].y + points[len(points)-19].y + points[len(points)-20].y + points[len(points)-21].y + points[len(points)-22].y +  points[len(points)-23].y + points[len(points)-24].y
-            z = sum_12mth_pres/sum_12mth_prev
-            
+        else:
+            sum_12mth_pres = points[len(points)-1].y + points[len(points)-2].y + points[len(points)-3].y + points[len(points)-4].y + points[len(points)-5].y + points[len(points)-6].y + points[len(points)-7].y + points[len(points)-8].y + points[len(points)-9].y + points[len(points)-10].y + points[len(points)-11].y + points[len(points)-12].y
+            sum_12mth_prev = points[len(points)-13].y + points[len(points)-14].y + points[len(points)-15].y + points[len(points)-16].y + points[len(points)-17].y + points[len(points)-18].y + points[len(points)-19].y + points[len(points)-20].y + points[len(points)-21].y + points[len(points)-22].y +  points[len(points)-23].y + points[len(points)-24].y
+        z = sum_12mth_pres/sum_12mth_prev
+         
+        if prevYTDTotal == 0:
             avg = (((x-1)*100) + ((y-1)*100) + ((z-1)*100))/3
+        
+        else:
+            w = currentYearValsTotal/prevYTDTotal
+            avg = ( ((w-1)*100) + ((x-1)*100) + ((y-1)*100) + ((z-1)*100))/4
             
-            yr_frcst = getYearTotalVals(page, maxYear -1)*((avg/100)+1)
+        yr_frcst = int(prevYearTotal*((avg/100)+1))
             
-            remaining_pass = yr_frcst - int(YTD_current[-1].replace(',',''))
-            
-            
-            sum_avg_seas = 0
-            for i in range(month+1, 12):
-
-                sum_avg_seas = sum_avg_seas + (averageSeasonalRatios[i][1])*100
-                
-            for i in range(month+1, 12):
-                if (((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass == 0:
-                    vals.append("-")
-                else:
-                    vals.append(formatThousands(int((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)))
-        return vals   
+        return yr_frcst    
+        #     sum_avg_seas = 0
+        #     for i in range(month+1, 12):
+        # 
+        #         sum_avg_seas = sum_avg_seas + (averageSeasonalRatios[i][1])*100
+        #         
+        #     for i in range(month+1, 12):
+        #         if (((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass == 0:
+        #             vals.append("-")
+        #         else:
+        #             vals.append(formatThousands(int((((averageSeasonalRatios[i][1])*100)/sum_avg_seas)*remaining_pass)))
+        # return vals   
             
     except Graph.DoesNotExist:
-        vals = ["-"]*11
+        return '-'
     
-              
+def getPageCalYTDStats(page, month, year):
+    try:
+        graph = Graph.objects.get(page = page, name = page.table)
+        points = graph.points.all()
+        
+        if page.quarterly:
+            for i in range(int(math.floor(month/3))):
+                vals.append(points[-i-1])
+                
+        else:
+            for i in range(month):
+                vals.append(points[-i-1])
+                
+        return vals
+    
+    except Graph.DoesNotExist:        
+        vals = [0]   
+        
+
             
 def getLatestVals(page, year):
     try:
@@ -1371,38 +1466,22 @@ def getLatestVals(page, year):
     except Graph.DoesNotExist:        
         data = ["-"]*12
     
-def getYearTotalVals(page, year):
+def getYearTotal(page, year):
     try:
         graph = Graph.objects.get(page = page, name = page.table)
         points = graph.points.all()
         maxYear = findMaxYear(points)
         minYear = findMinYear(points)
-        pts = filterYear(points, year)
         
         if year < minYear:
             return "-"
         
         else:
-            if len(pts) == 12:
-                yearTotal = 0
-                for pt in pts:
-                    yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
+            pts = filterYear(points, year)
+            yearTotal = int(calculatePointsSum(graph, pts))
             
-                return yearTotal
-            elif len(pts) == 4:
-                yearTotal = 0
-                for pt in pts:
-                    yearTotal = yearTotal + int(calculateRealValue(pt.y, graph))
-                    
-                return yearTotal
-                
-                
+            return yearTotal
         
-            else:
-                return "-"
-            
-            
-    
     except Graph.DoesNotExist:        
         return "-"
         
