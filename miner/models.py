@@ -37,7 +37,7 @@ class Page(models.Model):
     continent = models.ForeignKey(Continent, related_name='pages')
     url = models.URLField(default="http://google.com/")
     date_released = models.CharField(max_length=128, default='')
-    
+    financial_year = models.CharField(max_length=128, default='')
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
